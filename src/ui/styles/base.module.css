@@ -1,0 +1,16 @@
+/* 플러그인 컨테이너 스타일 */
+.container {
+  font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif !important;
+  font-weight: 600;
+  font-size: 19px;
+}
+
+/* container 내부의 모든 요소에 폰트 적용 */
+.container * {
+  font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif !important;
+}
+
+/* WinBox 윈도우 커스텀 스타일 (전역으로 적용) */
+:global(.rb-box) * {
+  font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif !important;
+}

@@ -1,0 +1,6 @@
+/*
+ * Fonts - @import must come first before @tailwind directives
+ * Pretendard 폰트 CDN
+ */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+@import url('//fonts.googleapis.com/earlyaccess/notosanskr.css');

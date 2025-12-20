@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Plugin Arguments Configuration",
+  "description": "RisuAI Plugin arguments definition. This file is used to auto-generate plugin-config.js and banner @arg entries.",
+  "args": [
+    {
+      "name": "arg1",
+      "type": "string",
+      "default": "",
+      "description": "Argument 1"
+    },
+    {
+      "name": "arg2",
+      "type": "int",
+      "default": 0,
+      "description": "Argument 2"
+    }
+  ]
+}

@@ -1,0 +1,380 @@
+/* UpdateDialog 컴포넌트 스타일 - CSS Modules */
+
+.udRoot {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 16px;
+}
+
+.udCard {
+  width: min(520px, 100%);
+  max-height: 90vh;
+  border-radius: 16px;
+  padding: 20px;
+  background: var(--bg, #111);
+  color: var(--fg, #eaeaea);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  transform: scale(0.97);
+  animation: udPop 0.16s ease-out forwards;
+  overflow-y: auto;
+}
+
+.udTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.udTitle h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  word-break: break-word;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.udPill {
+  font: 12px/1.8 system-ui;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #2a2a2a;
+  color: #cfcfcf;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.udSub {
+  margin: 8px 0 12px;
+  color: #9aa0a6;
+  font: 13px/1.5 system-ui;
+  word-break: break-word;
+}
+
+.udList {
+  margin: 10px 0 16px;
+  padding-left: 18px;
+  max-height: 180px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.udList li {
+  margin: 6px 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.udFeat::marker {
+  content: '✨ ';
+}
+
+.udFix::marker {
+  content: '🔧 ';
+}
+
+.udPerf::marker {
+  content: '⚡ ';
+}
+
+.udBreak::marker {
+  content: '⚠️ ';
+}
+
+.udActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.udBtn {
+  border: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  flex: 0 1 auto;
+}
+
+.udBtnPrimary {
+  border: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  background: #4f7cff;
+  color: white;
+  white-space: nowrap;
+  flex: 0 1 auto;
+}
+
+.udBtnGhost {
+  border: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  background: transparent;
+  color: #cfcfcf;
+  white-space: nowrap;
+  flex: 0 1 auto;
+}
+
+.udBtn:hover,
+.udBtnPrimary:hover,
+.udBtnGhost:hover {
+  filter: brightness(1.05);
+}
+
+/* 모바일 대응 */
+@media (max-width: 480px) {
+  .udCard {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .udTitle {
+    gap: 8px;
+  }
+
+  .udTitle h3 {
+    font-size: 16px;
+  }
+
+  .udPill {
+    font-size: 11px;
+    padding: 0 6px;
+  }
+
+  .udSub {
+    font-size: 12px;
+    margin: 6px 0 10px;
+  }
+
+  .udList {
+    font-size: 14px;
+    max-height: 150px;
+    padding-left: 16px;
+  }
+
+  .udList li {
+    margin: 5px 0;
+    line-height: 1.5;
+  }
+
+  /* 버튼 영역 - 3개일 때 세로 배치 */
+  .udActions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .udBtn,
+  .udBtnPrimary,
+  .udBtnGhost {
+    width: 100%;
+    padding: 11px 16px;
+    font-size: 14px;
+  }
+}
+
+/* 중간 크기 화면 대응 (480px ~ 600px) */
+@media (min-width: 481px) and (max-width: 600px) {
+  .udCard {
+    padding: 18px;
+  }
+
+  .udActions {
+    gap: 6px;
+  }
+
+  .udBtn,
+  .udBtnPrimary,
+  .udBtnGhost {
+    padding: 9px 11px;
+    font-size: 13px;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #fff;
+    --fg: #111;
+  }
+  .udCard {
+    background: #fff;
+    color: #111;
+  }
+  .udPill {
+    background: #eef2ff;
+    color: #1f3fb3;
+  }
+  .udSub {
+    color: #4b5563;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .udCard {
+    animation: none;
+    transform: none;
+  }
+}
+
+@keyframes udPop {
+  to {
+    transform: scale(1);
+  }
+}
+
+/* AlertDialog 컴포넌트 스타일 */
+.udAlert {
+  max-width: 420px;
+  text-align: center;
+}
+
+.udAlertMessage {
+  margin: 16px 0 20px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--fg, #eaeaea);
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.udAlert .udActions {
+  justify-content: center;
+}
+
+.udAlert .udBtn,
+.udAlert .udBtnPrimary,
+.udAlert .udBtnGhost {
+  min-width: 120px;
+}
+
+/* AlertDialog 모바일 대응 */
+@media (max-width: 480px) {
+  .udAlert {
+    max-width: 100%;
+  }
+
+  .udAlertMessage {
+    font-size: 15px;
+    margin: 12px 0 16px;
+  }
+
+  .udAlert .udBtn,
+  .udAlert .udBtnPrimary,
+  .udAlert .udBtnGhost {
+    min-width: 100px;
+    padding: 11px 16px;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .udAlertMessage {
+    color: var(--fg, #111);
+  }
+}
+
+/* LoadingDialog 컴포넌트 스타일 */
+.udLoading {
+  max-width: 320px;
+  text-align: center;
+  padding: 32px 24px;
+}
+
+.udLoadingSpinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.udLoadingSvg {
+  width: 50px;
+  height: 50px;
+  animation: udRotate 1.4s linear infinite;
+}
+
+.udLoadingCircle {
+  stroke: #4f7cff;
+  stroke-linecap: round;
+  animation: udDash 1.4s ease-in-out infinite;
+}
+
+.udLoadingMessage {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--fg, #eaeaea);
+  font-weight: 500;
+  word-break: break-word;
+}
+
+/* LoadingDialog 모바일 대응 */
+@media (max-width: 480px) {
+  .udLoading {
+    max-width: 100%;
+    padding: 28px 20px;
+  }
+
+  .udLoadingSpinner {
+    margin-bottom: 16px;
+  }
+
+  .udLoadingSvg {
+    width: 44px;
+    height: 44px;
+  }
+
+  .udLoadingMessage {
+    font-size: 14px;
+  }
+}
+
+@keyframes udRotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes udDash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .udLoadingMessage {
+    color: var(--fg, #111);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .udLoadingSvg {
+    animation: none;
+  }
+  .udLoadingCircle {
+    animation: none;
+    stroke-dasharray: 90, 150;
+  }
+}
