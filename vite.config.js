@@ -96,7 +96,7 @@ export default defineConfig({
       entry: path.resolve(__dirname, 'src/index.js'),
       name: toCamelCase(pkg.name), // 전역 변수명 (camelCase)
       fileName: () => `${toKebabCase(pkg.name)}.js`, // 출력 파일명 (kebab-case)
-      formats: ['umd'], // CDN 배포용 즉시 실행 함수
+      formats: ['umd'], // CDN 배포용 UMD 포맷 (React 포함)
     },
     outDir: 'dist',
     emptyOutDir: false,
@@ -110,21 +110,78 @@ export default defineConfig({
         // 전역 변수명 설정
         name: toCamelCase(pkg.name),
       },
-    },
 
-    // 최적화 설정
-    minify: 'terser',
-    terserOptions: {
-      format: {
-        comments: false, // 주석 제거 (배너는 유지됨)
+      // 🚀 eval 경고 무시 (risu-api.js에서 필수적으로 사용)
+      onwarn(warning, warn) {
+        // eval 사용 경고 무시
+        if (
+          warning.code === 'EVAL' ||
+          (warning.message && warning.message.includes('Use of eval'))
+        ) {
+          return;
+        }
+        warn(warning);
+      },
+
+      // 🚀 병렬 처리 최적화
+      maxParallelFileOps: 20,
+
+      // 🚀 Tree shaking 최적화
+      treeshake: {
+        preset: 'recommended',
+        moduleSideEffects: false,
       },
     },
 
-    // Watch 모드 설정 (build --watch 시 사용)
-    watch: {
-      // 자동 생성 파일 무시 (무한 루프 방지)
-      exclude: ['**/src/core/plugin-config.js', '**/src/core/dev-reload.js', '**/node_modules/**'],
+    // 🚀 Terser 최적화 설정 (속도와 크기 밸런스)
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        ecma: 2015,
+        passes: 1, // 2→1로 줄여서 속도 향상 (압축률 약간 감소)
+        pure_funcs: ['console.debug'], // 불필요한 함수 제거
+        drop_debugger: true,
+        // eval은 보존
+        pure_getters: false,
+        keep_fargs: false,
+        unsafe_arrows: true,
+        unsafe_methods: true,
+      },
+      mangle: {
+        safari10: true,
+        toplevel: true,
+      },
+      format: {
+        comments: false,
+        ecma: 2015,
+      },
     },
+
+    // 🚀 CommonJS 최적화
+    commonjsOptions: {
+      transformMixedEsModules: true,
+      esmExternals: true,
+    },
+
+    // 청크 크기 경고 비활성화
+    chunkSizeWarningLimit: 1000,
+
+    // Watch 모드 설정 (build --watch 시 사용)
+    watch: process.argv.includes('--watch')
+      ? {
+          // 자동 생성 파일 무시 (무한 루프 방지)
+          exclude: [
+            '**/src/core/plugin-config.js',
+            '**/src/core/dev-reload.js',
+            '**/node_modules/**',
+          ],
+          // 🚀 chokidar 최적화
+          chokidar: {
+            usePolling: false,
+            interval: 100,
+          },
+        }
+      : null,
   },
 
   // CSS Modules 설정
@@ -163,7 +220,9 @@ export default defineConfig({
     __PLUGIN_DESCRIPTION__: JSON.stringify(pkg.description),
     __DEV_MODE__: JSON.stringify(process.env.NODE_ENV === 'development'),
     // 브라우저 환경용: process.env.NODE_ENV를 문자열로 치환
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
+    'process.env.NODE_ENV': JSON.stringify(
+      process.env.NODE_ENV || 'production',
+    ),
   },
 
   // 플러그인

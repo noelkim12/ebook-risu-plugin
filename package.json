@@ -1,6 +1,6 @@
 {
   "name": "ebook-risu-plugin",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "type": "module",
   "description": "Crp Svelte for RISU AI",
   "main": "src/index.js",
