@@ -1,4 +1,4 @@
-# ebook-risu-plugin
+# risu-ebook-viewer
 
 RisuAI를 위한 **Svelte 5** 기반 플러그인 개발 스캐폴드 프로젝트입니다.
 
@@ -45,7 +45,7 @@ npm run dev
 npm run build
 ```
 
-빌드 결과물: `dist/ebook-risu-plugin.js`
+빌드 결과물: `dist/risu-ebook-viewer.js`
 
 ---
 
@@ -161,9 +161,9 @@ npm run release -- patch "fix: 버그 수정"
 ## 📁 프로젝트 구조
 
 ```
-ebook-risu-plugin/
+risu-ebook-viewer/
 ├── dist/                          # 빌드 결과물
-│   ├── ebook-risu-plugin.js              # 번들 파일
+│   ├── risu-ebook-viewer.js              # 번들 파일
 │   └── release-notes.json        # 릴리즈 노트
 │
 ├── docs/                          # 문서

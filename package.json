@@ -1,11 +1,11 @@
 {
-  "name": "ebook-risu-plugin",
+  "name": "risu-ebook-viewer",
   "version": "0.0.1",
   "type": "module",
   "description": "Crp Svelte for RISU AI",
   "main": "src/index.js",
-  "browser": "dist/ebook-risu-plugin.js",
-  "unpkg": "dist/ebook-risu-plugin.js",
+  "browser": "dist/risu-ebook-viewer.js",
+  "unpkg": "dist/risu-ebook-viewer.js",
   "files": [
     "dist"
   ],
