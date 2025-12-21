@@ -64,7 +64,9 @@ export class RisuAPI {
   static getInstance(pluginApis = null) {
     if (!RisuAPI._instance) {
       if (!pluginApis) {
-        throw new Error('RisuAPI instance does not exist. Provide pluginApis on first call.');
+        throw new Error(
+          'RisuAPI instance does not exist. Provide pluginApis on first call.',
+        );
       }
       RisuAPI._instance = new RisuAPI(pluginApis);
     }
@@ -311,5 +313,17 @@ export class RisuAPI {
     if (char == null) return null;
 
     return char.chats[this.getCurrentChatPage()].message.length;
+  }
+
+  /**
+   * 현재 채팅의 마지막 채팅 메세지를 가져옵니다.
+   */
+  getLastChatMessage() {
+    const char = this._getChar();
+    if (char == null) return null;
+
+    return char.chats[this.getCurrentChatPage()].message[
+      this.getLastChatIndex()
+    ];
   }
 }

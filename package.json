@@ -1,11 +1,11 @@
 {
-  "name": "risu-ebooklike-viwer",
+  "name": "risu-ebooklike-viewer",
   "version": "0.0.2",
   "type": "module",
   "description": "EBook like viewer for RISU AI",
   "main": "src/index.js",
-  "browser": "dist/risu-ebooklike-viwer.js",
-  "unpkg": "dist/risu-ebooklike-viwer.js",
+  "browser": "dist/risu-ebooklike-viewer.js",
+  "unpkg": "dist/risu-ebooklike-viewer.js",
   "files": [
     "dist"
   ],

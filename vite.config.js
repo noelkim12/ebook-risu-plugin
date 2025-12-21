@@ -110,27 +110,6 @@ export default defineConfig({
         // 전역 변수명 설정
         name: toCamelCase(pkg.name),
       },
-
-      // 🚀 eval 경고 무시 (risu-api.js에서 필수적으로 사용)
-      onwarn(warning, warn) {
-        // eval 사용 경고 무시
-        if (
-          warning.code === 'EVAL' ||
-          (warning.message && warning.message.includes('Use of eval'))
-        ) {
-          return;
-        }
-        warn(warning);
-      },
-
-      // 🚀 병렬 처리 최적화
-      maxParallelFileOps: 20,
-
-      // 🚀 Tree shaking 최적화
-      treeshake: {
-        preset: 'recommended',
-        moduleSideEffects: false,
-      },
     },
 
     // 🚀 Terser 최적화 설정 (속도와 크기 밸런스)
@@ -141,11 +120,6 @@ export default defineConfig({
         passes: 1, // 2→1로 줄여서 속도 향상 (압축률 약간 감소)
         pure_funcs: ['console.debug'], // 불필요한 함수 제거
         drop_debugger: true,
-        // eval은 보존
-        pure_getters: false,
-        keep_fargs: false,
-        unsafe_arrows: true,
-        unsafe_methods: true,
       },
       mangle: {
         safari10: true,
@@ -156,15 +130,6 @@ export default defineConfig({
         ecma: 2015,
       },
     },
-
-    // 🚀 CommonJS 최적화
-    commonjsOptions: {
-      transformMixedEsModules: true,
-      esmExternals: true,
-    },
-
-    // 청크 크기 경고 비활성화
-    chunkSizeWarningLimit: 1000,
 
     // Watch 모드 설정 (build --watch 시 사용)
     watch: process.argv.includes('--watch')

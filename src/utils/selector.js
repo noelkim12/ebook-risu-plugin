@@ -6,16 +6,27 @@ export const LOCATOR = {
       cssClass: ['div.default-chat-screen'],
       className: `default-chat-screen`,
     },
+    displayContainer: {
+      cssClass: ['div.default-chat-screen > div.flex.flex-col-reverse'],
+      className: `${PLUGIN_NAME}-display-container`,
+    },
     inputContainer: {
-      cssClass: ['div.default-chat-screen > div.mt-2.mb-2.flex.items-stretch.w-full'],
+      cssClass: [
+        'div.default-chat-screen > div.mt-2.mb-2.flex.items-stretch.w-full',
+      ],
       className: `${PLUGIN_NAME}-input-container`,
     },
     textarea: {
-      cssClass: ['div.default-chat-screen > div.mt-2.mb-2.flex.items-stretch.w-full > textarea'],
+      cssClass: [
+        'div.default-chat-screen > div.mt-2.mb-2.flex.items-stretch.w-full > textarea',
+      ],
       className: `${PLUGIN_NAME}-input-textarea`,
     },
     sendButton: {
-      cssClass: ['div.default-chat-screen > button.button-icon-send', '.button-icon-send'],
+      cssClass: [
+        'div.default-chat-screen > button.button-icon-send',
+        '.button-icon-send',
+      ],
       className: `${PLUGIN_NAME}-send-button`,
     },
     burgerButton: {
@@ -237,17 +248,7 @@ export function getChatIndexFromNode({ node, maxDepth = 10 }) {
   let current = node instanceof Element ? node : node.parentElement;
   let depth = 0;
 
-  while (current && depth < maxDepth) {
-    if (current.classList?.contains(CHAT_CLASS)) {
-      const index = current.dataset?.chatIndex;
-      // 숫자로 변환, 유효하지 않으면 null
-      return index != null ? parseInt(index, 10) : null;
-    }
-    current = current.parentElement;
-    depth++;
-  }
-
-  return null;
+  return node.closest('.risu-chat').dataset?.chatIndex;
 }
 
 /**

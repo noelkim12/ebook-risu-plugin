@@ -70,11 +70,16 @@ export function safeMount({
       props,
     });
 
-    // DOM에 삽입
+    // wrapper 안에 생성된 실제 요소들만 DOM에 삽입
+    const children = Array.from(wrapper.childNodes);
     if (anchor && anchor.parentElement === target) {
-      target.insertBefore(wrapper, anchor);
+      children.forEach(child => {
+        target.insertBefore(child, anchor);
+      });
     } else {
-      target.appendChild(wrapper);
+      children.forEach(child => {
+        target.appendChild(child);
+      });
     }
 
     // 플래그 설정
@@ -89,6 +94,7 @@ export function safeMount({
 
     return record;
   } catch (error) {
+    console.log(error);
     console.error(`[safeMount] ${id} 마운트 실패:`, error);
     return null;
   }
@@ -110,15 +116,12 @@ export function safeUnmount(id) {
   try {
     const { instance, wrapper, target, flagKey } = record;
 
-    // Svelte 컴포넌트 언마운트
+    // Svelte 컴포넌트 언마운트 (자동으로 생성된 요소들 제거됨)
     if (instance) {
       unmount(instance);
     }
 
-    // wrapper 요소 제거
-    if (wrapper && wrapper.parentElement) {
-      wrapper.parentElement.removeChild(wrapper);
-    }
+    // wrapper는 DOM에 없으므로 제거할 필요 없음
 
     // 플래그 제거
     if (target && flagKey) {
@@ -425,7 +428,12 @@ export function safeAddEventListener(element, event, handler, options = {}) {
  * @param {number} [debounceMs=50] - 디바운스 시간
  * @returns {{ observer: MutationObserver, disconnect: Function }}
  */
-export function safeMutationObserver(target, callback, options = {}, debounceMs = 50) {
+export function safeMutationObserver(
+  target,
+  callback,
+  options = {},
+  debounceMs = 50,
+) {
   let timeoutId = null;
   let isProcessing = false;
 

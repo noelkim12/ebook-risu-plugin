@@ -3,9 +3,15 @@
   import { debounce, isNil } from 'lodash';
   import { RisuAPI } from './core/risu-api.js';
   import { PLUGIN_NAME } from './constants.js';
-  import { LOCATOR, risuSelector } from './utils/selector.js';
+  import {
+    LOCATOR,
+    risuSelector,
+    getChatIndexFromNode,
+    risuSelectorAll,
+  } from './utils/selector.js';
   import { safeMount, safeUnmount } from './utils/svelte-helper.js';
   import BookButton from './ui/components/BookButton.svelte';
+  import SmallBookButton from './ui/components/SmallBookButton.svelte';
 
   let risuAPI = $state(null);
   let observer = $state(null);
@@ -53,6 +59,7 @@
   }
 
   function attachButton() {
+    // 채팅 입력창 컨테이너에 버튼 추가
     const inputContainer = risuSelector(LOCATOR.chatScreen.inputContainer);
     const sendButton = risuSelector(LOCATOR.chatScreen.sendButton);
 
@@ -62,6 +69,27 @@
         component: BookButton,
         target: inputContainer,
         anchor: sendButton,
+      });
+    }
+    // 봇 버튼 컨테이너에 버튼 추가
+    const botButtonDivList = risuSelectorAll(LOCATOR.chatMessage.botButtonDiv);
+
+    if (!isNil(botButtonDivList)) {
+      botButtonDivList.forEach(botButtonDiv => {
+        const copyButton = risuSelector(
+          LOCATOR.chatMessage.copyButton,
+          botButtonDiv,
+        );
+        let chatIndex = getChatIndexFromNode({ node: botButtonDiv });
+        safeMount({
+          id: 'small-book-button',
+          component: SmallBookButton,
+          target: botButtonDiv,
+          anchor: copyButton,
+          props: {
+            chatIndex,
+          },
+        });
       });
     }
   }
