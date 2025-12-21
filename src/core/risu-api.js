@@ -285,6 +285,16 @@ export class RisuAPI {
   }
 
   /**
+   * 현재 채팅 페이지의 캐릭터 ID를 가져옵니다.
+   * @returns string
+   */
+  getCharId() {
+    const char = this._getChar();
+    if (char == null) return null;
+    return char.chaId;
+  }
+  
+  /**
    * 현재 채팅 페이지를 가져옵니다.
    * @returns {number|null}
    */

@@ -29,9 +29,10 @@ let mountTarget = null;
  * @returns {boolean} 성공 여부
  */
 export function openPCViewer(chatIndex = null) {
-  // 이미 열려있으면 닫고 다시 열기
+  // 이미 열려있으면 닫기
   if (isMounted(VIEWER_ID)) {
     closePCViewer();
+    return true;
   }
 
   try {
@@ -78,7 +79,6 @@ export function openPCViewer(chatIndex = null) {
     });
 
     if (result) {
-      console.log('[PCViewer] Opened for chat index:', targetIndex);
       return true;
     }
 
@@ -101,9 +101,6 @@ export function closePCViewer() {
   }
 
   const result = safeUnmount(VIEWER_ID);
-  if (result) {
-    console.log('[PCViewer] Closed');
-  }
   return result;
 }
 

@@ -11,7 +11,7 @@ import { TextSplitterPC } from './text-splitter.js';
  */
 export function createMeasureContainer(referenceElement) {
   const container = document.createElement('div');
-  container.className = 'text-content chattext';
+  container.className = 'text-content chattext prose';
   container.style.position = 'absolute';
   container.style.visibility = 'hidden';
   container.style.pointerEvents = 'none';
@@ -129,6 +129,10 @@ export function splitIntoPagesHTML(content, measureContainer, textSplitter) {
   const elements = Array.from(content.children);
   const availableHeight = measureContainer.clientHeight;
 
+  console.log('measureContainer', measureContainer);
+  console.log('availableHeight', availableHeight);
+  console.log('measureContainer.scrollHeight', measureContainer.scrollHeight);
+
   let currentPageContent = [];
 
   const addElementToPage = el => {
@@ -136,7 +140,7 @@ export function splitIntoPagesHTML(content, measureContainer, textSplitter) {
     measureContainer.appendChild(cloned);
 
     const hasOverflow =
-      measureContainer.scrollHeight > measureContainer.clientHeight;
+      measureContainer.scrollHeight - 30 > measureContainer.clientHeight;
 
     if (hasOverflow && currentPageContent.length > 0) {
       pages.push(createPageHTML(currentPageContent));
@@ -172,7 +176,7 @@ export function splitIntoPagesHTML(content, measureContainer, textSplitter) {
     measureContainer.appendChild(clonedElement);
 
     const hasOverflow =
-      measureContainer.scrollHeight > measureContainer.clientHeight;
+      measureContainer.scrollHeight - 30 > measureContainer.clientHeight;
 
     // 오버플로우 발생하고 분할 가능한 경우
     if (hasOverflow && textSplitter.isSplittable(element)) {

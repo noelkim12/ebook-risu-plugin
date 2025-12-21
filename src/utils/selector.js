@@ -13,6 +13,7 @@ export const LOCATOR = {
     inputContainer: {
       cssClass: [
         'div.default-chat-screen > div.mt-2.mb-2.flex.items-stretch.w-full',
+        'div.default-chat-screen > div.sticky.pt-2.pb-2.right-0.bottom-0.bg-bgcolor.flex.items-stretch.w-full',
       ],
       className: `${PLUGIN_NAME}-input-container`,
     },
@@ -39,7 +40,7 @@ export const LOCATOR = {
       cssClass: [
         'div.default-chat-screen > div.right-2.bottom-16.p-5.bg-darkbg.flex.flex-col.gap-3.text-textcolor.rounded-md',
       ],
-      className: `${PLUGIN_NAME}-burger-menu`,
+      className: `burger-menu`,
     },
   },
   chatMessage: {

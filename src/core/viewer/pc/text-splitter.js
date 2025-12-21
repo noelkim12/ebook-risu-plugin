@@ -10,7 +10,7 @@ export class TextSplitterPC {
    */
   constructor(options = {}) {
     this.splittableTags = options.splittableTags || ['p'];
-    this.minHeightRatio = options.minHeightRatio || 0.85;
+    this.minHeightRatio = options.minHeightRatio || 0.9;
   }
 
   /**
@@ -25,7 +25,9 @@ export class TextSplitterPC {
     }
 
     // 인라인 요소를 포함한 복잡한 구조는 분할하지 않음
-    const hasComplexChildren = element.querySelector('mark, strong, em, a, span[class], code');
+    const hasComplexChildren = element.querySelector(
+      'mark, strong, em, a, span[class], code',
+    );
     if (hasComplexChildren) {
       return false;
     }

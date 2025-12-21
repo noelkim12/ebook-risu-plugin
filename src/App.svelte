@@ -92,6 +92,8 @@
         });
       });
     }
+
+    risuSelector(LOCATOR.chatScreen.burgerMenu);
   }
 </script>
 

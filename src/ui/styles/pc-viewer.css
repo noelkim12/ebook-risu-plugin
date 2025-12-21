@@ -85,7 +85,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  z-index: 0;
+  z-index: 2;
   font-family: var(--bv-font-family);
   background: linear-gradient(
     135deg,
@@ -335,7 +335,7 @@
 
 /* ===== 페이지 콘텐츠 ===== */
 .page-content {
-  padding: 50px 60px 40px;
+  padding: 50px 60px 10px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -356,40 +356,18 @@
 
 .text-content {
   flex: 1;
-  overflow: scroll;
+  overflow: auto;
   font-size: var(--bv-font-size);
   line-height: var(--bv-line-height);
-  text-align: justify;
+  text-align: -webkit-auto;
   word-break: keep-all;
   letter-spacing: -0.01em;
   padding-right: 10px;
 }
 
-/* Tailwind CSS 클래스 무효화 */
-.text-content :global(.flex) {
-  display: block;
-}
-.text-content :global(.flex-col) {
-  flex-direction: unset;
-}
-.text-content :global(.flex-grow) {
-  flex-grow: unset;
-}
-.text-content :global(.items-start),
-.text-content :global(.items-center),
-.text-content :global(.items-end) {
-  align-items: unset;
-}
-.text-content :global(.justify-center),
-.text-content :global(.justify-between),
-.text-content :global(.justify-end) {
-  justify-content: unset;
-}
-.text-content :global(.gap-1),
-.text-content :global(.gap-2),
-.text-content :global(.gap-4),
-.text-content :global(.gap-8) {
-  gap: unset;
+.text-content p {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
 }
 
 /* 헤딩 스타일 */

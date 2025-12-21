@@ -44,14 +44,14 @@ export function safeMount({
   }
 
   // 이미 마운트된 경우 기존 인스턴스 반환
-  if (mountedComponents.has(id)) {
-    return mountedComponents.get(id);
-  }
+  // if (mountedComponents.has(id)) {
+  //   return mountedComponents.get(id);
+  // }
 
   // target에 이미 마운트 플래그가 있는지 확인
   const flagKey = `data-mounted-${id}`;
   if (target.hasAttribute(flagKey)) {
-    console.warn(`[safeMount] ${id}는 이미 마운트되어 있습니다.`);
+    // console.warn(`[safeMount] ${id}는 이미 마운트되어 있습니다.`);
     return null;
   }
 

@@ -111,6 +111,7 @@ export default defineConfig({
         name: toCamelCase(pkg.name),
       },
     },
+    retportCompressedSize: false,
 
     // 🚀 Terser 최적화 설정 (속도와 크기 밸런스)
     minify: 'terser',

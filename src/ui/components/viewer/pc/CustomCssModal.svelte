@@ -5,11 +5,13 @@
 
   let { isOpen = false, initialCss = '', onApply, onReset, onClose } = $props();
 
-  let cssValue = $state(initialCss);
+  let cssValue = $state('');
 
-  // initialCss가 변경되면 cssValue 업데이트
+  // initialCss가 변경되거나 모달이 열릴 때 cssValue 업데이트
   $effect(() => {
-    cssValue = initialCss;
+    if (isOpen) {
+      cssValue = initialCss;
+    }
   });
 
   function handleApply() {
@@ -38,11 +40,7 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div
-  class="modal-overlay"
-  class:active={isOpen}
-  onclick={handleBackdropClick}
->
+<div class="modal-overlay" class:active={isOpen} onclick={handleBackdropClick}>
   <div class="modal-content">
     <div class="modal-header">
       <h3>사용자 CSS</h3>
@@ -60,9 +58,7 @@
       <button class="modal-btn secondary" onclick={handleReset}>
         초기화
       </button>
-      <button class="modal-btn primary" onclick={handleApply}>
-        적용
-      </button>
+      <button class="modal-btn primary" onclick={handleApply}> 적용 </button>
     </div>
   </div>
 </div>

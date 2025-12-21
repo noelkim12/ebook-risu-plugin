@@ -51,7 +51,10 @@
   <!-- 왼쪽 페이지 -->
   <div class="page page-left">
     <div class="page-content">
-      <div class="text-content chattext" bind:this={leftTextContent}></div>
+      <div
+        class="text-content chattext prose"
+        bind:this={leftTextContent}
+      ></div>
       {#if leftPageNum > 0}
         <div class="page-number left-page-num">{leftPageNum}</div>
       {/if}
@@ -64,7 +67,10 @@
   <!-- 오른쪽 페이지 -->
   <div class="page page-right">
     <div class="page-content">
-      <div class="text-content chattext" bind:this={rightTextContent}></div>
+      <div
+        class="text-content chattext prose"
+        bind:this={rightTextContent}
+      ></div>
       {#if rightPageNum > 0}
         <div class="page-number right-page-num">{rightPageNum}</div>
       {/if}
