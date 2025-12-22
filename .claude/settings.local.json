@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /s /b d:devrisu-ebooklike-viewersrc*.svelte)",
+      "Bash(dir /s /b d:devrisu-ebooklike-viewersrcuicomponentsviewerpc*)",
+      "Bash(powershell:*)"
+    ]
+  }
+}

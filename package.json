@@ -19,7 +19,7 @@
   "license": "MIT",
   "scripts": {
     "prepublishOnly": "npm run build",
-    "dev": "cross-env NODE_ENV=development concurrently \"npm run dev:server\" \"npm run dev:vite\"",
+    "dev": "cross-env NODE_ENV=development concurrently \"caddy run --config caddy.config --adapter caddyfile\" \"npm run dev:server\" \"npm run dev:vite\"",
     "dev:server": "node scripts/dev-server.js",
     "dev:vite": "cross-env NODE_ENV=development vite build --watch",
     "build": "vite build",

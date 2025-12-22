@@ -5,10 +5,10 @@
 
   let {
     isOpen = false,
-    settings = { fontSize: 17, lineHeight: 1.9, theme: 'light' },
+    settings = { fontSize: 17, lineHeight: 1.5, theme: 'dark' },
     onSettingsChange,
     onOpenCustomCss,
-    onClose
+    onClose,
   } = $props();
 
   function handleFontSizeChange(e) {
@@ -42,7 +42,7 @@
         id="fontSize"
         min="12"
         max="24"
-        step="1"
+        step="2"
         value={settings.fontSize}
         oninput={handleFontSizeChange}
       />
@@ -54,9 +54,9 @@
       <input
         type="range"
         id="lineHeight"
-        min="1.4"
+        min="1.5"
         max="2.2"
-        step="0.1"
+        step="0.2"
         value={settings.lineHeight}
         oninput={handleLineHeightChange}
       />

@@ -11,10 +11,11 @@ import { TextSplitterPC } from './text-splitter.js';
  */
 export function createMeasureContainer(referenceElement) {
   const container = document.createElement('div');
-  container.className = 'text-content chattext prose';
+  container.className = 'text-content chattext';
   container.style.position = 'absolute';
   container.style.visibility = 'hidden';
   container.style.pointerEvents = 'none';
+  container.style.overflow = 'hidden';
 
   if (referenceElement) {
     const rect = referenceElement.getBoundingClientRect();
@@ -129,10 +130,6 @@ export function splitIntoPagesHTML(content, measureContainer, textSplitter) {
   const elements = Array.from(content.children);
   const availableHeight = measureContainer.clientHeight;
 
-  console.log('measureContainer', measureContainer);
-  console.log('availableHeight', availableHeight);
-  console.log('measureContainer.scrollHeight', measureContainer.scrollHeight);
-
   let currentPageContent = [];
 
   const addElementToPage = el => {
@@ -140,7 +137,7 @@ export function splitIntoPagesHTML(content, measureContainer, textSplitter) {
     measureContainer.appendChild(cloned);
 
     const hasOverflow =
-      measureContainer.scrollHeight - 30 > measureContainer.clientHeight;
+      measureContainer.scrollHeight > measureContainer.clientHeight;
 
     if (hasOverflow && currentPageContent.length > 0) {
       pages.push(createPageHTML(currentPageContent));
@@ -158,7 +155,12 @@ export function splitIntoPagesHTML(content, measureContainer, textSplitter) {
     measureContainer.appendChild(clonedElement);
 
     // 이미지가 포함된 요소는 별도 페이지로
-    if (element.querySelector('img') || element.tagName === 'IMG') {
+    if (
+      element.querySelector('img') ||
+      element.tagName === 'IMG' ||
+      (element.tagName === 'DIV' &&
+        element.classList.contains('x-risu-image-container'))
+    ) {
       if (currentPageContent.length > 0) {
         pages.push(createPageHTML(currentPageContent));
         currentPageContent = [];
@@ -175,8 +177,9 @@ export function splitIntoPagesHTML(content, measureContainer, textSplitter) {
     });
     measureContainer.appendChild(clonedElement);
 
-    const hasOverflow =
-      measureContainer.scrollHeight - 30 > measureContainer.clientHeight;
+    const scrollH = measureContainer.scrollHeight;
+    const clientH = measureContainer.clientHeight;
+    const hasOverflow = scrollH > clientH;
 
     // 오버플로우 발생하고 분할 가능한 경우
     if (hasOverflow && textSplitter.isSplittable(element)) {

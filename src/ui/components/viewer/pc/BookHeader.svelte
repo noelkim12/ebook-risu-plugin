@@ -2,13 +2,16 @@
   /**
    * BookHeader - 뷰어 헤더 컴포넌트
    */
-  import { X } from 'lucide-svelte';
+  import { X, ChevronLeft, ChevronRight } from 'lucide-svelte';
 
   let {
     thumbnailUrl = '',
     name = '',
     chatIndex = 0,
     buttons = [],
+    chatIndexPosition = { position: 0, total: 0, isFirst: true, isLast: true },
+    onPrevChat,
+    onNextChat,
     onClose
   } = $props();
 
@@ -42,7 +45,30 @@
   </div>
 
   <div class="header-right">
-    <span class="header-chat-index">#{displayIndex}</span>
+    <div class="chat-index-nav">
+      <button
+        class="chat-nav-btn"
+        onclick={onPrevChat}
+        disabled={chatIndexPosition.isFirst}
+        title="이전 채팅"
+      >
+        <ChevronLeft size={16} />
+      </button>
+      <span class="header-chat-index">
+        #{displayIndex}
+        {#if chatIndexPosition.total > 0}
+          <span class="chat-index-total">({chatIndexPosition.position}/{chatIndexPosition.total})</span>
+        {/if}
+      </span>
+      <button
+        class="chat-nav-btn"
+        onclick={onNextChat}
+        disabled={chatIndexPosition.isLast}
+        title="다음 채팅"
+      >
+        <ChevronRight size={16} />
+      </button>
+    </div>
     <button class="close-btn" onclick={onClose} title="닫기">
       <X size={20} />
     </button>

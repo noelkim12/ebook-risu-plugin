@@ -2,6 +2,7 @@
   /**
    * BookPages - 2페이지 스프레드 레이아웃
    */
+  import LoadingOverlay from './LoadingOverlay.svelte';
 
   let {
     leftContent = '',
@@ -12,6 +13,8 @@
     onNextPage,
     leftContentRef = null,
     rightContentRef = null,
+    isLoading = false,
+    loadingMessage = '',
   } = $props();
 
   let leftTextContent = $state(null);
@@ -51,10 +54,7 @@
   <!-- 왼쪽 페이지 -->
   <div class="page page-left">
     <div class="page-content">
-      <div
-        class="text-content chattext prose"
-        bind:this={leftTextContent}
-      ></div>
+      <div class="text-content chattext" bind:this={leftTextContent}></div>
       {#if leftPageNum > 0}
         <div class="page-number left-page-num">{leftPageNum}</div>
       {/if}
@@ -67,13 +67,13 @@
   <!-- 오른쪽 페이지 -->
   <div class="page page-right">
     <div class="page-content">
-      <div
-        class="text-content chattext prose"
-        bind:this={rightTextContent}
-      ></div>
+      <div class="text-content chattext" bind:this={rightTextContent}></div>
       {#if rightPageNum > 0}
         <div class="page-number right-page-num">{rightPageNum}</div>
       {/if}
     </div>
   </div>
+
+  <!-- 로딩 오버레이 -->
+  <LoadingOverlay visible={isLoading} message={loadingMessage} />
 </div>

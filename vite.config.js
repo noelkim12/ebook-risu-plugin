@@ -221,6 +221,8 @@ export default defineConfig({
     // 개발 모드 Hot Reload (.dev-server-port → src/core/dev-reload.js)
     vitePluginDevMode({
       defaultPort: 13131,
+      useCaddy: true,
+      caddyDomain: 'ws.noelkim12.dev',
       portFilePath: path.resolve(__dirname, '.dev-server-port'),
       outputFilePath: path.resolve(__dirname, 'src/core/dev-reload.js'),
     }),

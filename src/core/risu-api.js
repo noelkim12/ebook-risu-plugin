@@ -1,5 +1,4 @@
 import { PLUGIN_NAME } from '../constants.js';
-
 /**
  * RisuAPI 싱글톤 클래스
  * RisuAI의 플러그인 API를 래핑하여 제공합니다.
@@ -32,6 +31,11 @@ export class RisuAPI {
     // eval로 초기화할 함수들 (나중에 initialize에서 설정됨)
     this._getDatabase = null;
     this._setDatabaseLite = null;
+
+    // 변경 감지 구독 관리
+    this._charWatchers = new Map();
+    this._databaseWatchers = new Map();
+    this._watcherIdCounter = 0;
 
     // 싱글톤 인스턴스 저장
     RisuAPI._instance = this;
@@ -163,6 +167,97 @@ export class RisuAPI {
     return this._setChar(char);
   }
 
+  /**
+   * 캐릭터 데이터 변경 감지 구독 (폴링 기반)
+   *
+   * RisuAI 내부의 Proxy로 인해 외부에서 변경을 직접 감지할 수 없으므로,
+   * 폴링 방식으로 값의 변경을 감지합니다.
+   *
+   * @param {Function|null} selector - 감지할 값을 선택하는 함수 (char) => any, null이면 전체 감지
+   * @param {Function} callback - 변경 시 호출될 콜백 (newValue) => void
+   * @param {number} [interval=500] - 폴링 간격 (ms)
+   * @returns {Function} 구독 해제 함수
+   *
+   * @example
+   * // 메시지 개수 변경 감지
+   * const unsubscribe = risuAPI.subscribeToChar(
+   *   (char) => char?.chats?.[char.chatPage]?.message?.length,
+   *   (newLength) => console.log('메시지 개수:', newLength),
+   *   500
+   * );
+   *
+   * @example
+   * // 마지막 메시지 내용 변경 감지
+   * const unsubscribe = risuAPI.subscribeToChar(
+   *   (char) => {
+   *     const messages = char?.chats?.[char.chatPage]?.message;
+   *     return messages?.[messages.length - 1]?.data;
+   *   },
+   *   (newData) => console.log('마지막 메시지 변경:', newData),
+   *   1000
+   * );
+   *
+   * @example
+   * // 마지막 메시지의 role 변경 감지
+   * const unsubscribe = risuAPI.subscribeToChar(
+   *   (char) => {
+   *     const messages = char?.chats?.[char.chatPage]?.message;
+   *     return messages?.[messages.length - 1]?.role;
+   *   },
+   *   (newData) => console.log('마지막 메시지의 role 변경:', newData),
+   *   1000
+   * );
+   *
+   * @example
+   * // 전체 char 변경 감지 (무거움 - 권장하지 않음)
+   * const unsubscribe = risuAPI.subscribeToChar(
+   *   null,
+   *   () => console.log('char 변경됨'),
+   *   2000
+   * );
+   *
+   * // 구독 해제
+   * unsubscribe();
+   */
+  subscribeToChar(selector, callback, interval = 500) {
+    const id = ++this._watcherIdCounter;
+
+    const getSnapshot = () => {
+      try {
+        const char = this._getChar();
+        if (char === null) return null;
+        const value = selector ? selector(char) : char;
+        return JSON.stringify(value);
+      } catch (e) {
+        return null;
+      }
+    };
+
+    let lastSnapshot = getSnapshot();
+
+    const timer = setInterval(() => {
+      const currentSnapshot = getSnapshot();
+      if (currentSnapshot !== lastSnapshot) {
+        const oldSnapshot = lastSnapshot;
+        lastSnapshot = currentSnapshot;
+        try {
+          const newValue = currentSnapshot ? JSON.parse(currentSnapshot) : null;
+          callback(newValue);
+        } catch (e) {
+          console.error(`[${PLUGIN_NAME}] subscribeToChar callback error:`, e);
+        }
+      }
+    }, interval);
+
+    this._charWatchers.set(id, timer);
+
+    // unsubscribe 함수 반환
+    return () => {
+      clearInterval(timer);
+      this._charWatchers.delete(id);
+    };
+  }
+
   // ==================== Provider API ====================
 
   /**
@@ -260,6 +355,22 @@ export class RisuAPI {
     return this._onUnload(func);
   }
 
+  /**
+   * 모든 구독(watcher)을 해제합니다.
+   * 플러그인 언로드 시 호출하여 리소스를 정리합니다.
+   */
+  clearAllSubscriptions() {
+    // char watchers 정리
+    this._charWatchers.forEach(timer => clearInterval(timer));
+    this._charWatchers.clear();
+
+    // database watchers 정리
+    this._databaseWatchers.forEach(timer => clearInterval(timer));
+    this._databaseWatchers.clear();
+
+    console.log(`[${PLUGIN_NAME}] All subscriptions cleared`);
+  }
+
   // ==================== Database API ====================
 
   /**
@@ -285,15 +396,88 @@ export class RisuAPI {
   }
 
   /**
+   * 데이터베이스 변경 감지 구독 (폴링 기반)
+   *
+   * RisuAI 내부의 Proxy로 인해 외부에서 변경을 직접 감지할 수 없으므로,
+   * 폴링 방식으로 값의 변경을 감지합니다.
+   *
+   * @param {Function|null} selector - 감지할 값을 선택하는 함수 (db) => any, null이면 전체 감지
+   * @param {Function} callback - 변경 시 호출될 콜백 (newValue) => void
+   * @param {number} [interval=500] - 폴링 간격 (ms)
+   * @returns {Function} 구독 해제 함수
+   *
+   * @example
+   * // 특정 설정 변경 감지
+   * const unsubscribe = risuAPI.subscribeToDatabase(
+   *   (db) => db?.aiModel,
+   *   (newModel) => console.log('AI 모델 변경:', newModel),
+   *   1000
+   * );
+   *
+   * @example
+   * // 여러 설정 변경 감지
+   * const unsubscribe = risuAPI.subscribeToDatabase(
+   *   (db) => ({ model: db?.aiModel, maxContext: db?.maxContext }),
+   *   (settings) => console.log('설정 변경:', settings),
+   *   1000
+   * );
+   *
+   * // 구독 해제
+   * unsubscribe();
+   */
+  subscribeToDatabase(selector, callback, interval = 500) {
+    if (!this._getDatabase) {
+      throw new Error('RisuAPI is not initialized. Call initialize() first.');
+    }
+
+    const id = ++this._watcherIdCounter;
+
+    const getSnapshot = () => {
+      try {
+        const db = this._getDatabase();
+        if (db === null) return null;
+        const value = selector ? selector(db) : db;
+        return JSON.stringify(value);
+      } catch (e) {
+        return null;
+      }
+    };
+
+    let lastSnapshot = getSnapshot();
+
+    const timer = setInterval(() => {
+      const currentSnapshot = getSnapshot();
+      if (currentSnapshot !== lastSnapshot) {
+        const oldSnapshot = lastSnapshot;
+        lastSnapshot = currentSnapshot;
+        try {
+          const newValue = currentSnapshot ? JSON.parse(currentSnapshot) : null;
+          callback(newValue);
+        } catch (e) {
+          console.error(`[${PLUGIN_NAME}] subscribeToDatabase callback error:`, e);
+        }
+      }
+    }, interval);
+
+    this._databaseWatchers.set(id, timer);
+
+    // unsubscribe 함수 반환
+    return () => {
+      clearInterval(timer);
+      this._databaseWatchers.delete(id);
+    };
+  }
+
+  /**
    * 현재 채팅 페이지의 캐릭터 ID를 가져옵니다.
    * @returns string
    */
-  getCharId() {
+  getChaId() {
     const char = this._getChar();
     if (char == null) return null;
     return char.chaId;
   }
-  
+
   /**
    * 현재 채팅 페이지를 가져옵니다.
    * @returns {number|null}

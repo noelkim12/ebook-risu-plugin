@@ -26,20 +26,24 @@ let mountTarget = null;
 /**
  * PC 뷰어 열기
  * @param {number|null} chatIndex - 표시할 채팅 인덱스 (null이면 마지막 채팅)
+ * @param {boolean} togleViewer - 뷰어 토글 여부 (true이면 뷰어 토글, false이면 뷰어 열기)
+ * @param {boolean} showLoading - 로딩 오버레이 표시 여부 (chat index 이동 시 true)
  * @returns {boolean} 성공 여부
  */
-export function openPCViewer(chatIndex = null) {
-  // 이미 열려있으면 닫기
+export function openPCViewer(chatIndex = null, togleViewer = true, showLoading = false) {
+  // togleViewer일 때, 뷰어가 이미 열려있으면 닫기
   if (isMounted(VIEWER_ID)) {
     closePCViewer();
-    return true;
+    // togleViewer true이면 여기서 끝
+    if (togleViewer) return true;
   }
 
   try {
     const risuAPI = RisuAPI.getInstance();
 
-    // 채팅 인덱스 결정
-    const targetIndex = chatIndex ?? risuAPI.getLastChatIndex() - 1;
+    // 채팅 인덱스 결정 (null/undefined인 경우에만 마지막 채팅 사용, -1 등 음수는 유효한 인덱스)
+    // chatIndex가 문자열로 전달될 수 있으므로 숫자로 변환
+    const targetIndex = chatIndex != null ? Number(chatIndex) : risuAPI.getLastChatIndex() - 1;
 
     // 채팅 요소 가져오기
     const chatElement = getChatElementByChatIndex(targetIndex);
@@ -65,6 +69,15 @@ export function openPCViewer(chatIndex = null) {
       VIEWER_STYLE_NAMESPACE,
     );
 
+    const rootContainer = risuSelector(LOCATOR.chatScreen.root);
+    safeSetStyle(
+      rootContainer,
+      {
+        overflow: 'hidden',
+      },
+      VIEWER_STYLE_NAMESPACE,
+    );
+
     // 뷰어 마운트
     const result = safeMount({
       id: VIEWER_ID,
@@ -73,7 +86,10 @@ export function openPCViewer(chatIndex = null) {
       props: {
         chatHtml: chatElement.outerHTML,
         chatIndex: targetIndex,
+        chatPage: risuAPI.getCurrentChatPage(),
+        chaId: risuAPI.getChaId(),
         onClose: closePCViewer,
+        initialLoading: showLoading,
       },
       useContents: false,
     });
@@ -97,6 +113,8 @@ export function closePCViewer() {
   // 마운트 타겟의 스타일 복원
   if (mountTarget) {
     safeRestoreStyle(mountTarget, VIEWER_STYLE_NAMESPACE);
+    const rootContainer = risuSelector(LOCATOR.chatScreen.root);
+    safeRestoreStyle(rootContainer, VIEWER_STYLE_NAMESPACE);
     mountTarget = null;
   }
 

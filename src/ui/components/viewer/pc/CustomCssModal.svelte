@@ -2,6 +2,7 @@
   /**
    * CustomCssModal - 사용자 CSS 편집 모달
    */
+  import defaultCss from '../../../styles/pc-viewer.css?raw';
 
   let { isOpen = false, initialCss = '', onApply, onReset, onClose } = $props();
 
@@ -10,7 +11,7 @@
   // initialCss가 변경되거나 모달이 열릴 때 cssValue 업데이트
   $effect(() => {
     if (isOpen) {
-      cssValue = initialCss;
+      cssValue = initialCss || defaultCss;
     }
   });
 
@@ -19,7 +20,7 @@
   }
 
   function handleReset() {
-    cssValue = '';
+    cssValue = defaultCss;
     onReset?.();
   }
 

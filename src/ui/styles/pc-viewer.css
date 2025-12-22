@@ -36,6 +36,19 @@
   --bv-transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   --bv-transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --bv-transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* 폰트 컬러 (Light) */
+  --FontColorStandard: #2c2c2c;
+  --FontColorItalic: #5a5a5a;
+  --FontColorBold: #1a1a1a;
+  --FontColorItalicBold: #5a5a5a;
+  --FontColorQuote1: #0e7490;
+  --FontColorQuote2: #c2410c;
+
+  --bv-font-color: var(--FontColorStandard);
+  --bv-mark1-color: var(--FontColorQuote1);
+  --bv-mark2-color: var(--FontColorQuote2);
+  --bv-em-color: var(--FontColorItalic);
 }
 
 /* 테마: Sepia */
@@ -54,6 +67,19 @@
     #b8ad9c 50%,
     #c4b9a8 100%
   );
+
+  /* 폰트 컬러 (Sepia) */
+  --FontColorBold: #2a1f10;
+  --FontColorItalicBold: #6b5a48;
+
+  --FontColorStandard: #3d2e1c;
+  --FontColorQuote1: #1a6b6b;
+  --FontColorQuote2: #a85d20;
+  --FontColorItalic: #6b5a48;
+  --bv-font-color: var(--FontColorStandard);
+  --bv-mark1-color: var(--FontColorQuote1);
+  --bv-mark2-color: var(--FontColorQuote2);
+  --bv-em-color: var(--FontColorItalic);
 }
 
 /* 테마: Dark */
@@ -73,6 +99,41 @@
     #30363d 50%,
     #21262d 100%
   );
+  --FontColorStandard: #fafafa;
+  --FontColorItalic: #8c8d93;
+  --FontColorBold: #fafafa;
+  --FontColorItalicBold: #8c8d93;
+  --FontColorQuote1: #8be9fd;
+  --FontColorQuote2: #ffb86c;
+
+  --bv-font-color: var(--FontColorStandard);
+  --bv-mark1-color: var(--FontColorQuote1);
+  --bv-mark2-color: var(--FontColorQuote2);
+  --bv-em-color: var(--FontColorItalic);
+}
+
+/* 텍스트 색상 */
+.text-content p {
+  margin-top: 1em;
+  /* color: var(--bv-font-color); */
+}
+
+.text-content h1 {
+  font-weight: 800;
+  font-size: 2.25em;
+  line-height: 1.1111111;
+}
+
+.text-content h2 {
+  font-weight: 700;
+  font-size: 1.5em;
+  line-height: 1.3333333;
+}
+
+.text-content h3 {
+  font-weight: 600;
+  font-size: 1.25em;
+  line-height: 1.6;
 }
 
 /* ===== 책 래퍼 (전체 화면) ===== */
@@ -85,7 +146,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  z-index: 2;
+  z-index: 5;
   font-family: var(--bv-font-family);
   background: linear-gradient(
     135deg,
@@ -208,6 +269,39 @@
   flex-shrink: 0;
 }
 
+.chat-index-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chat-nav-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--bv-text-secondary);
+  border-radius: 4px;
+  transition: all var(--bv-transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-nav-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--bv-accent-color);
+}
+
+.chat-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.book-viewer-root[data-theme='dark'] .chat-nav-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 .header-chat-index {
   font-size: 13px;
   font-weight: 500;
@@ -215,6 +309,14 @@
   background: rgba(0, 0, 0, 0.04);
   padding: 4px 10px;
   border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chat-index-total {
+  font-size: 11px;
+  opacity: 0.7;
 }
 
 .book-viewer-root[data-theme='dark'] .header-chat-index {
@@ -356,18 +458,21 @@
 
 .text-content {
   flex: 1;
-  overflow: auto;
+  overflow-y: auto;
   font-size: var(--bv-font-size);
   line-height: var(--bv-line-height);
   text-align: -webkit-auto;
   word-break: keep-all;
   letter-spacing: -0.01em;
   padding-right: 10px;
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
 }
 
-.text-content p {
-  margin-top: 1.25em;
-  margin-bottom: 1.25em;
+.text-content * {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 /* 헤딩 스타일 */
@@ -600,7 +705,7 @@
 .dropdown-menu {
   display: none;
   position: absolute;
-  bottom: calc(100% + 12px);
+  bottom: calc(100% + 40px);
   right: 0;
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
@@ -658,7 +763,7 @@
   margin-bottom: 8px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--bv-text-color);
+  color: var(--bv-font-color);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -722,7 +827,15 @@
 .book-viewer-root[data-theme='dark'] .setting-item select {
   background-color: #21262d;
   border-color: #30363d;
-  color: var(--bv-text-color);
+  color: var(--bv-font-color);
+}
+
+.book-viewer-root[data-theme='light'] .setting-item select {
+  color: var(--bv-font-color);
+}
+
+.book-viewer-root[data-theme='sepia'] .setting-item select {
+  color: var(--bv-font-color);
 }
 
 .setting-item select:hover {

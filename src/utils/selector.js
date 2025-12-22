@@ -45,7 +45,7 @@ export const LOCATOR = {
   },
   chatMessage: {
     root: {
-      cssClass: ['div.flex.max-w-full.justify-center.risu-chat'],
+      cssClass: ['div.risu-chat'],
       className: `${PLUGIN_NAME}-chat-message-root`,
     },
     thumbnail: {
@@ -268,9 +268,9 @@ export function getChatElementByChatIndex(index) {
   const chatElements = risuSelectorAll(LOCATOR.chatMessage.root);
   if (!chatElements.length) return null;
 
-  // 3. 숫자로 변환 및 유효성 검사
+  // 3. 숫자로 변환 및 유효성 검사 (음수 인덱스도 유효함, 예: -1)
   const numIndex = typeof index === 'string' ? parseInt(index, 10) : index;
-  if (!Number.isFinite(numIndex) || numIndex < 0) return null;
+  if (!Number.isFinite(numIndex)) return null;
 
   // 4. 문자열로 변환 (dataset 비교용)
   const indexStr = String(numIndex);
@@ -292,4 +292,128 @@ export function getChatElementByChatIndex(index) {
  */
 export function isInChatScreenNow() {
   return !!risuSelector(LOCATOR.chatScreen.root);
+}
+
+/**
+ * 현재 화면에 렌더링된 모든 chat index를 배열로 반환
+ * RisuAI는 가상화로 인해 모든 메시지가 DOM에 없을 수 있으므로,
+ * 실제 렌더링된 요소만 추출합니다.
+ *
+ * @returns {number[]} chat index 배열 (오름차순 정렬)
+ * @example
+ * const indices = getAllVisibleChatIndices();
+ * // [0, 1, 2, 5, 6, 7] - 중간에 빠진 인덱스가 있을 수 있음
+ */
+export function getAllVisibleChatIndices() {
+  const chatElements = risuSelectorAll(LOCATOR.chatMessage.root);
+  if (!chatElements.length) return [];
+
+  const indices = chatElements
+    // book-viewer-root 클래스가 있는 요소는 뷰어이므로 제외
+    .filter(el => !el.classList.contains('book-viewer-root'))
+    .map(el => {
+      const indexStr = el.dataset?.chatIndex;
+      if (indexStr == null) return null;
+      const num = parseInt(indexStr, 10);
+      return Number.isFinite(num) ? num : null;
+    })
+    .filter(idx => idx !== null);
+
+  // 오름차순 정렬하고 중복 제거
+  return [...new Set(indices)].sort((a, b) => a - b);
+}
+
+/**
+ * 현재 chat index 기준으로 이전/다음 chat index를 반환
+ * @param {number} currentIndex - 현재 chat index
+ * @param {'prev' | 'next'} direction - 이동 방향
+ * @returns {{ index: number | null, isFirst: boolean, isLast: boolean }}
+ */
+export function getAdjacentChatIndex(currentIndex, direction) {
+  const indices = getAllVisibleChatIndices();
+  if (indices.length === 0) {
+    return { index: null, isFirst: true, isLast: true };
+  }
+
+  let currentPos = indices.indexOf(currentIndex);
+
+  // currentIndex가 visible indices에 없는 경우, 가장 가까운 위치 찾기
+  if (currentPos === -1) {
+    // 현재 인덱스보다 작은 값 중 가장 큰 값의 위치 찾기
+    currentPos = indices.findIndex(idx => idx > currentIndex);
+    if (currentPos === -1) {
+      // 모든 인덱스가 currentIndex보다 작음 -> 맨 마지막 위치로
+      currentPos = indices.length;
+    }
+    // 이 경우 currentPos는 "삽입될 위치"를 나타냄
+    // prev면 currentPos - 1, next면 currentPos
+    if (direction === 'prev') {
+      const prevIndex = currentPos > 0 ? indices[currentPos - 1] : null;
+      return {
+        index: prevIndex,
+        isFirst: prevIndex === null,
+        isLast: currentPos >= indices.length,
+      };
+    } else {
+      const nextIndex =
+        currentPos < indices.length ? indices[currentPos] : null;
+      return {
+        index: nextIndex,
+        isFirst: currentPos <= 0,
+        isLast: nextIndex === null,
+      };
+    }
+  }
+
+  const isFirst = currentPos === 0;
+  const isLast = currentPos === indices.length - 1;
+
+  if (direction === 'prev') {
+    return {
+      index: isFirst ? null : indices[currentPos - 1],
+      isFirst,
+      isLast,
+    };
+  } else {
+    return {
+      index: isLast ? null : indices[currentPos + 1],
+      isFirst,
+      isLast,
+    };
+  }
+}
+
+/**
+ * 현재 chat index의 위치 정보를 반환
+ * @param {number} currentIndex - 현재 chat index
+ * @returns {{ position: number, total: number, isFirst: boolean, isLast: boolean }}
+ */
+export function getChatIndexPosition(currentIndex) {
+  const indices = getAllVisibleChatIndices();
+  if (indices.length === 0) {
+    return { position: 0, total: 0, isFirst: true, isLast: true };
+  }
+
+  const currentPos = indices.indexOf(currentIndex);
+
+  // currentIndex가 visible indices에 없는 경우
+  if (currentPos === -1) {
+    // 가장 가까운 위치 계산 (어디에 삽입될지)
+    const insertPos = indices.findIndex(idx => idx > currentIndex);
+    const effectivePos = insertPos === -1 ? indices.length : insertPos;
+
+    return {
+      position: 0, // 리스트에 없으므로 0
+      total: indices.length,
+      isFirst: effectivePos === 0,
+      isLast: effectivePos >= indices.length,
+    };
+  }
+
+  return {
+    position: currentPos + 1,
+    total: indices.length,
+    isFirst: currentPos === 0,
+    isLast: currentPos === indices.length - 1,
+  };
 }
