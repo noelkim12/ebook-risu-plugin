@@ -152,7 +152,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 93.5%;
+  height: 100%; /* JS에서 동적으로 설정됨 (textarea 높이만큼 감소) */
   display: flex;
   flex-direction: column;
   background: linear-gradient(

@@ -47,6 +47,8 @@
     getAdjacentChatIndex,
     getChatIndexPosition,
     getAllVisibleChatIndices,
+    LOCATOR,
+    risuSelector,
   } from '../../../../utils/selector.js';
 
   // RisuAPI
@@ -119,6 +121,10 @@
   // 요소 참조
   let rootElement = $state(null);
 
+  // 뷰어 높이 (textarea 높이에 따라 동적 계산)
+  let viewerHeight = $state('100%');
+  let textareaResizeObserver = null;
+
   // 타이머
   let resizeTimer = null;
   let contentCheckInterval = null;
@@ -157,6 +163,23 @@
     // 전체화면
     // await document.documentElement?.requestFullscreen?.();
     // isFullscreen = true;
+
+    // inputTextarea 높이 감지 및 뷰어 높이 계산
+    const inputTextarea = risuSelector(LOCATOR.chatScreen.textarea);
+    if (inputTextarea) {
+      // 초기 높이 설정
+      const textareaHeight = inputTextarea.scrollHeight + 10;
+      viewerHeight = `calc(100% - ${textareaHeight}px)`;
+
+      // ResizeObserver로 높이 변화 감지
+      textareaResizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const newTextareaHeight = entry.target.scrollHeight + 10;
+          viewerHeight = `calc(100% - ${newTextareaHeight}px)`;
+        }
+      });
+      textareaResizeObserver.observe(inputTextarea);
+    }
 
     // 설정 로드
     settings = loadSettings();
@@ -231,6 +254,12 @@
   onDestroy(() => {
     if (resizeTimer) clearTimeout(resizeTimer);
     if (contentCheckInterval) clearInterval(contentCheckInterval);
+
+    // textarea ResizeObserver 해제
+    if (textareaResizeObserver) {
+      textareaResizeObserver.disconnect();
+      textareaResizeObserver = null;
+    }
 
     // 스와이프 이벤트 리스너 제거
     if (rootElement && swipeHandler) {
@@ -550,6 +579,7 @@
     class="mobile-reader"
     bind:this={rootElement}
     data-theme={settings.theme}
+    style:height={viewerHeight}
   >
     <MobileBookHeader
       thumbnailUrl={headerInfo.thumbnailUrl}

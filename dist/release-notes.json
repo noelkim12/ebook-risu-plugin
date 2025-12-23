@@ -38,5 +38,15 @@
         "text": "disable auto fullscreen when mount mobile viewer"
       }
     ]
+  },
+  "0.0.5": {
+    "released_at": "2025-12-23T07:17:09.645Z",
+    "mandatory": false,
+    "notes": [
+      {
+        "type": "fix",
+        "text": "모바일 화면 변경 방식 스와이프로 변경 및 모바일환경 메세지 입력 불편을 최소화 하기 위한 UI개선, 폰트&폰트크기&줄간격 기능 오류수정"
+      }
+    ]
   }
 }
