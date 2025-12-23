@@ -1,18 +1,14 @@
 <script>
   /**
    * MobileBookPage - 모바일용 단일 페이지 컴포넌트
-   * 터치 영역, 스와이프 지원
+   * 스와이프로 페이지 이동
    */
-  import { onMount, onDestroy } from 'svelte';
   import LoadingOverlay from '../LoadingOverlay.svelte';
   import { delegateButtonEvents } from '../../../../utils/dom-helper.js';
 
   let {
     content = '',
     pageNum = 0,
-    totalPages = 0,
-    onPrevPage = () => {},
-    onNextPage = () => {},
     isLoading = false,
     loadingMessage = '',
     liveContentButtons = [],
@@ -29,15 +25,6 @@
       });
     }
   });
-
-  // 터치 영역 클릭 핸들러
-  function handleTouchLeftClick() {
-    onPrevPage();
-  }
-
-  function handleTouchRightClick() {
-    onNextPage();
-  }
 </script>
 
 <div class="page-container">
@@ -53,18 +40,6 @@
       <span class="page-number">{pageNum}</span>
     {/if}
   </div>
-
-  <!-- 터치 영역 -->
-  <button
-    class="touch-area touch-left"
-    onclick={handleTouchLeftClick}
-    aria-label="이전 페이지"
-  ></button>
-  <button
-    class="touch-area touch-right"
-    onclick={handleTouchRightClick}
-    aria-label="다음 페이지"
-  ></button>
 
   <LoadingOverlay visible={isLoading} message={loadingMessage} />
 </div>
@@ -171,27 +146,6 @@
     color: var(--mv-text-secondary, #6b6b6b);
     opacity: 0.6;
     z-index: 3;
-  }
-
-  /* 터치 영역 */
-  .touch-area {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 28%;
-    z-index: 50;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .touch-left {
-    left: 0;
-  }
-
-  .touch-right {
-    right: 0;
   }
 
   /* 반응형 */

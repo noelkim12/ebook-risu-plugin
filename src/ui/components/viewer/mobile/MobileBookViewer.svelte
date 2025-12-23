@@ -148,6 +148,7 @@
         String(settings.lineHeight),
       );
       rootElement.style.setProperty('--mv-font-family', settings.fontFamily);
+      rootElement.style.setProperty('--risu-font-family', settings.fontFamily); 
       rootElement.setAttribute('data-theme', settings.theme);
     }
   });
@@ -569,9 +570,6 @@
     <MobileBookPage
       content={currentContent}
       {pageNum}
-      {totalPages}
-      onPrevPage={prevPage}
-      onNextPage={nextPage}
       {isLoading}
       {loadingMessage}
       {liveContentButtons}

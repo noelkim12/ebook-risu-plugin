@@ -367,9 +367,9 @@
 
 .mobile-reader .text-content {
   flex: 1;
-  font-size: var(--mv-font-size);
-  line-height: var(--mv-line-height);
-  font-family: var(--mv-font-family);
+  font-size: var(--mv-font-size) !important;
+  line-height: var(--mv-line-height) !important;
+  font-family: var(--mv-font-family) !important;
   color: var(--bv-text-color);
   word-break: keep-all;
   letter-spacing: -0.01em;

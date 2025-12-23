@@ -587,10 +587,10 @@
   cursor: text;
 }
 
-.text-content * {
+.text-content * {      
   user-select: text;
   -webkit-user-select: text;
-}
+}   
 
 /* 헤딩 스타일 */
 .text-content :global(h1),

@@ -26,6 +26,13 @@
 
   let actionButtonsRef = $state(null);
 
+  // iOS 감지
+  const isIOS = $derived(
+    typeof navigator !== 'undefined' &&
+      (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)),
+  );
+
   // 버튼 복제 및 이벤트 위임
   $effect(() => {
     if (actionButtonsRef && buttons.length > 0) {
@@ -118,40 +125,42 @@
     <div class="header-action-buttons" bind:this={actionButtonsRef}></div>
 
     <div class="header-right-group">
-      <button
-        class="header-toggle-btn fullscreen-btn"
-        class:active={isFullscreen}
-        onclick={onFullscreenToggle}
-        title={isFullscreen ? '전체화면 해제' : '전체화면'}
-      >
-        {#if isFullscreen}
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"
-            />
-          </svg>
-        {:else}
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
-            />
-          </svg>
-        {/if}
-      </button>
+      {#if !isIOS}
+        <button
+          class="header-toggle-btn fullscreen-btn"
+          class:active={isFullscreen}
+          onclick={onFullscreenToggle}
+          title={isFullscreen ? '전체화면 해제' : '전체화면'}
+        >
+          {#if isFullscreen}
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"
+              />
+            </svg>
+          {:else}
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+              />
+            </svg>
+          {/if}
+        </button>
+      {/if}
 
       {#if showLBButton}
         <button

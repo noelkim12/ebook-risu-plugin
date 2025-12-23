@@ -1,15 +1,33 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { Book } from 'lucide-svelte';
   import { LOCATOR, risuSelector } from '../../utils/selector.js';
   import { openViewer } from './viewer/pc/viewerHelpers.js';
 
   let inputHeight = $state('44px');
+  let resizeObserver = null;
 
   onMount(() => {
     const inputTextarea = risuSelector(LOCATOR.chatScreen.textarea);
     if (inputTextarea) {
+      // 초기 높이 설정
       inputHeight = `${inputTextarea.scrollHeight}px`;
+
+      // ResizeObserver로 높이 변화 감지
+      resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const newHeight = entry.target.scrollHeight;
+          inputHeight = `${newHeight}px`;
+        }
+      });
+      resizeObserver.observe(inputTextarea);
+    }
+  });
+
+  onDestroy(() => {
+    if (resizeObserver) {
+      resizeObserver.disconnect();
+      resizeObserver = null;
     }
   });
 
