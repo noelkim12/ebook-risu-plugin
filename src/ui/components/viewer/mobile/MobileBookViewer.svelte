@@ -154,7 +154,7 @@
 
   onMount(async () => {
     // 전체화면
-    await document.documentElement.requestFullscreen();
+    await document.documentElement?.requestFullscreen?.();
     isFullscreen = true;
 
     // 설정 로드
@@ -479,7 +479,7 @@
   async function toggleFullscreen() {
     try {
       if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen();
+        await document.documentElement?.requestFullscreen?.();
         isFullscreen = true;
       } else {
         await document.exitFullscreen?.();

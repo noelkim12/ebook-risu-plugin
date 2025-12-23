@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0"
+    />
+    <title>RisuAI Book Viewer - Mobile</title>
+    <link rel="stylesheet" href="book-viewer-mobile.css" />
+    <link rel="stylesheet" href="lb.css" />
+    <link rel="stylesheet" href="risuai-styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body>
+    <div class="mobile-reader">
+      <!-- 상단 헤더 (2줄 구조) -->
+      <header class="reader-header">
+        <!-- 1줄: 썸네일 + 봇 이름 -->
+        <div class="header-row header-row-top">
+          <button class="header-btn back-btn" title="뒤로">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div class="header-bot-info">
+            <div class="header-thumbnail"></div>
+            <span class="header-bot-name"></span>
+          </div>
+          <span class="header-chat-index"></span>
+        </div>
+        <!-- 2줄: 액션버튼 + 토글버튼 + 챗 인덱스 -->
+        <div class="header-row header-row-bottom">
+          <div class="header-action-buttons"></div>
+          <div class="header-right-group">
+            <!-- LB 모듈 버튼 (동적으로 표시) -->
+            <button
+              class="header-toggle-btn lb-btn"
+              title="LB 모듈"
+              style="display: none"
+            >
+              LB
+            </button>
+
+            <button class="header-toggle-btn settings-btn" title="설정">
+              설정
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- 페이지 컨테이너 -->
+      <div class="page-container">
+        <div class="page-content">
+          <div class="text-content"></div>
+        </div>
+      </div>
+
+      <!-- 하단 네비게이션 -->
+      <footer class="reader-footer">
+        <button class="nav-btn prev-btn" title="이전">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="page-info">
+          <span class="page-indicator">1 / 8</span>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+        <button class="nav-btn next-btn" title="다음">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </footer>
+
+      <!-- 터치 영역 (좌/우) -->
+      <div class="touch-area touch-left"></div>
+      <div class="touch-area touch-right"></div>
+    </div>
+
+    <!-- LB 패널 -->
+    <div class="lb-panel">
+      <div class="lb-overlay"></div>
+      <div class="lb-content">
+        <div class="lb-header">
+          <h3>LB 모듈</h3>
+          <button class="close-lb">✕</button>
+        </div>
+        <div class="lb-body">
+          <div class="lb-modules-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 설정 패널 -->
+    <div class="settings-panel">
+      <div class="settings-overlay"></div>
+      <div class="settings-content">
+        <div class="settings-header">
+          <h3>설정</h3>
+          <button class="close-settings">✕</button>
+        </div>
+
+        <div class="settings-body">
+          <div class="setting-item">
+            <label>글자 크기</label>
+            <div class="range-control">
+              <span class="range-label">작게</span>
+              <input
+                type="range"
+                id="fontSize"
+                min="14"
+                max="20"
+                value="16"
+                step="1"
+              />
+              <span class="range-label">크게</span>
+            </div>
+            <span class="setting-value" id="fontSizeValue">16px</span>
+          </div>
+
+          <div class="setting-item">
+            <label>줄 간격</label>
+            <div class="range-control">
+              <span class="range-label">좁게</span>
+              <input
+                type="range"
+                id="lineHeight"
+                min="1.4"
+                max="2.2"
+                value="1.8"
+                step="0.1"
+              />
+              <span class="range-label">넓게</span>
+            </div>
+            <span class="setting-value" id="lineHeightValue">1.8</span>
+          </div>
+
+          <div class="setting-item">
+            <label>테마</label>
+            <div class="theme-buttons">
+              <button class="theme-btn active" data-theme="light">
+                <span class="theme-preview light"></span>
+                밝게
+              </button>
+              <button class="theme-btn" data-theme="sepia">
+                <span class="theme-preview sepia"></span>
+                세피아
+              </button>
+              <button class="theme-btn" data-theme="dark">
+                <span class="theme-preview dark"></span>
+                어둡게
+              </button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <button class="custom-css-btn" id="openCustomCss">
+              사용자 CSS 편집
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 사용자 CSS 모달 -->
+    <div class="modal-overlay" id="customCssModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>사용자 CSS 편집</h3>
+          <button class="modal-close" id="closeCustomCss">&times;</button>
+        </div>
+        <div class="modal-body">
+          <textarea
+            id="customCssInput"
+            placeholder="여기에 CSS를 입력하세요..."
+          ></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="modal-btn secondary" id="resetCustomCss">
+            초기화
+          </button>
+          <button class="modal-btn primary" id="applyCustomCss">적용</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="text-splitter.js"></script>
+    <script src="book-viewer-mobile.js"></script>
+  </body>
+</html>

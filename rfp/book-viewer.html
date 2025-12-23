@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RisuAI Book Viewer - PC</title>
+    <link rel="stylesheet" href="book-viewer.css" />
+  </head>
+  <body>
+    <!-- 책 배경 (전체 화면) -->
+    <div class="book-wrapper">
+      <!-- 헤더 영역 -->
+      <div class="book-header">
+        <div class="header-left">
+          <div class="header-thumbnail"></div>
+          <div class="header-info">
+            <span class="header-name"></span>
+            <div class="header-buttons"></div>
+          </div>
+        </div>
+        <div class="header-right">
+          <span class="header-chat-index"></span>
+        </div>
+      </div>
+
+      <!-- 페이지 영역 -->
+      <div class="book-pages">
+        <!-- 클릭 영역 (좌/우) - book-pages 내부 -->
+        <div class="click-area click-left" title="이전 페이지"></div>
+        <div class="click-area click-right" title="다음 페이지"></div>
+
+        <!-- 왼쪽 페이지 -->
+        <div class="page page-left">
+          <div class="page-content">
+            <div class="page-number left-page-num"></div>
+            <div class="text-content left-content"></div>
+          </div>
+        </div>
+
+        <!-- 중앙 책등 -->
+        <div class="book-spine"></div>
+
+        <!-- 오른쪽 페이지 -->
+        <div class="page page-right">
+          <div class="page-content">
+            <div class="text-content right-content"></div>
+            <div class="page-number right-page-num"></div>
+          </div>
+        </div>
+      </div>
+
+        <!-- 네비게이션 컨트롤 -->
+        <div class="nav-controls">
+          <button class="nav-btn prev-btn" title="이전 페이지">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <span class="page-indicator"></span>
+          <button class="nav-btn next-btn" title="다음 페이지">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+
+          <!-- 우측 버튼 그룹 -->
+          <div class="nav-right-buttons">
+            <!-- LB 모듈 버튼 (동적으로 표시) -->
+            <div class="lb-menu-container" style="display: none;">
+              <button class="nav-icon-btn lb-btn" title="LB 모듈">LB</button>
+              <div class="lb-menu dropdown-menu">
+                <div class="dropdown-header">LB 모듈</div>
+                <div class="lb-modules-list"></div>
+              </div>
+            </div>
+
+            <!-- 설정 버튼 -->
+            <div class="settings-menu-container">
+              <button class="nav-icon-btn settings-btn" title="설정">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+              </button>
+              <div class="settings-menu dropdown-menu">
+                <div class="dropdown-header">설정</div>
+                <div class="setting-item">
+                  <label>글자 크기</label>
+                  <input type="range" id="fontSize" min="12" max="24" value="16" step="1" />
+                  <span id="fontSizeValue">16px</span>
+                </div>
+                <div class="setting-item">
+                  <label>줄 간격</label>
+                  <input type="range" id="lineHeight" min="1.4" max="2.2" value="1.8" step="0.1" />
+                  <span id="lineHeightValue">1.8</span>
+                </div>
+                <div class="setting-item">
+                  <label>테마</label>
+                  <select id="theme">
+                    <option value="light">밝은 테마</option>
+                    <option value="sepia">세피아</option>
+                    <option value="dark">어두운 테마</option>
+                  </select>
+                </div>
+                <div class="setting-item">
+                  <button class="custom-css-btn" id="openCustomCss">사용자 CSS 편집</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 사용자 CSS 모달 -->
+    <div class="modal-overlay" id="customCssModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>사용자 CSS 편집</h3>
+          <button class="modal-close" id="closeCustomCss">&times;</button>
+        </div>
+        <div class="modal-body">
+          <textarea id="customCssInput" placeholder="여기에 CSS를 입력하세요..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="modal-btn secondary" id="resetCustomCss">초기화</button>
+          <button class="modal-btn primary" id="applyCustomCss">적용</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="text-splitter.js"></script>
+    <script src="text-splitter-pc.js"></script>
+    <script src="text-splitter-mobile.js"></script>
+    <script src="book-viewer.js"></script>
+  </body>
+</html>
