@@ -162,7 +162,7 @@
   );
   z-index: 5;
   font-family: var(--mv-font-family);
-  -webkit-font-smoothing: antialiased;   
+  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
 }

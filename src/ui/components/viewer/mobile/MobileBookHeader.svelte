@@ -1,7 +1,7 @@
 <script>
   /**
    * MobileBookHeader - 모바일용 2줄 헤더 컴포넌트
-   * Row 1: 뒤로, 썸네일+이름, 채팅 인덱스
+   * Row 1: 썸네일+이름, 채팅 인덱스, 닫기 버튼
    * Row 2: 액션버튼들, LB 토글, 설정 토글
    */
   import { cloneButtonsWithEventDelegation } from '../../../../utils/dom-helper.js';
@@ -45,21 +45,8 @@
 </script>
 
 <header class="reader-header">
-  <!-- Row 1: 뒤로, 봇 정보, 채팅 인덱스 -->
+  <!-- Row 1: 봇 정보, 채팅 인덱스, 닫기 버튼 -->
   <div class="header-row header-row-top">
-    <button class="header-btn back-btn" onclick={onBack} title="뒤로">
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path d="M19 12H5M12 19l-7-7 7-7" />
-      </svg>
-    </button>
-
     <div class="header-bot-info">
       {#if thumbnailUrl}
         <div
@@ -118,6 +105,19 @@
         </svg>
       </button>
     </div>
+
+    <button class="header-btn close-btn" onclick={onBack} title="닫기">
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+      >
+        <path d="M18 6L6 18M6 6l12 12" />
+      </svg>
+    </button>
   </div>
 
   <!-- Row 2: 액션 버튼들, LB, 설정 -->
@@ -227,8 +227,8 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    min-width: 44px;
-    min-height: 44px;
+    min-width: 36px;
+    min-height: 36px;
   }
 
   .header-btn:active {
@@ -238,18 +238,29 @@
   }
 
   .header-btn svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+  }
+
+  /* 닫기 버튼 */
+  .close-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .close-btn:active {
+    background: rgba(255, 100, 100, 0.3);
+    color: #ff6b6b;
   }
 
   /* 봇 정보 */
   .header-bot-info {
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex: 1;
+    gap: 8px;
     min-width: 0;
-    justify-content: center;
+    flex-shrink: 1;
   }
 
   .header-thumbnail {
@@ -277,7 +288,9 @@
   .header-chat-nav {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 4px;
+    flex: 1;
   }
 
   .nav-chat-btn {
