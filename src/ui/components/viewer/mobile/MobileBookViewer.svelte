@@ -154,8 +154,8 @@
 
   onMount(async () => {
     // 전체화면
-    await document.documentElement?.requestFullscreen?.();
-    isFullscreen = true;
+    // await document.documentElement?.requestFullscreen?.();
+    // isFullscreen = true;
 
     // 설정 로드
     settings = loadSettings();
