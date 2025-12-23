@@ -26,24 +26,25 @@
     title="이전"
   >
     <svg
-      width="24"
-      height="24"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="2"
+      stroke-width="2.5"
     >
       <polyline points="15 18 9 12 15 6"></polyline>
     </svg>
+    <span class="btn-label">이전</span>
   </button>
 
   <div class="page-info">
-    <span class="page-indicator">
-      {currentPage + 1} / {totalPages}
-    </span>
     <div class="progress-bar">
       <div class="progress-fill" style="width: {progress}%"></div>
     </div>
+    <span class="page-indicator">
+      {currentPage + 1} / {totalPages}
+    </span>
   </div>
 
   <button
@@ -52,13 +53,14 @@
     disabled={nextDisabled}
     title="다음"
   >
+    <span class="btn-label">다음</span>
     <svg
-      width="24"
-      height="24"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="2"
+      stroke-width="2.5"
     >
       <polyline points="9 18 15 12 9 6"></polyline>
     </svg>
@@ -70,88 +72,92 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 16px;
+    padding: 8px 12px;
     background: var(--mv-footer-bg, rgba(253, 251, 247, 0.98));
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(201, 166, 107, 0.15);
-    gap: 16px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(201, 166, 107, 0.12);
+    gap: 12px;
     flex-shrink: 0;
   }
 
   .nav-btn {
-    background: none;
-    border: 2px solid var(--mv-accent-color, #c9a66b);
+    background: rgba(201, 166, 107, 0.08);
+    border: 1px solid rgba(201, 166, 107, 0.25);
     color: var(--mv-accent-color, #c9a66b);
-    padding: 12px;
+    padding: 6px 14px;
     cursor: pointer;
-    border-radius: 50%;
+    border-radius: 20px;
     transition: all var(--mv-transition-fast, 0.15s cubic-bezier(0.4, 0, 0.2, 1));
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 50px;
-    min-height: 50px;
+    gap: 4px;
+    min-height: 32px;
+    font-size: 12px;
+    font-weight: 600;
   }
 
   .nav-btn svg {
-    width: 22px;
-    height: 22px;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
     transition: transform var(--mv-transition-fast, 0.15s cubic-bezier(0.4, 0, 0.2, 1));
+  }
+
+  .btn-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
   }
 
   .nav-btn:active:not(:disabled) {
     background: var(--mv-accent-color, #c9a66b);
+    border-color: var(--mv-accent-color, #c9a66b);
     color: white;
-    transform: scale(0.95);
-  }
-
-  .nav-btn:active:not(:disabled) svg {
-    transform: scale(0.9);
+    transform: scale(0.97);
   }
 
   .nav-btn:disabled {
-    opacity: 0.25;
-    border-color: #ccc;
-    color: #999;
+    opacity: 0.3;
     cursor: not-allowed;
   }
 
   .page-info {
     flex: 1;
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
   }
 
   .page-indicator {
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 600;
-    color: var(--mv-text-color, #2c2c2c);
-    text-align: center;
-    letter-spacing: 0.03em;
+    color: var(--mv-text-secondary, #6b6b6b);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
   }
 
   .progress-bar {
-    width: 100%;
-    height: 5px;
-    background: rgba(201, 166, 107, 0.2);
-    border-radius: 3px;
+    flex: 1;
+    height: 3px;
+    background: rgba(201, 166, 107, 0.15);
+    border-radius: 2px;
     overflow: hidden;
   }
 
   .progress-fill {
     height: 100%;
     background: linear-gradient(90deg, var(--mv-accent-color, #c9a66b) 0%, #d4b87a 100%);
-    border-radius: 3px;
+    border-radius: 2px;
     transition: width var(--mv-transition-smooth, 0.3s cubic-bezier(0.4, 0, 0.2, 1));
-    box-shadow: 0 0 8px rgba(201, 166, 107, 0.5);
   }
 
   /* Safe Area */
   @supports (padding-bottom: env(safe-area-inset-bottom)) {
     .reader-footer {
-      padding-bottom: max(14px, env(safe-area-inset-bottom));
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
     }
   }
 </style>

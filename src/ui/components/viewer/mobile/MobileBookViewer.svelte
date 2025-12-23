@@ -619,7 +619,7 @@
       {settings}
       onSettingsChange={handleSettingsChange}
       onOpenCustomCss={openCustomCssModal}
-      onClose={() => (isSettingsOpen = false)}
+      onClose={() => (isSettingsOpen = false)}    
     />
 
     <MobileLBPanel

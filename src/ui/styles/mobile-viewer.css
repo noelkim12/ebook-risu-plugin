@@ -160,9 +160,9 @@
     var(--mv-bg-gradient-start) 0%,
     var(--mv-bg-gradient-end) 100%
   );
-  z-index: 9999;
+  z-index: 5;
   font-family: var(--mv-font-family);
-  -webkit-font-smoothing: antialiased;
+  -webkit-font-smoothing: antialiased;   
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
 }
