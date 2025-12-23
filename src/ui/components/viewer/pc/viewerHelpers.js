@@ -1,5 +1,6 @@
 /**
- * viewerHelpers.js - PC 뷰어 열기/닫기 헬퍼 함수
+ * viewerHelpers.js - PC/Mobile 뷰어 열기/닫기 헬퍼 함수
+ * 디바이스 감지를 통한 자동 라우팅 지원
  */
 
 import {
@@ -17,6 +18,18 @@ import {
 } from '../../../../utils/selector.js';
 import { RisuAPI } from '../../../../core/risu-api.js';
 
+// 모바일 헬퍼 (lazy import)
+let mobileHelpers = null;
+async function getMobileHelpers() {
+  if (!mobileHelpers) {
+    mobileHelpers = await import('../mobile/viewerHelpers.js');
+  }
+  return mobileHelpers;
+}
+
+// lodash deep copy
+import { cloneDeep } from 'lodash';
+
 const VIEWER_ID = 'pc-book-viewer';
 const VIEWER_STYLE_NAMESPACE = 'pc-viewer';
 
@@ -30,7 +43,11 @@ let mountTarget = null;
  * @param {boolean} showLoading - 로딩 오버레이 표시 여부 (chat index 이동 시 true)
  * @returns {boolean} 성공 여부
  */
-export function openPCViewer(chatIndex = null, togleViewer = true, showLoading = false) {
+export function openPCViewer(
+  chatIndex = null,
+  togleViewer = true,
+  showLoading = false,
+) {
   // togleViewer일 때, 뷰어가 이미 열려있으면 닫기
   if (isMounted(VIEWER_ID)) {
     closePCViewer();
@@ -38,12 +55,18 @@ export function openPCViewer(chatIndex = null, togleViewer = true, showLoading =
     if (togleViewer) return true;
   }
 
-  try {
-    const risuAPI = RisuAPI.getInstance();
+  const risuAPI = RisuAPI.getInstance();
 
+  let db = risuAPI.getDatabase();
+  let ognlTheme = cloneDeep(db.theme);
+  let ognlCustomCss = cloneDeep(db.customCSS);
+  db.theme = '';
+  db.customCSS = '';
+  try {
     // 채팅 인덱스 결정 (null/undefined인 경우에만 마지막 채팅 사용, -1 등 음수는 유효한 인덱스)
     // chatIndex가 문자열로 전달될 수 있으므로 숫자로 변환
-    const targetIndex = chatIndex != null ? Number(chatIndex) : risuAPI.getLastChatIndex() - 1;
+    const targetIndex =
+      chatIndex != null ? Number(chatIndex) : risuAPI.getLastChatIndex() - 1;
 
     // 채팅 요소 가져오기
     const chatElement = getChatElementByChatIndex(targetIndex);
@@ -94,12 +117,16 @@ export function openPCViewer(chatIndex = null, togleViewer = true, showLoading =
       useContents: false,
     });
 
+    db.theme = ognlTheme;
+    db.customCSS = ognlCustomCss;
     if (result) {
       return true;
     }
 
     return false;
   } catch (error) {
+    db.theme = ognlTheme;
+    db.customCSS = ognlCustomCss;
     console.error('[PCViewer] Failed to open:', error);
     return false;
   }
@@ -142,5 +169,91 @@ export function togglePCViewer(chatIndex = null) {
   } else {
     openPCViewer(chatIndex);
     return true;
+  }
+}
+
+// ============================================
+// 통합 API (디바이스 자동 감지)
+// ============================================
+
+/**
+ * 현재 디바이스가 모바일인지 확인
+ * @returns {boolean}
+ */
+export function isMobile() {
+  // 화면 크기 기반 감지
+  const isSmallScreen = window.innerWidth <= 768;
+
+  // User Agent 기반 감지
+  const isMobileUA =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent,
+    );
+
+  // 터치 디바이스 감지
+  const isTouchDevice =
+    'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+  // 모바일 판정: 작은 화면이거나 (모바일 UA이면서 터치 디바이스)
+  return isSmallScreen || (isMobileUA && isTouchDevice);
+}
+
+/**
+ * 통합 뷰어 열기 (디바이스 자동 감지)
+ * @param {number|null} chatIndex - 표시할 채팅 인덱스
+ * @param {boolean} toggleViewer - 토글 모드 여부
+ * @param {boolean} showLoading - 로딩 표시 여부
+ * @returns {Promise<boolean>} 성공 여부
+ */
+export async function openViewer(
+  chatIndex = null,
+  toggleViewer = true,
+  showLoading = false,
+) {
+  if (isMobile()) {
+    const mobile = await getMobileHelpers();
+    return mobile.openMobileViewer(chatIndex, toggleViewer, showLoading);
+  } else {
+    return openPCViewer(chatIndex, toggleViewer, showLoading);
+  }
+}
+
+/**
+ * 통합 뷰어 닫기 (디바이스 자동 감지)
+ * @returns {Promise<boolean>} 성공 여부
+ */
+export async function closeViewer() {
+  if (isMobile()) {
+    const mobile = await getMobileHelpers();
+    return mobile.closeMobileViewer();
+  } else {
+    return closePCViewer();
+  }
+}
+
+/**
+ * 통합 뷰어 열림 상태 확인
+ * @returns {Promise<boolean>}
+ */
+export async function isViewerOpen() {
+  if (isMobile()) {
+    const mobile = await getMobileHelpers();
+    return mobile.isMobileViewerOpen();
+  } else {
+    return isPCViewerOpen();
+  }
+}
+
+/**
+ * 통합 뷰어 토글
+ * @param {number|null} chatIndex
+ * @returns {Promise<boolean>} 열렸으면 true, 닫혔으면 false
+ */
+export async function toggleViewer(chatIndex = null) {
+  if (isMobile()) {
+    const mobile = await getMobileHelpers();
+    return mobile.toggleMobileViewer(chatIndex);
+  } else {
+    return togglePCViewer(chatIndex);
   }
 }

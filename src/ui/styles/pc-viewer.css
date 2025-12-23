@@ -1,4 +1,116 @@
+@font-face {
+  font-family: '나눔스퀘어네오';
+  src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.eot);
+  src:
+    url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.eot?#iefix)
+      format('embedded-opentype'),
+    url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.woff)
+      format('woff'),
+    url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareNeo/NanumSquareNeoTTF-bRg.ttf)
+      format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: '에스코어드림';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-3Light.woff')
+    format('woff');
+}
+@font-face {
+  font-family: '레페리포인트';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/LeferiPoint-WhiteObliqueA.woff')
+    format('woff');
+}
+@font-face {
+  font-family: '플렉스';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/IBMPlexSansKR-Regular.woff')
+    format('woff');
+}
+@font-face {
+  font-family: '스위트';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-2@1.0/SUITE-Regular.woff2')
+    format('woff2');
+}
+@font-face {
+  font-family: '오르빗';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2310@1.0/Orbit-Regular.woff2')
+    format('woff2');
+}
+@font-face {
+  font-family: '스쿨오르빗';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-2@1.0/HakgyoansimWoojuR.woff2')
+    format('woff2');
+}
+@font-face {
+  font-family: '프리티나잇';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.1/Cafe24Oneprettynight.woff')
+    format('woff');
+}
+@font-face {
+  font-family: '서라운드에어';
+  src: url('https://gcore.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/Cafe24SsurroundAir.woff')
+    format('woff');
+}
+@font-face {
+  font-family: '고운돋움';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunDodum-Regular.woff')
+    format('woff');
+}
+@font-face {
+  font-family: '고운바탕';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunBatang-Regular.woff')
+    format('woff');
+}
+@font-face {
+  font-family: '리디바탕';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/RIDIBatang.woff')
+    format('woff');
+}
+@font-face {
+  font-family: '마루부리';
+  src: url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Regular.eot);
+  src:
+    url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Regular.eot?#iefix)
+      format('embedded-opentype'),
+    url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Regular.woff2)
+      format('woff2'),
+    url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Regular.woff)
+      format('woff'),
+    url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Regular.ttf)
+      format('truetype');
+}
+@font-face {
+  font-family: '도스고딕';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_eight@1.0/DOSGothic.woff')
+    format('woff');
+}
+@font-face {
+  font-family: '스타더스트';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/PFStardust.woff')
+    format('woff');
+}
+@font-face {
+  font-family: '픽시드시스';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff')
+    format('woff');
+}
+@font-face {
+  font-family: '네오둥근모';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.3/NeoDunggeunmo.woff')
+    format('woff');
+}
+
 /* ===== PC Book Viewer Styles ===== */
+.risu-chat > div {
+  padding: unset !important;
+  margin: unset !important;
+  justify-content: unset !important;
+  align-items: unset !important;
+}
+.risu-chat > div > div {
+  margin: unset !important;
+  justify-content: unset !important;
+}
 
 /* CSS 변수 정의 */
 .book-viewer-root {
@@ -15,7 +127,7 @@
   --bv-spine-gradient: linear-gradient(
     90deg,
     #d4cfc4 0%,
-    #c9c4b9 50%,
+    hsl(41, 13%, 76%) 50%,
     #d4cfc4 100%
   );
 
@@ -143,7 +255,7 @@
   left: 0;
   width: 100%;
   height: 93.5%;
-  display: flex;
+  display: flex !important;
   flex-direction: column;
   overflow: hidden;
   z-index: 5;
@@ -182,7 +294,7 @@
 
 /* ===== 헤더 영역 ===== */
 .book-header {
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: space-between;
   padding: 12px 24px;
@@ -193,7 +305,7 @@
 }
 
 .header-left {
-  display: flex;
+  display: flex !important;
   align-items: center;
   gap: 12px;
   min-width: 0;
@@ -213,7 +325,7 @@
 }
 
 .header-info {
-  display: flex;
+  display: flex !important;
   align-items: center;
   gap: 12px;
   min-width: 0;
@@ -230,7 +342,7 @@
 }
 
 .header-buttons {
-  display: flex;
+  display: flex !important;
   align-items: center;
   gap: 4px;
 }
@@ -263,14 +375,14 @@
 }
 
 .header-right {
-  display: flex;
+  display: flex !important;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
 
 .chat-index-nav {
-  display: flex;
+  display: flex !important;
   align-items: center;
   gap: 4px;
 }
@@ -283,7 +395,7 @@
   color: var(--bv-text-secondary);
   border-radius: 4px;
   transition: all var(--bv-transition-fast);
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
 }
@@ -331,7 +443,7 @@
   color: var(--bv-text-secondary);
   border-radius: 6px;
   transition: all var(--bv-transition-fast);
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
 }
@@ -344,7 +456,7 @@
 /* ===== 페이지 영역 ===== */
 .book-pages {
   position: relative;
-  display: flex;
+  display: flex !important;
   flex: 1;
   min-height: 0;
   z-index: 1;
@@ -439,7 +551,7 @@
 .page-content {
   padding: 50px 60px 10px;
   height: 100%;
-  display: flex;
+  display: flex !important;
   flex-direction: column;
   color: var(--bv-text-color);
   position: relative;
@@ -447,20 +559,25 @@
 }
 
 .page-content > .chattext [class*='-image-wrapper'] {
-  max-height: 100% !important;
+  max-height: 100%;
 }
 .page-content > .chattext [class*='-image-container'] {
-  max-height: 100% !important;
+  min-height: 98%;
+  max-height: 100%;
 }
+.page-content > .chattext .x-risu-image-container:hover {
+}
+
 .page-content > .x-risu-image-cell {
-  aspect-ratio: auto !important;
+  aspect-ratio: auto;
 }
 
 .text-content {
   flex: 1;
   overflow-y: auto;
-  font-size: var(--bv-font-size);
-  line-height: var(--bv-line-height);
+  font-size: var(--bv-font-size) !important;
+  line-height: var(--bv-line-height) !important;
+  font-family: var(--bv-font-family) !important;
   text-align: -webkit-auto;
   word-break: keep-all;
   letter-spacing: -0.01em;
@@ -499,18 +616,18 @@
 /* Mark 스타일 */
 .text-content :global(mark),
 .text-content :global(mark[risu-mark]) {
-  display: inline !important;
+  display: inline;
   background: linear-gradient(
     120deg,
     rgba(201, 166, 107, 0.2) 0%,
     rgba(201, 166, 107, 0.3) 100%
-  ) !important;
-  color: inherit !important;
-  padding: 0.1em 0.3em !important;
-  border-radius: 3px !important;
-  flex-direction: unset !important;
-  align-items: unset !important;
-  gap: unset !important;
+  );
+  color: inherit;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  flex-direction: unset;
+  align-items: unset;
+  gap: unset;
 }
 
 /* 이미지 스타일 */
@@ -679,8 +796,8 @@
   cursor: pointer;
   border-radius: 8px;
   transition: all var(--bv-transition-fast);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 13px !important;
+  font-weight: 600 !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -905,7 +1022,7 @@
 
 /* ===== 모달 ===== */
 .modal-overlay {
-  display: none;
+  display: none !important;
   position: fixed;
   top: 0;
   left: 0;
@@ -960,7 +1077,7 @@
 }
 
 .modal-header {
-  display: flex;
+  display: flex !important;
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;

@@ -1,12 +1,12 @@
 <script>
   import { BookOpen } from 'lucide-svelte';
-  import { openPCViewer } from './viewer/pc/viewerHelpers.js';
+  import { openViewer } from './viewer/pc/viewerHelpers.js';
 
   let { chatIndex } = $props();
 
-  function handleClick(event) {
+  async function handleClick(event) {
     event.stopPropagation();
-    openPCViewer(chatIndex);
+    await openViewer(chatIndex);
   }
 </script>
 

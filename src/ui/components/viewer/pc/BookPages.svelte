@@ -2,7 +2,8 @@
   /**
    * BookPages - 2페이지 스프레드 레이아웃
    */
-  import LoadingOverlay from './LoadingOverlay.svelte';
+  import LoadingOverlay from '../LoadingOverlay.svelte';
+  import { delegateButtonEvents } from '../../../../utils/dom-helper.js';
 
   let {
     leftContent = '',
@@ -15,22 +16,31 @@
     rightContentRef = null,
     isLoading = false,
     loadingMessage = '',
+    liveContentButtons = [],
   } = $props();
 
   let leftTextContent = $state(null);
   let rightTextContent = $state(null);
 
-  // leftContent가 변경되면 DOM에 적용
+  // leftContent가 변경되면 DOM에 적용 후 이벤트 위임 설정
   $effect(() => {
     if (leftTextContent) {
       leftTextContent.innerHTML = leftContent;
+      // 라이브 버튼과 이벤트 위임 연결
+      if (liveContentButtons.length > 0) {
+        delegateButtonEvents(leftTextContent, liveContentButtons);
+      }
     }
   });
 
-  // rightContent가 변경되면 DOM에 적용
+  // rightContent가 변경되면 DOM에 적용 후 이벤트 위임 설정
   $effect(() => {
     if (rightTextContent) {
       rightTextContent.innerHTML = rightContent;
+      // 라이브 버튼과 이벤트 위임 연결
+      if (liveContentButtons.length > 0) {
+        delegateButtonEvents(rightTextContent, liveContentButtons);
+      }
     }
   });
 

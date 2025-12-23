@@ -3,7 +3,7 @@
  */
 
 import { TextSplitterPC } from './text-splitter.js';
-
+import { LOCATOR, risuSelector } from '../../../utils/selector.js';
 /**
  * 측정용 컨테이너 생성
  * @param {HTMLElement} referenceElement - 실제 페이지 콘텐츠 요소
@@ -296,6 +296,113 @@ export function extractHeaderInfo(doc) {
   }
 
   return result;
+}
+
+/**
+ * 라이브 DOM에서 헤더 버튼 요소들 추출
+ * DOMParser로 파싱된 요소는 이벤트 핸들러가 없으므로,
+ * 라이브 DOM에서 직접 버튼 참조를 가져와야 함
+ *
+ * @param {HTMLElement} liveElement - 라이브 DOM 요소 (getChatElementByChatIndex로 가져온 요소)
+ * @returns {HTMLElement[]} 버튼 요소 배열
+ */
+export function extractLiveButtons(liveElement) {
+  if (!liveElement) return [];
+
+  const buttons = [];
+  const buttonsContainer = risuSelector(
+    LOCATOR.chatMessage.botButtonDiv,
+    liveElement,
+  );
+
+  if (buttonsContainer) {
+    const buttonSelectors = [
+      '.button-icon-copy',
+      '.button-icon-edit',
+      '.button-icon-translate',
+      '.button-icon-reroll',
+    ];
+
+    buttonSelectors.forEach(selector => {
+      const btn = buttonsContainer.querySelector(selector);
+      if (btn) {
+        buttons.push(btn); // 라이브 DOM 요소 참조 (cloneNode 하지 않음)
+      }
+    });
+  }
+
+  return buttons;
+}
+
+/**
+ * 라이브 DOM에서 콘텐츠 내부의 버튼 요소들 추출
+ * chattext 영역 내의 모든 인터랙티브 버튼 (LB 모듈, risu-btn 등)
+ *
+ * @param {HTMLElement} liveElement - 라이브 DOM 요소
+ * @returns {HTMLElement[]} 버튼 요소 배열
+ */
+export function extractLiveContentButtons(liveElement) {
+  if (!liveElement) return [];
+
+  const chattext = liveElement.querySelector('.chattext');
+  if (!chattext) return [];
+
+  // 콘텐츠 내의 모든 인터랙티브 버튼 선택
+  const buttonSelector = [
+    'button',
+    '[role="button"]',
+    '.risu-btn',
+    '[risu-btn]',
+    '.x-risu-lb-opener',
+    '.x-risu-lb-nai-btn',
+    '.x-risu-lb-nai-opener',
+  ].join(', ');
+
+  return Array.from(chattext.querySelectorAll(buttonSelector));
+}
+
+/**
+ * 라이브 DOM에서 LB 모듈 버튼 요소들을 Map으로 추출
+ * dataId 또는 risuBtn을 키로 하여 라이브 버튼 참조를 저장
+ *
+ * @param {HTMLElement} liveElement - 라이브 DOM 요소
+ * @returns {Map<string, HTMLElement>} dataId/risuBtn → 라이브 버튼 요소 맵
+ */
+export function extractLiveLBModuleButtons(liveElement) {
+  const buttonMap = new Map();
+  if (!liveElement) return buttonMap;
+
+  const chattext = liveElement.querySelector('.chattext');
+  if (!chattext) return buttonMap;
+
+  // x-risu-lb-module-root 내의 opener 버튼 수집
+  const moduleRoots = chattext.querySelectorAll('.x-risu-lb-module-root');
+  moduleRoots.forEach(module => {
+    const dataId = module.getAttribute('data-id');
+    if (dataId) {
+      // opener 버튼 찾기 (클릭 가능한 요소)
+      const opener =
+        module.querySelector('.x-risu-lb-opener') ||
+        module.querySelector('.x-risu-lb-nai-opener');
+      if (opener) {
+        buttonMap.set(dataId, opener);
+      }
+    }
+  });
+
+  // 독립적인 x-risu-lb-nai-btn 버튼 수집
+  const naiButtons = chattext.querySelectorAll('.x-risu-lb-nai-btn');
+  naiButtons.forEach(btn => {
+    const isInsideModuleRoot = btn.closest('.x-risu-lb-module-root');
+    if (!isInsideModuleRoot) {
+      const risuBtn = btn.getAttribute('risu-btn');
+      if (risuBtn) {
+        buttonMap.set(risuBtn, btn);
+      }
+    }
+  });
+
+  return buttonMap;
 }
 
 /**

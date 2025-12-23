@@ -1,18 +1,21 @@
 <script>
   /**
-   * PCBookViewer - PC용 이북 스타일 뷰어 메인 컴포넌트
+   * MobileBookViewer - 모바일용 이북 스타일 뷰어 메인 컴포넌트
    */
   import { onMount, onDestroy } from 'svelte';
 
   // 컴포넌트
-  import BookHeader from './BookHeader.svelte';
-  import BookPages from './BookPages.svelte';
-  import NavControls from './NavControls.svelte';
-  import CustomCssModal from './CustomCssModal.svelte';
+  import MobileBookHeader from './MobileBookHeader.svelte';
+  import MobileBookPage from './MobileBookPage.svelte';
+  import MobileNavFooter from './MobileNavFooter.svelte';
+  import MobileSettingsPanel from './MobileSettingsPanel.svelte';
+  import MobileLBPanel from './MobileLBPanel.svelte';
+  import MobileCustomCssModal from './MobileCustomCssModal.svelte';
   import ViewerToast from '../ViewerToast.svelte';
 
-  // 코어 로직
-  import { TextSplitterPC } from '../../../../core/viewer/pc/text-splitter.js';
+  // 코어 로직 (PC와 공유)
+  import { TextSplitterMobile } from '../../../../core/viewer/mobile/text-splitter-mobile.js';
+  import { createSwipeHandler } from '../../../../core/viewer/mobile/touch-handler.js';
   import {
     createMeasureContainer,
     wrapNakedTextNodes,
@@ -33,10 +36,10 @@
     applyCustomCss,
     resetCustomCss,
   } from '../../../../core/viewer/pc/settings-manager.js';
-  import { openPCViewer } from './viewerHelpers.js';
+  import { openMobileViewer } from './viewerHelpers.js';
 
   // 스타일
-  import '../../../styles/pc-viewer.css';
+  import '../../../styles/mobile-viewer.css';
 
   // selector 유틸
   import {
@@ -62,7 +65,12 @@
   // State
   let pages = $state([]);
   let currentPage = $state(0);
-  let settings = $state({ fontSize: 17, lineHeight: 1.5, theme: 'dark', fontFamily: '나눔스퀘어네오' });
+  let settings = $state({
+    fontSize: 17,
+    lineHeight: 1.85,
+    theme: 'dark',
+    fontFamily: 'Pretendard',
+  });
   let headerInfo = $state({
     thumbnailUrl: '',
     name: '',
@@ -72,7 +80,6 @@
   let lbModules = $state([]);
   let liveLBModuleButtons = $state(new Map());
   let liveContentButtons = $state([]);
-  let isCssModalOpen = $state(false);
   let customCss = $state('');
   let originalContent = $state(null);
   let lastKnownHtml = $state('');
@@ -86,6 +93,14 @@
   });
   let visibleChatIndices = $state([]);
 
+  // 패널 및 모달 상태
+  let isSettingsOpen = $state(false);
+  let isLBPanelOpen = $state(false);
+  let isCssModalOpen = $state(false);
+
+  // 전체화면 상태
+  let isFullscreen = $state(false);
+
   // Toast 및 Loading 상태
   let isLoading = $state(false);
   let loadingMessage = $state('');
@@ -98,14 +113,13 @@
     loadingMessage = initialLoading ? 'Loading...' : '';
   });
 
-  // 텍스트 분할기
-  let textSplitter = new TextSplitterPC({ splittableTags: ['p'] });
+  // 텍스트 분할기 (모바일용)
+  let textSplitter = new TextSplitterMobile({ splittableTags: ['p', 'div'] });
 
-  // 측정용 요소 참조
-  let leftContentRef = $state(null);
+  // 요소 참조
   let rootElement = $state(null);
 
-  // 리사이즈 타이머
+  // 타이머
   let resizeTimer = null;
   let contentCheckInterval = null;
 
@@ -113,32 +127,36 @@
   let unsubscribeCharPage = null;
   let unsubscribeChatIndices = null;
 
+  // 스와이프 핸들러
+  let swipeHandler = null;
+
   // Derived
-  let totalSpreads = $derived(Math.ceil(pages.length / 2));
-  let leftIndex = $derived(currentPage * 2);
-  let rightIndex = $derived(currentPage * 2 + 1);
-  let leftContent = $derived(pages[leftIndex] || '');
-  let rightContent = $derived(pages[rightIndex] || '');
-  let leftPageNum = $derived(pages[leftIndex] ? leftIndex + 1 : 0);
-  let rightPageNum = $derived(pages[rightIndex] ? rightIndex + 1 : 0);
-  let prevDisabled = $derived(currentPage === 0);
-  let nextDisabled = $derived(rightIndex >= pages.length - 1);
+  let totalPages = $derived(pages.length);
+  let currentContent = $derived(pages[currentPage] || '');
+  let pageNum = $derived(currentPage + 1);
+  let prevDisabled = $derived(currentPage === 0 && chatIndexPosition.isFirst);
+  let nextDisabled = $derived(
+    currentPage >= totalPages - 1 && chatIndexPosition.isLast,
+  );
 
   // 설정 변경 시 CSS 변수 적용
   $effect(() => {
     if (rootElement) {
-      rootElement.style.setProperty('--bv-font-size', `${settings.fontSize}px`);
+      rootElement.style.setProperty('--mv-font-size', `${settings.fontSize}px`);
       rootElement.style.setProperty(
-        '--bv-line-height',
+        '--mv-line-height',
         String(settings.lineHeight),
       );
-      rootElement.style.setProperty('--bv-font-family', settings.fontFamily);
-      rootElement.style.setProperty('--risu-font-family', settings.fontFamily);
+      rootElement.style.setProperty('--mv-font-family', settings.fontFamily);
       rootElement.setAttribute('data-theme', settings.theme);
     }
   });
 
   onMount(async () => {
+    // 전체화면
+    await document.documentElement.requestFullscreen();
+    isFullscreen = true;
+
     // 설정 로드
     settings = loadSettings();
 
@@ -158,6 +176,26 @@
     // 콘텐츠 변경 감지 (1초 간격)
     contentCheckInterval = setInterval(checkContentChange, 1000);
 
+    // 스와이프 핸들러 설정
+    swipeHandler = createSwipeHandler({
+      onSwipeLeft: nextPage,
+      onSwipeRight: prevPage,
+      threshold: 50,
+    });
+
+    // 스와이프 이벤트 리스너 등록
+    if (rootElement) {
+      rootElement.addEventListener('touchstart', swipeHandler.touchStart, {
+        passive: true,
+      });
+      rootElement.addEventListener('touchmove', swipeHandler.touchMove, {
+        passive: true,
+      });
+      rootElement.addEventListener('touchend', swipeHandler.touchEnd, {
+        passive: true,
+      });
+    }
+
     // RisuAPI 구독 설정
     const risuAPI = RisuAPI.getInstance();
 
@@ -167,9 +205,9 @@
       newValue => {
         if (newValue.chatPage !== chatPage || newValue.chaId !== chaId) {
           console.log(
-            '[PCBookViewer] Chat page or character changed, reloading...',
+            '[MobileBookViewer] Chat page or character changed, reloading...',
           );
-          openPCViewer(null, false);
+          openMobileViewer(null, false);
         }
       },
       500,
@@ -181,16 +219,6 @@
       newLength => {
         const newIndices = getAllVisibleChatIndices();
         if (newIndices.length !== visibleChatIndices.length) {
-          const addedIndices = newIndices.filter(
-            idx => !visibleChatIndices.includes(idx),
-          );
-          if (addedIndices.length > 0) {
-            console.log(
-              '[PCBookViewer] New chat indices detected:',
-              addedIndices,
-            );
-            // TODO: toast 알림 추가 가능
-          }
           visibleChatIndices = newIndices;
           updateChatIndexInfo();
         }
@@ -202,6 +230,13 @@
   onDestroy(() => {
     if (resizeTimer) clearTimeout(resizeTimer);
     if (contentCheckInterval) clearInterval(contentCheckInterval);
+
+    // 스와이프 이벤트 리스너 제거
+    if (rootElement && swipeHandler) {
+      rootElement.removeEventListener('touchstart', swipeHandler.touchStart);
+      rootElement.removeEventListener('touchmove', swipeHandler.touchMove);
+      rootElement.removeEventListener('touchend', swipeHandler.touchEnd);
+    }
 
     // 구독 해제
     if (unsubscribeCharPage) unsubscribeCharPage();
@@ -233,7 +268,7 @@
     headerInfo = extractHeaderInfo(doc);
     headerInfo.chatIndex = chatIndex;
 
-    // 라이브 DOM에서 버튼 참조 추출 (이벤트 핸들러가 연결된 실제 버튼)
+    // 라이브 DOM에서 버튼 참조 추출
     const liveElement = getChatElementByChatIndex(chatIndex);
     if (liveElement) {
       headerInfo.buttons = extractLiveButtons(liveElement);
@@ -255,7 +290,7 @@
       await waitForLayout();
       await splitPages();
 
-      // 로딩 완료 후 오버레이 숨김 (부드러운 fade-out을 위해 약간 지연)
+      // 로딩 완료 후 오버레이 숨김
       if (isLoading) {
         setTimeout(() => {
           isLoading = false;
@@ -269,15 +304,10 @@
     if (!originalContent) return;
 
     // 측정용 컨테이너 생성
-    const measureRef = document.querySelector(
-      '.book-viewer-root .text-content',
-    );
+    const measureRef = document.querySelector('.mobile-reader .text-content');
     if (!measureRef) {
-      // 아직 DOM이 준비되지 않은 경우 재시도
       await waitForLayout();
-      const retryRef = document.querySelector(
-        '.book-viewer-root .text-content',
-      );
+      const retryRef = document.querySelector('.mobile-reader .text-content');
       if (!retryRef) return;
     }
 
@@ -300,7 +330,7 @@
   async function repaginate() {
     if (!originalContent) return;
 
-    const currentFirstPage = currentPage * 2;
+    const currentFirstPage = currentPage;
     pages = [];
     currentPage = 0;
 
@@ -308,8 +338,8 @@
     await splitPages();
 
     // 이전 위치 복원
-    const maxPage = Math.max(0, Math.ceil(pages.length / 2) - 1);
-    currentPage = Math.min(Math.floor(currentFirstPage / 2), maxPage);
+    const maxPage = Math.max(0, pages.length - 1);
+    currentPage = Math.min(currentFirstPage, maxPage);
   }
 
   function debouncedRepaginate() {
@@ -346,8 +376,7 @@
 
   // 네비게이션
   function nextPage() {
-    if (rightIndex >= pages.length - 1) {
-      // 마지막 페이지에서 다음 chat index로 이동
+    if (currentPage >= pages.length - 1) {
       goToNextChatIndex();
       return;
     }
@@ -356,7 +385,6 @@
 
   function prevPage() {
     if (currentPage === 0) {
-      // 첫 페이지에서 이전 chat index로 이동
       goToPrevChatIndex();
       return;
     }
@@ -369,8 +397,7 @@
   function goToPrevChatIndex() {
     const { index, isFirst } = getAdjacentChatIndex(chatIndex, 'prev');
     if (index !== null) {
-      // 새 뷰어를 로딩 상태로 열기
-      openPCViewer(index, false, true);
+      openMobileViewer(index, false, true);
     } else if (isFirst) {
       showToast('현재 채팅의 첫 번째 페이지입니다');
     }
@@ -382,8 +409,7 @@
   function goToNextChatIndex() {
     const { index, isLast } = getAdjacentChatIndex(chatIndex, 'next');
     if (index !== null) {
-      // 새 뷰어를 로딩 상태로 열기
-      openPCViewer(index, false, true);
+      openMobileViewer(index, false, true);
     } else if (isLast) {
       showToast('현재 채팅의 마지막 페이지입니다');
     }
@@ -398,9 +424,16 @@
       return;
     }
 
-    // 텍스트 입력 중이거나 텍스트 선택 중일 때는 네비게이션 비활성화 (Escape 제외)
+    if (isSettingsOpen || isLBPanelOpen) {
+      if (e.key === 'Escape') {
+        isSettingsOpen = false;
+        isLBPanelOpen = false;
+      }
+      return;
+    }
+
+    // 텍스트 입력 중이거나 텍스트 선택 중일 때는 네비게이션 비활성화
     if (e.key !== 'Escape') {
-      // 1. textarea나 input에 포커스가 있는 경우
       const activeEl = document.activeElement;
       const isInputFocused =
         activeEl &&
@@ -409,7 +442,6 @@
           activeEl.isContentEditable);
       if (isInputFocused) return;
 
-      // 2. 텍스트를 드래그 선택 중인 경우
       const selection = window.getSelection();
       if (selection && selection.toString().length > 0) return;
     }
@@ -432,8 +464,40 @@
     debouncedRepaginate();
   }
 
-  // 사용자 CSS 모달
+  // 패널 토글
+  function toggleSettingsPanel() {
+    isSettingsOpen = !isSettingsOpen;
+    if (isSettingsOpen) isLBPanelOpen = false;
+  }
+
+  function toggleLBPanel() {
+    isLBPanelOpen = !isLBPanelOpen;
+    if (isLBPanelOpen) isSettingsOpen = false;
+  }
+
+  // 전체화면 토글
+  async function toggleFullscreen() {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+        isFullscreen = true;
+      } else {
+        await document.exitFullscreen?.();
+        isFullscreen = false;
+      }
+    } catch (err) {
+      console.warn('[MobileViewer] Fullscreen error:', err);
+    }
+  }
+
+  // 전체화면 변경 감지
+  function handleFullscreenChange() {
+    isFullscreen = !!document.fullscreenElement;
+  }
+
+  // 사용자 CSS
   function openCustomCssModal() {
+    isSettingsOpen = false;
     isCssModalOpen = true;
   }
 
@@ -455,21 +519,7 @@
   function handleLBModuleClick(module) {
     const identifier = module.dataId || module.risuBtn;
 
-    // 해당 모듈이 있는 페이지로 이동
-    /* 
-    for (let i = 0; i < pages.length; i++) {
-      const pageContent = pages[i];
-      if (
-        pageContent.includes(`data-id="${identifier}"`) ||
-        pageContent.includes(`risu-btn="${identifier}"`)
-      ) {
-        currentPage = Math.floor(i / 2);
-        break;
-      }
-    }
-    */
-
-    // 라이브 버튼 클릭 트리거 (이벤트 핸들러 실행)
+    // 라이브 버튼 클릭 트리거
     if (identifier && liveLBModuleButtons.has(identifier)) {
       const liveButton = liveLBModuleButtons.get(identifier);
       const mouseEvent = new MouseEvent('click', {
@@ -487,6 +537,7 @@
 </script>
 
 <svelte:window onkeydown={handleKeydown} onresize={handleResize} />
+<svelte:document onfullscreenchange={handleFullscreenChange} />
 
 <div
   class="risu-chat"
@@ -495,49 +546,62 @@
   data-char-id={chaId}
 >
   <div
-    class="book-viewer-root chat-message-container"
+    class="mobile-reader"
     bind:this={rootElement}
     data-theme={settings.theme}
   >
-    <BookHeader
+    <MobileBookHeader
       thumbnailUrl={headerInfo.thumbnailUrl}
       name={headerInfo.name}
       chatIndex={headerInfo.chatIndex}
       buttons={headerInfo.buttons}
       {chatIndexPosition}
+      showLBButton={lbModules.length > 0}
+      {isFullscreen}
+      onBack={onClose}
       onPrevChat={goToPrevChatIndex}
       onNextChat={goToNextChatIndex}
-      {onClose}
+      onFullscreenToggle={toggleFullscreen}
+      onLBToggle={toggleLBPanel}
+      onSettingsToggle={toggleSettingsPanel}
     />
 
-    <BookPages
-      {leftContent}
-      {rightContent}
-      {leftPageNum}
-      {rightPageNum}
+    <MobileBookPage
+      content={currentContent}
+      {pageNum}
+      {totalPages}
       onPrevPage={prevPage}
       onNextPage={nextPage}
-      bind:leftContentRef
       {isLoading}
       {loadingMessage}
       {liveContentButtons}
     />
 
-    <NavControls
-      currentSpread={currentPage}
-      {totalSpreads}
+    <MobileNavFooter
+      {currentPage}
+      {totalPages}
       onPrev={prevPage}
       onNext={nextPage}
-      {prevDisabled}
-      {nextDisabled}
+      prevDisabled={currentPage === 0}
+      nextDisabled={currentPage >= totalPages - 1}
+    />
+
+    <MobileSettingsPanel
+      isOpen={isSettingsOpen}
       {settings}
       onSettingsChange={handleSettingsChange}
       onOpenCustomCss={openCustomCssModal}
-      {lbModules}
-      onLBModuleClick={handleLBModuleClick}
+      onClose={() => (isSettingsOpen = false)}
     />
 
-    <CustomCssModal
+    <MobileLBPanel
+      isOpen={isLBPanelOpen}
+      modules={lbModules}
+      onModuleClick={handleLBModuleClick}
+      onClose={() => (isLBPanelOpen = false)}
+    />
+
+    <MobileCustomCssModal
       isOpen={isCssModalOpen}
       initialCss={customCss}
       onApply={handleApplyCustomCss}

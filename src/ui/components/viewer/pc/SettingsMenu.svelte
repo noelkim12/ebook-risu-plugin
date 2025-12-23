@@ -5,11 +5,38 @@
 
   let {
     isOpen = false,
-    settings = { fontSize: 17, lineHeight: 1.5, theme: 'dark' },
+    settings = {
+      fontSize: 17,
+      lineHeight: 1.5,
+      theme: 'dark',
+      fontFamily: '나눔스퀘어네오',
+    },
     onSettingsChange,
     onOpenCustomCss,
     onClose,
   } = $props();
+
+  // 사용 가능한 폰트 목록
+  const AVAILABLE_FONTS = [
+    'Pretendard',
+    '나눔스퀘어네오',
+    '에스코어드림',
+    '레페리포인트',
+    '플렉스',
+    '스위트',
+    '오르빗',
+    '스쿨오르빗',
+    '프리티나잇',
+    '서라운드에어',
+    '고운돋움',
+    '고운바탕',
+    '리디바탕',
+    '마루부리',
+    '도스고딕',
+    '스타더스트',
+    '픽시드시스',
+    '네오둥근모',
+  ];
 
   function handleFontSizeChange(e) {
     const newSettings = { ...settings, fontSize: Number(e.target.value) };
@@ -26,6 +53,11 @@
     onSettingsChange?.(newSettings);
   }
 
+  function handleFontChange(e) {
+    const newSettings = { ...settings, fontFamily: e.target.value };
+    onSettingsChange?.(newSettings);
+  }
+
   function handleClickOutside(e) {
     // 외부 클릭 처리는 부모 컴포넌트에서 담당
   }
@@ -36,13 +68,26 @@
     <div class="dropdown-header">설정</div>
 
     <div class="setting-item">
+      <label for="fontFamily">폰트</label>
+      <select
+        id="fontFamily"
+        value={settings.fontFamily}
+        onchange={handleFontChange}
+      >
+        {#each AVAILABLE_FONTS as font}
+          <option value={font} style:font-family={font}>{font}</option>
+        {/each}
+      </select>
+    </div>
+
+    <div class="setting-item">
       <label for="fontSize">폰트 크기</label>
       <input
         type="range"
         id="fontSize"
         min="12"
         max="24"
-        step="2"
+        step="1"
         value={settings.fontSize}
         oninput={handleFontSizeChange}
       />
@@ -56,7 +101,7 @@
         id="lineHeight"
         min="1.5"
         max="2.2"
-        step="0.2"
+        step="0.1"
         value={settings.lineHeight}
         oninput={handleLineHeightChange}
       />
@@ -66,9 +111,9 @@
     <div class="setting-item">
       <label for="theme">테마</label>
       <select id="theme" value={settings.theme} onchange={handleThemeChange}>
-        <option value="light">밝은 테마</option>
+        <option value="light">라이트 테마</option>
         <option value="sepia">세피아</option>
-        <option value="dark">어두운 테마</option>
+        <option value="dark">다크 테마</option>
       </select>
     </div>
 

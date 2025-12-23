@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { Book } from 'lucide-svelte';
   import { LOCATOR, risuSelector } from '../../utils/selector.js';
-  import { openPCViewer } from './viewer/pc/viewerHelpers.js';
+  import { openViewer } from './viewer/pc/viewerHelpers.js';
 
   let inputHeight = $state('44px');
 
@@ -13,9 +13,9 @@
     }
   });
 
-  function handleClick(event) {
+  async function handleClick(event) {
     event.stopPropagation();
-    openPCViewer();
+    await openViewer();
   }
 </script>
 

@@ -3,7 +3,10 @@
    * BookHeader - 뷰어 헤더 컴포넌트
    */
   import { X, ChevronLeft, ChevronRight } from 'lucide-svelte';
-
+  import { cloneButtonsWithEventDelegation } from '../../../../utils/dom-helper.js';
+  import { RisuAPI } from '../../../../core/risu-api.js';
+  import { onMount } from 'svelte';
+  const risuAPI = RisuAPI.getInstance();
   let {
     thumbnailUrl = '',
     name = '',
@@ -12,19 +15,15 @@
     chatIndexPosition = { position: 0, total: 0, isFirst: true, isLast: true },
     onPrevChat,
     onNextChat,
-    onClose
+    onClose,
   } = $props();
 
   let buttonsContainer = $state(null);
 
-  // 버튼들을 DOM에 추가
+  // 버튼들을 DOM에 추가 (이벤트 위임 패턴 사용)
   $effect(() => {
     if (buttonsContainer && buttons.length > 0) {
-      buttonsContainer.innerHTML = '';
-      buttons.forEach(btn => {
-        const cloned = btn.cloneNode(true);
-        buttonsContainer.appendChild(cloned);
-      });
+      cloneButtonsWithEventDelegation(buttons, buttonsContainer);
     }
   });
 
@@ -39,7 +38,9 @@
     ></div>
 
     <div class="header-info">
-      <span class="header-name">{name || 'Unknown'}</span>
+      <span class="header-name"
+        >{name || risuAPI.getChar()?.name || 'Unknown'}</span
+      >
       <div class="header-buttons" bind:this={buttonsContainer}></div>
     </div>
   </div>
@@ -57,7 +58,9 @@
       <span class="header-chat-index">
         #{displayIndex}
         {#if chatIndexPosition.total > 0}
-          <span class="chat-index-total">({chatIndexPosition.position}/{chatIndexPosition.total})</span>
+          <span class="chat-index-total"
+            >({chatIndexPosition.position}/{chatIndexPosition.total})</span
+          >
         {/if}
       </span>
       <button

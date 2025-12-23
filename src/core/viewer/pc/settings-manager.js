@@ -8,7 +8,8 @@ const CUSTOM_CSS_KEY = 'bookViewerCustomCss';
 const DEFAULT_SETTINGS = {
   fontSize: 17,
   lineHeight: 1.9,
-  theme: 'light'
+  theme: 'light',
+  fontFamily: '나눔스퀘어네오'
 };
 
 /**
@@ -23,7 +24,8 @@ export function loadSettings() {
       return {
         fontSize: parsed.fontSize ?? DEFAULT_SETTINGS.fontSize,
         lineHeight: parsed.lineHeight ?? DEFAULT_SETTINGS.lineHeight,
-        theme: parsed.theme ?? DEFAULT_SETTINGS.theme
+        theme: parsed.theme ?? DEFAULT_SETTINGS.theme,
+        fontFamily: parsed.fontFamily ?? DEFAULT_SETTINGS.fontFamily
       };
     }
   } catch (error) {
