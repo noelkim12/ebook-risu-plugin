@@ -113,6 +113,12 @@ export const LOCATOR = {
       className: `x-risu-lb-nai-btn`,
     },
   },
+  setting: {
+    root: {
+      cssClass: ['rs-setting-cont'],
+      className: 'rs-setting-cont',
+    },
+  },
 };
 /**
  * 사전 정의된 LOCATOR를 통해 element를 찾는 함수
@@ -413,6 +419,8 @@ export function getChatIndexPosition(currentIndex) {
   return {
     position: currentPos + 1,
     total: indices.length,
+    currentIndex: currentIndex,
+    lastIndex: indices[indices.length - 1],
     isFirst: currentPos === 0,
     isLast: currentPos === indices.length - 1,
   };

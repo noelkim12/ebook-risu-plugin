@@ -100,7 +100,7 @@
     format('woff');
 }
 
-/* ===== PC Book Viewer Styles ===== */
+/* ===== Risu Chat Styles ===== */
 .risu-chat > div {
   padding: unset !important;
   margin: unset !important;
@@ -108,6 +108,26 @@
   align-items: unset !important;
 }
 .risu-chat > div > div {
+  margin: unset !important;
+  justify-content: unset !important;
+}
+
+/* ===== PC Book Viewer Styles ===== */
+.pc-viewer-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%; /* JS에서 동적으로 제어 */
+}
+
+.pc-viewer-container > div {
+  padding: unset !important;
+  margin: unset !important;
+  justify-content: unset !important;
+  align-items: unset !important;
+}
+.pc-viewer-container > div > div {
   margin: unset !important;
   justify-content: unset !important;
 }
@@ -254,7 +274,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 93.5%;
+  height: 100%; /* JS에서 부모 요소(.risu-chat)의 높이를 동적으로 제어 */
   display: flex !important;
   flex-direction: column;
   overflow: hidden;
@@ -587,10 +607,10 @@
   cursor: text;
 }
 
-.text-content * {      
+.text-content * {
   user-select: text;
   -webkit-user-select: text;
-}   
+}
 
 /* 헤딩 스타일 */
 .text-content :global(h1),

@@ -11,7 +11,7 @@
   let {
     thumbnailUrl = '',
     name = '',
-    chatIndex = 0,
+    chatIndex = null,
     buttons = [],
     chatIndexPosition = { position: 0, total: 0, isFirst: true, isLast: true },
     showLBButton = false,
@@ -80,10 +80,10 @@
         </svg>
       </button>
       <span class="header-chat-index">
-        #{chatIndex + 1}
+        #{chatIndex}
         {#if chatIndexPosition.total > 0}
           <span class="chat-position"
-            >({chatIndexPosition.position}/{chatIndexPosition.total})</span
+            >({chatIndexPosition.currentIndex}/{chatIndexPosition.lastIndex})</span
           >
         {/if}
       </span>

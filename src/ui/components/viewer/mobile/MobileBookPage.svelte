@@ -16,12 +16,18 @@
 
   let contentRef = $state(null);
 
-  // 콘텐츠가 변경될 때 이벤트 위임 설정
+  // 콘텐츠가 변경될 때 이벤트 위임 설정 및 스크롤 초기화
   $effect(() => {
-    if (contentRef && content && liveContentButtons.length > 0) {
-      // innerHTML이 설정된 후 이벤트 위임
+    if (contentRef && content) {
+      // DOM 업데이트 후 실행
       requestAnimationFrame(() => {
-        delegateButtonEvents(contentRef, liveContentButtons);
+        // 스크롤 최상단으로
+        contentRef.scrollTop = 0;
+
+        // 이벤트 위임 설정
+        if (liveContentButtons.length > 0) {
+          delegateButtonEvents(contentRef, liveContentButtons);
+        }
       });
     }
   });
@@ -29,10 +35,7 @@
 
 <div class="page-container">
   <div class="page-content">
-    <div
-      class="text-content chattext"
-      bind:this={contentRef}
-    >
+    <div class="text-content chattext" bind:this={contentRef}>
       {@html content}
     </div>
 
@@ -52,8 +55,9 @@
     background: var(--mv-page-color, #fdfbf7);
     margin: 10px;
     border-radius: 12px;
-    box-shadow: var(--mv-shadow-medium, 0 4px 24px rgba(0, 0, 0, 0.12)),
-                var(--mv-shadow-glow, 0 0 20px rgba(201, 166, 107, 0.15));
+    box-shadow:
+      var(--mv-shadow-medium, 0 4px 24px rgba(0, 0, 0, 0.12)),
+      var(--mv-shadow-glow, 0 0 20px rgba(201, 166, 107, 0.15));
     touch-action: pan-y;
   }
 

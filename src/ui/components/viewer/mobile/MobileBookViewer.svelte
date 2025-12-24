@@ -26,7 +26,7 @@
     extractLiveLBModuleButtons,
     collectLBModules,
     waitForLayout,
-  } from '../../../../core/viewer/pc/page-manager.js';
+  } from '../../../../core/viewer/page-manager.js';
   import {
     loadSettings,
     saveSettings,
@@ -35,8 +35,8 @@
     saveCustomCss,
     applyCustomCss,
     resetCustomCss,
-  } from '../../../../core/viewer/pc/settings-manager.js';
-  import { openMobileViewer } from './viewerHelpers.js';
+  } from '../../../../core/viewer/settings-manager.js';
+  import { openMobileViewer, closeMobileViewer } from './viewerHelpers.js';
 
   // 스타일
   import '../../../styles/mobile-viewer.css';
@@ -53,6 +53,7 @@
 
   // RisuAPI
   import { RisuAPI } from '../../../../core/risu-api.js';
+  import { debounce, isNil } from 'lodash';
 
   // Props
   let {
@@ -124,6 +125,7 @@
   // 뷰어 높이 (textarea 높이에 따라 동적 계산)
   let viewerHeight = $state('100%');
   let textareaResizeObserver = null;
+  let settingPanelObserver = null;
 
   // 타이머
   let resizeTimer = null;
@@ -154,7 +156,7 @@
         String(settings.lineHeight),
       );
       rootElement.style.setProperty('--mv-font-family', settings.fontFamily);
-      rootElement.style.setProperty('--risu-font-family', settings.fontFamily); 
+      rootElement.style.setProperty('--risu-font-family', settings.fontFamily);
       rootElement.setAttribute('data-theme', settings.theme);
     }
   });
@@ -172,13 +174,29 @@
       viewerHeight = `calc(100% - ${textareaHeight}px)`;
 
       // ResizeObserver로 높이 변화 감지
-      textareaResizeObserver = new ResizeObserver((entries) => {
+      textareaResizeObserver = new ResizeObserver(entries => {
         for (const entry of entries) {
           const newTextareaHeight = entry.target.scrollHeight + 10;
           viewerHeight = `calc(100% - ${newTextareaHeight}px)`;
         }
       });
       textareaResizeObserver.observe(inputTextarea);
+
+      if (!isNil(settingPanelObserver)) {
+        settingPanelObserver.disconnect();
+        settingPanelObserver = null;
+      }
+
+      settingPanelObserver = new MutationObserver(() => {
+        debouncedHandleSettingPanel();
+      });
+
+      settingPanelObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['style', 'class'],
+      });
     }
 
     // 설정 로드
@@ -259,6 +277,11 @@
     if (textareaResizeObserver) {
       textareaResizeObserver.disconnect();
       textareaResizeObserver = null;
+    }
+    // setting panel mutation observer 해제
+    if (settingPanelObserver) {
+      settingPanelObserver.disconnect();
+      settingPanelObserver = null;
     }
 
     // 스와이프 이벤트 리스너 제거
@@ -564,6 +587,18 @@
   function handleResize() {
     debouncedRepaginate();
   }
+
+  const debouncedHandleSettingPanel = debounce(handleSettingPanel, 100);
+
+  // 모바일 환경에서 세팅 패널 발견 시 뷰어 닫기
+  function handleSettingPanel() {
+    const settingPanel = risuSelector(LOCATOR.setting.root);
+    if (settingPanel) {
+      console.log(settingPanel);
+
+      closeMobileViewer();
+    }
+  }
 </script>
 
 <svelte:window onkeydown={handleKeydown} onresize={handleResize} />
@@ -580,6 +615,7 @@
     bind:this={rootElement}
     data-theme={settings.theme}
     style:height={viewerHeight}
+    style:padding={'unset !important'}
   >
     <MobileBookHeader
       thumbnailUrl={headerInfo.thumbnailUrl}
@@ -619,7 +655,7 @@
       {settings}
       onSettingsChange={handleSettingsChange}
       onOpenCustomCss={openCustomCssModal}
-      onClose={() => (isSettingsOpen = false)}    
+      onClose={() => (isSettingsOpen = false)}
     />
 
     <MobileLBPanel

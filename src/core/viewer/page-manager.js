@@ -2,8 +2,8 @@
  * Page Manager - 페이지 분할 및 콘텐츠 관리
  */
 
-import { TextSplitterPC } from './text-splitter.js';
-import { LOCATOR, risuSelector } from '../../../utils/selector.js';
+import { TextSplitterPC } from './pc/text-splitter.js';
+import { LOCATOR, risuSelector } from '../../utils/selector.js';
 /**
  * 측정용 컨테이너 생성
  * @param {HTMLElement} referenceElement - 실제 페이지 콘텐츠 요소

@@ -63,6 +63,7 @@ export class TextSplitterMobile {
    * @private
    */
   _splitBySentence(element, measureContainer, availableHeight) {
+    console.log('splitBySentence');
     const tagName = element.tagName.toLowerCase();
     const fullText = element.innerText || element.textContent || '';
 
@@ -214,7 +215,11 @@ export class TextSplitterMobile {
         currentToken = '';
       } else {
         // 영어/숫자/기타는 연속된 것끼리 묶음
-        if (lastCharType && lastCharType !== charType && lastCharType !== 'space') {
+        if (
+          lastCharType &&
+          lastCharType !== charType &&
+          lastCharType !== 'space'
+        ) {
           tokens.push(currentToken);
           currentToken = '';
         }

@@ -59,7 +59,7 @@
         #{displayIndex}
         {#if chatIndexPosition.total > 0}
           <span class="chat-index-total"
-            >({chatIndexPosition.position}/{chatIndexPosition.total})</span
+            >({chatIndexPosition.currentIndex}/{chatIndexPosition.lastIndex})</span
           >
         {/if}
       </span>

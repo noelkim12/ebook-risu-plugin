@@ -23,7 +23,7 @@
     extractLiveLBModuleButtons,
     collectLBModules,
     waitForLayout,
-  } from '../../../../core/viewer/pc/page-manager.js';
+  } from '../../../../core/viewer/page-manager.js';
   import {
     loadSettings,
     saveSettings,
@@ -32,7 +32,7 @@
     saveCustomCss,
     applyCustomCss,
     resetCustomCss,
-  } from '../../../../core/viewer/pc/settings-manager.js';
+  } from '../../../../core/viewer/settings-manager.js';
   import { openPCViewer } from './viewerHelpers.js';
 
   // 스타일
@@ -44,6 +44,8 @@
     getAdjacentChatIndex,
     getChatIndexPosition,
     getAllVisibleChatIndices,
+    LOCATOR,
+    risuSelector,
   } from '../../../../utils/selector.js';
 
   // RisuAPI
@@ -62,7 +64,12 @@
   // State
   let pages = $state([]);
   let currentPage = $state(0);
-  let settings = $state({ fontSize: 17, lineHeight: 1.5, theme: 'dark', fontFamily: '나눔스퀘어네오' });
+  let settings = $state({
+    fontSize: 17,
+    lineHeight: 1.5,
+    theme: 'dark',
+    fontFamily: '나눔스퀘어네오',
+  });
   let headerInfo = $state({
     thumbnailUrl: '',
     name: '',
@@ -91,6 +98,10 @@
   let loadingMessage = $state('');
   let toastVisible = $state(false);
   let toastMessage = $state('');
+
+  // 뷰어 높이 (textarea 높이에 따라 동적 계산)
+  let viewerHeight = $state('100%');
+  let textareaResizeObserver = null;
 
   // initialLoading prop 변경 시 상태 업데이트
   $effect(() => {
@@ -148,6 +159,21 @@
       applyCustomCss(customCss);
     }
 
+    // textarea 높이 감지 및 뷰어 높이 조정
+    const inputTextarea = risuSelector(LOCATOR.chatScreen.textarea);
+    if (inputTextarea) {
+      const textareaHeight = inputTextarea.scrollHeight + 10;
+      viewerHeight = `calc(100% - ${textareaHeight}px)`;
+
+      textareaResizeObserver = new ResizeObserver(entries => {
+        for (const entry of entries) {
+          const newTextareaHeight = entry.target.scrollHeight + 10;
+          viewerHeight = `calc(100% - ${newTextareaHeight}px)`;
+        }
+      });
+      textareaResizeObserver.observe(inputTextarea);
+    }
+
     // Chat index 정보 초기화
     updateChatIndexInfo();
 
@@ -202,6 +228,12 @@
   onDestroy(() => {
     if (resizeTimer) clearTimeout(resizeTimer);
     if (contentCheckInterval) clearInterval(contentCheckInterval);
+
+    // textarea ResizeObserver 정리
+    if (textareaResizeObserver) {
+      textareaResizeObserver.disconnect();
+      textareaResizeObserver = null;
+    }
 
     // 구독 해제
     if (unsubscribeCharPage) unsubscribeCharPage();
@@ -489,10 +521,11 @@
 <svelte:window onkeydown={handleKeydown} onresize={handleResize} />
 
 <div
-  class="risu-chat"
+  class="risu-chat pc-viewer-container"
   data-chat-index={chatIndex}
   data-chat-page={chatPage}
   data-char-id={chaId}
+  style:height={viewerHeight}
 >
   <div
     class="book-viewer-root chat-message-container"
@@ -528,6 +561,8 @@
       {totalSpreads}
       onPrev={prevPage}
       onNext={nextPage}
+      isFirst={chatIndexPosition.isFirst}
+      isLast={chatIndexPosition.isLast}
       {prevDisabled}
       {nextDisabled}
       {settings}

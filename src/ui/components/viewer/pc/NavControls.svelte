@@ -9,6 +9,8 @@
   let {
     currentSpread = 0,
     totalSpreads = 1,
+    isFirst = true,
+    isLast = true,
     onPrev,
     onNext,
     prevDisabled = false,
@@ -17,7 +19,7 @@
     onSettingsChange,
     onOpenCustomCss,
     lbModules = [],
-    onLBModuleClick
+    onLBModuleClick,
   } = $props();
 
   let isSettingsOpen = $state(false);
@@ -72,7 +74,7 @@
   <button
     class="nav-btn prev-btn"
     onclick={onPrev}
-    disabled={prevDisabled}
+    disabled={isFirst}
     title="이전 페이지"
   >
     <ChevronLeft size={28} />
@@ -83,7 +85,7 @@
   <button
     class="nav-btn next-btn"
     onclick={onNext}
-    disabled={nextDisabled}
+    disabled={isLast}
     title="다음 페이지"
   >
     <ChevronRight size={28} />
@@ -94,7 +96,10 @@
       <div class="lb-menu-container">
         <button
           class="nav-icon-btn lb-btn"
-          onclick={(e) => { e.stopPropagation(); toggleLBMenu(); }}
+          onclick={e => {
+            e.stopPropagation();
+            toggleLBMenu();
+          }}
           title="LB 모듈"
         >
           <Layers size={18} />
@@ -104,7 +109,7 @@
           isOpen={isLBMenuOpen}
           modules={lbModules}
           onModuleClick={handleLBModuleClick}
-          onClose={() => isLBMenuOpen = false}
+          onClose={() => (isLBMenuOpen = false)}
         />
       </div>
     {/if}
@@ -112,7 +117,10 @@
     <div class="settings-menu-container">
       <button
         class="nav-icon-btn settings-btn"
-        onclick={(e) => { e.stopPropagation(); toggleSettings(); }}
+        onclick={e => {
+          e.stopPropagation();
+          toggleSettings();
+        }}
         title="설정"
       >
         <Settings size={18} />
@@ -122,7 +130,7 @@
         {settings}
         onSettingsChange={handleSettingsChange}
         onOpenCustomCss={handleOpenCustomCss}
-        onClose={() => isSettingsOpen = false}
+        onClose={() => (isSettingsOpen = false)}
       />
     </div>
   </div>
