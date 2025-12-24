@@ -74,7 +74,7 @@
   <button
     class="nav-btn prev-btn"
     onclick={onPrev}
-    disabled={isFirst}
+    disabled={isFirst && prevDisabled}
     title="이전 페이지"
   >
     <ChevronLeft size={28} />
@@ -85,7 +85,7 @@
   <button
     class="nav-btn next-btn"
     onclick={onNext}
-    disabled={isLast}
+    disabled={isLast && nextDisabled}
     title="다음 페이지"
   >
     <ChevronRight size={28} />

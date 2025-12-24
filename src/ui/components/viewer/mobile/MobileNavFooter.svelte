@@ -6,6 +6,8 @@
   let {
     currentPage = 0,
     totalPages = 0,
+    isFirst = true,
+    isLast = true,
     onPrev = () => {},
     onNext = () => {},
     prevDisabled = false,
@@ -22,7 +24,7 @@
   <button
     class="nav-btn prev-btn"
     onclick={onPrev}
-    disabled={prevDisabled}
+    disabled={isFirst && prevDisabled}
     title="이전"
   >
     <svg
@@ -50,7 +52,7 @@
   <button
     class="nav-btn next-btn"
     onclick={onNext}
-    disabled={nextDisabled}
+    disabled={isLast && nextDisabled}
     title="다음"
   >
     <span class="btn-label">다음</span>

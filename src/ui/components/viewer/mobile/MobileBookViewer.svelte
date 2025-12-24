@@ -644,6 +644,8 @@
     <MobileNavFooter
       {currentPage}
       {totalPages}
+      isFirst={chatIndexPosition.isFirst}
+      isLast={chatIndexPosition.isLast}
       onPrev={prevPage}
       onNext={nextPage}
       prevDisabled={currentPage === 0}
