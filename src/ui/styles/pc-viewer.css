@@ -838,6 +838,25 @@
   height: 18px;
 }
 
+/* LB 버튼 로딩 상태 */
+.nav-icon-btn.loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.nav-icon-btn.loading svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ===== 드롭다운 메뉴 ===== */
 .dropdown-container {
   position: relative;
@@ -1261,6 +1280,27 @@
 
 .viewer-toast.showing {
   opacity: 1;
+}
+
+/* 클릭 가능한 토스트 */
+.viewer-toast.clickable {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.viewer-toast.clickable .toast-content {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.viewer-toast.clickable:hover .toast-content {
+  transform: scale(1.02);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.4);
+}
+
+.viewer-toast.clickable:active .toast-content {
+  transform: scale(0.98);
 }
 
 .toast-content {

@@ -7,6 +7,8 @@
   import { cloneButtonsWithEventDelegation } from '../../../../utils/dom-helper.js';
   import { RisuAPI } from '../../../../core/risu-api.js';
   import { onMount } from 'svelte';
+  import { Loader2 } from 'lucide-svelte';
+
   const risuAPI = RisuAPI.getInstance();
   let {
     thumbnailUrl = '',
@@ -16,6 +18,7 @@
     chatIndexPosition = { position: 0, total: 0, isFirst: true, isLast: true },
     showLBButton = false,
     isFullscreen = false,
+    isLBLoading = false,
     onBack = () => {},
     onPrevChat = () => {},
     onNextChat = () => {},
@@ -165,10 +168,16 @@
       {#if showLBButton}
         <button
           class="header-toggle-btn lb-btn"
+          class:loading={isLBLoading}
           onclick={onLBToggle}
           title="LB 모듈"
+          disabled={isLBLoading}
         >
-          LB
+          {#if isLBLoading}
+            <Loader2 size={14} />
+          {:else}
+            LB
+          {/if}
         </button>
       {/if}
 
@@ -414,6 +423,25 @@
 
   .fullscreen-btn svg {
     flex-shrink: 0;
+  }
+
+  /* LB 버튼 로딩 상태 */
+  .lb-btn.loading {
+    opacity: 0.7;
+    cursor: wait;
+  }
+
+  .lb-btn.loading :global(svg) {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   /* Safe Area */

@@ -109,6 +109,11 @@
   let loadingMessage = $state('');
   let toastVisible = $state(false);
   let toastMessage = $state('');
+  let toastClickable = $state(false);
+  let toastOnClick = $state(null);
+
+  // LB 로딩 상태 (리롤링 감지용)
+  let isLBLoading = $state(false);
 
   // initialLoading prop 변경 시 상태 업데이트
   $effect(() => {
@@ -261,6 +266,40 @@
       newLength => {
         const newIndices = getAllVisibleChatIndices();
         if (newIndices.length !== visibleChatIndices.length) {
+          const addedIndices = newIndices.filter(
+            idx => !visibleChatIndices.includes(idx),
+          );
+
+          if (addedIndices.length > 0) {
+            const char = risuAPI.getChar();
+            const lastMessage =
+              char?.chats?.[char.chatPage]?.message?.[newLength - 1];
+            const role = lastMessage?.role;
+            const data = lastMessage?.data || '';
+
+            if (role === 'char') {
+              // char 역할: LB 리롤링 중이거나 새 응답
+              if (data.includes('<lb-rerolling>')) {
+                isLBLoading = true;
+              } else {
+                const targetIndex = addedIndices[addedIndices.length - 1];
+                showClickableToast(
+                  '새로운 응답이 수신되었습니다. 클릭 시 이동합니다.',
+                  () => goToChatIndex(targetIndex),
+                );
+              }
+            } else if (role === 'user') {
+              // user 역할: 자동으로 마지막 채팅으로 이동
+              const lastIndex = addedIndices[addedIndices.length - 1];
+              goToChatIndex(lastIndex);
+            }
+          } else {
+            // 인덱스가 줄어든 경우 (삭제 등) - LB 로딩 해제
+            if (isLBLoading) {
+              isLBLoading = false;
+            }
+          }
+
           visibleChatIndices = newIndices;
           updateChatIndexInfo();
         }
@@ -419,12 +458,35 @@
    */
   function showToast(message) {
     toastMessage = message;
+    toastClickable = false;
+    toastOnClick = null;
+    toastVisible = true;
+  }
+
+  /**
+   * 클릭 가능한 Toast 표시
+   */
+  function showClickableToast(message, onClick) {
+    toastMessage = message;
+    toastClickable = true;
+    toastOnClick = onClick;
     toastVisible = true;
   }
 
   function hideToast() {
     toastVisible = false;
     toastMessage = '';
+    toastClickable = false;
+    toastOnClick = null;
+  }
+
+  /**
+   * 특정 chat index로 이동
+   */
+  function goToChatIndex(targetIndex) {
+    if (targetIndex !== chatIndex) {
+      openMobileViewer(targetIndex, false, true);
+    }
   }
 
   // 네비게이션
@@ -625,6 +687,7 @@
       {chatIndexPosition}
       showLBButton={lbModules.length > 0}
       {isFullscreen}
+      {isLBLoading}
       onBack={onClose}
       onPrevChat={goToPrevChatIndex}
       onNextChat={goToNextChatIndex}
@@ -679,6 +742,8 @@
       message={toastMessage}
       visible={toastVisible}
       duration={2000}
+      clickable={toastClickable}
+      onClick={toastOnClick}
       onHide={hideToast}
     />
   </div>

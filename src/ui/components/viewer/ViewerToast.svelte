@@ -9,6 +9,8 @@
     message = '',
     duration = 2000,
     visible = false,
+    clickable = false,
+    onClick = null,
     onHide = () => {},
   } = $props();
 
@@ -32,6 +34,18 @@
     }
   });
 
+  function handleClick() {
+    if (clickable && onClick) {
+      // 타이머 정리 후 즉시 숨김
+      if (hideTimer) clearTimeout(hideTimer);
+      isShowing = false;
+      onClick();
+      setTimeout(() => {
+        onHide();
+      }, 100);
+    }
+  }
+
   onMount(() => {
     return () => {
       if (hideTimer) clearTimeout(hideTimer);
@@ -40,7 +54,14 @@
 </script>
 
 {#if visible}
-  <div class="viewer-toast" class:showing={isShowing}>
+  <div
+    class="viewer-toast"
+    class:showing={isShowing}
+    class:clickable
+    onclick={handleClick}
+    role={clickable ? 'button' : 'status'}
+    tabindex={clickable ? 0 : -1}
+  >
     <div class="toast-content">
       {message}
     </div>

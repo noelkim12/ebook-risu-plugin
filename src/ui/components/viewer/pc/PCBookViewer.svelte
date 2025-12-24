@@ -98,6 +98,11 @@
   let loadingMessage = $state('');
   let toastVisible = $state(false);
   let toastMessage = $state('');
+  let toastClickable = $state(false);
+  let toastOnClick = $state(null);
+
+  // LB 모듈 로딩 상태
+  let isLBLoading = $state(false);
 
   // 뷰어 높이 (textarea 높이에 따라 동적 계산)
   let viewerHeight = $state('100%');
@@ -215,7 +220,39 @@
               '[PCBookViewer] New chat indices detected:',
               addedIndices,
             );
-            // TODO: toast 알림 추가 가능
+
+            // 새 메시지의 role 확인
+            const char = risuAPI.getChar();
+            const lastMessage =
+              char?.chats?.[char.chatPage]?.message?.[newLength - 1];
+            const role = lastMessage?.role;
+            const data = lastMessage?.data || '';
+
+            if (role === 'char') {
+              if (data.includes('<lb-rerolling>')) {
+                // LB 모듈 처리 중 - 로딩 인디케이터 표시
+                isLBLoading = true;
+                console.log('[PCBookViewer] LB module rerolling detected');
+              } else {
+                // role === 'char': 새 응답 알림 토스트 (클릭 시 이동)
+                const targetIndex = addedIndices[addedIndices.length - 1];
+                showClickableToast(
+                  '새로운 응답이 수신되었습니다. 클릭 시 이동합니다.',
+                  () => goToChatIndex(targetIndex),
+                );
+              }
+            } else if (role === 'user') {
+              // 이외의 경우 - 마지막 채팅으로 자동 이동
+              const lastIndex = addedIndices[addedIndices.length - 1];
+              goToChatIndex(lastIndex);
+            }
+          } else {
+            // 새 인덱스가 추가되지 않았지만 길이가 변경됨 (LB 완료 등)
+            // LB 로딩 상태 해제
+            if (isLBLoading) {
+              isLBLoading = false;
+              console.log('[PCBookViewer] LB module processing completed');
+            }
           }
           visibleChatIndices = newIndices;
           updateChatIndexInfo();
@@ -368,12 +405,23 @@
    */
   function showToast(message) {
     toastMessage = message;
+    toastClickable = false;
+    toastOnClick = null;
+    toastVisible = true;
+  }
+
+  function showClickableToast(message, onClick) {
+    toastMessage = message;
+    toastClickable = true;
+    toastOnClick = onClick;
     toastVisible = true;
   }
 
   function hideToast() {
     toastVisible = false;
     toastMessage = '';
+    toastClickable = false;
+    toastOnClick = null;
   }
 
   // 네비게이션
@@ -418,6 +466,15 @@
       openPCViewer(index, false, true);
     } else if (isLast) {
       showToast('현재 채팅의 마지막 페이지입니다');
+    }
+  }
+
+  /**
+   * 특정 chat index로 이동
+   */
+  function goToChatIndex(targetIndex) {
+    if (targetIndex !== chatIndex) {
+      openPCViewer(targetIndex, false, true);
     }
   }
 
@@ -570,6 +627,7 @@
       onOpenCustomCss={openCustomCssModal}
       {lbModules}
       onLBModuleClick={handleLBModuleClick}
+      {isLBLoading}
     />
 
     <CustomCssModal
@@ -583,7 +641,9 @@
     <ViewerToast
       message={toastMessage}
       visible={toastVisible}
-      duration={2000}
+      duration={toastClickable ? 5000 : 2000}
+      clickable={toastClickable}
+      onClick={toastOnClick}
       onHide={hideToast}
     />
   </div>

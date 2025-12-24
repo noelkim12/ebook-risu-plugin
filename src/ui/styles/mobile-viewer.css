@@ -1577,3 +1577,18 @@
 :global(.mobile-reader[data-theme='light']) .toast-content {
   background: rgba(50, 50, 50, 0.9);
 }
+
+/* Clickable toast 스타일 */
+.viewer-toast.clickable {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.viewer-toast.clickable .toast-content {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.viewer-toast.clickable:active .toast-content {
+  transform: scale(0.98);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}

@@ -1,19 +1,97 @@
 # risu-ebooklike-viewer
 
-RisuAI를 위한 **Svelte 5** 기반 플러그인 개발 스캐폴드 프로젝트입니다.
+RisuAI 채팅 메시지를 **이북(E-Book) 스타일**로 보여주는 뷰어 플러그인입니다.
 
-## 📋 목차
+## 주요 기능
 
-- [빠른 시작](#-빠른-시작)
-- [특징](#-특징)
-- [개발 환경](#-개발-환경)
-- [빌드 & 배포](#-빌드--배포)
-- [프로젝트 구조](#-프로젝트-구조)
-- [문서](#-문서)
+### 이북 스타일 뷰어
+- **페이지네이션**: 긴 채팅 메시지를 책처럼 페이지 단위로 분할
+- **양면 펼침 (PC)**: 좌우 2페이지 책 레이아웃
+- **단일 페이지 (Mobile)**: 모바일 최적화 단일 페이지 뷰
+- **스와이프 네비게이션 (Mobile)**: 터치 제스처로 페이지 이동
+
+### 디바이스 자동 감지
+- PC/Mobile 환경 자동 감지 후 적합한 뷰어 실행
+- 화면 너비 및 User Agent 기반 판별
+
+### 읽기 설정
+- **글자 크기**: 14px ~ 24px 조절
+- **줄 간격**: 1.4 ~ 2.2 조절
+- **테마**: Light / Sepia / Dark
+- **폰트**: 17종 한글 웹폰트 지원
+- **사용자 CSS**: 커스텀 스타일 적용
+
+### 채팅 네비게이션
+- **Chat Index 이동**: 이전/다음 채팅 메시지로 빠르게 이동
+- **새 채팅 감지**: 새 응답 수신 시 알림 토스트 표시
+- **자동 이동**: 사용자 메시지 전송 시 자동으로 해당 채팅으로 이동
+
+### LB 모듈 지원
+- LB 모듈 버튼 목록 표시
+- 뷰어 내에서 LB 모듈 실행
+- 리롤링 상태 로딩 인디케이터
+
+### 기타
+- 헤더 액션 버튼 (복사, 삭제 등) 연동
+- 콘텐츠 내 버튼 이벤트 위임
+- 실시간 콘텐츠 변경 감지
 
 ---
 
-## 🚀 빠른 시작
+## 프로젝트 구조
+
+```
+src/
+├── App.svelte                    # 메인 엔트리 - BookButton 부착
+├── core/
+│   ├── risu-api.js              # RisuAPI 래퍼 (구독, 캐릭터 접근)
+│   └── viewer/
+│       ├── pc/
+│       │   ├── page-manager.js      # 페이지 분할, 헤더/버튼 추출
+│       │   ├── settings-manager.js  # 설정 저장/로드 (PC/Mobile 공용)
+│       │   └── text-splitter.js     # PC용 텍스트 분할기
+│       └── mobile/
+│           ├── text-splitter-mobile.js  # Mobile용 텍스트 분할기
+│           └── touch-handler.js         # 스와이프 제스처 핸들러
+│
+├── ui/
+│   ├── components/
+│   │   ├── BookButton.svelte        # 채팅 입력창 옆 뷰어 버튼
+│   │   ├── SmallBookButton.svelte   # 메시지별 뷰어 버튼
+│   │   └── viewer/
+│   │       ├── ViewerToast.svelte       # 공유 토스트 컴포넌트
+│   │       ├── LoadingOverlay.svelte    # 공유 로딩 오버레이
+│   │       ├── pc/
+│   │       │   ├── PCBookViewer.svelte      # PC 메인 뷰어
+│   │       │   ├── BookHeader.svelte        # PC 헤더
+│   │       │   ├── BookPages.svelte         # PC 양면 페이지
+│   │       │   ├── NavControls.svelte       # PC 네비게이션/설정
+│   │       │   ├── SettingsMenu.svelte      # PC 설정 드롭다운
+│   │       │   ├── CustomCssModal.svelte    # CSS 편집 모달
+│   │       │   └── viewerHelpers.js         # PC 뷰어 열기/닫기
+│   │       └── mobile/
+│   │           ├── MobileBookViewer.svelte  # Mobile 메인 뷰어
+│   │           ├── MobileBookHeader.svelte  # Mobile 2줄 헤더
+│   │           ├── MobileBookPage.svelte    # Mobile 단일 페이지
+│   │           ├── MobileNavFooter.svelte   # Mobile 하단 네비게이션
+│   │           ├── MobileSettingsPanel.svelte   # Mobile 설정 바텀시트
+│   │           ├── MobileLBPanel.svelte         # Mobile LB 바텀시트
+│   │           ├── MobileCustomCssModal.svelte  # Mobile CSS 모달
+│   │           └── viewerHelpers.js             # Mobile 뷰어 열기/닫기
+│   │
+│   └── styles/
+│       ├── pc-viewer.css        # PC 뷰어 스타일
+│       └── mobile-viewer.css    # Mobile 뷰어 스타일
+│
+└── utils/
+    ├── selector.js          # RisuAI DOM 셀렉터, Chat Index 유틸
+    ├── dom-helper.js        # 버튼 복제, 이벤트 위임
+    └── svelte-helper.js     # Svelte 컴포넌트 마운트/언마운트
+```
+
+---
+
+## 빠른 시작
 
 ### 1. 의존성 설치
 
@@ -21,23 +99,15 @@ RisuAI를 위한 **Svelte 5** 기반 플러그인 개발 스캐폴드 프로젝�
 npm install
 ```
 
-### 2. 개발 모드 시작 (Hot Reload)
+### 2. 개발 모드 (Hot Reload)
 
 ```bash
 npm run dev
 ```
 
-**실행 내용**:
-
 - WebSocket 서버 시작 (`ws://localhost:13131`)
-- Vite watch 모드 시작
-- 파일 변경 시 자동 리빌드 및 RisuAI에 실시간 반영
-
-**사용 방법**:
-
-1. RisuAI에서 개발 모드 빌드된 플러그인 import
-2. 코드 수정 후 저장
-3. RisuAI에서 자동으로 업데이트되고 Toast 알림 표시
+- Vite watch 모드로 자동 리빌드
+- RisuAI에서 플러그인 import 후 코드 수정 시 자동 반영
 
 ### 3. 프로덕션 빌드
 
@@ -45,212 +115,80 @@ npm run dev
 npm run build
 ```
 
-빌드 결과물: `dist/risu-ebooklike-viewer.js`
+빌드 결과: `dist/risu-ebooklike-viewer.js`
 
 ---
 
-## ✨ 특징
+## 사용 방법
 
-### 🔥 Hot Reload 개발 환경
+### RisuAI에서 플러그인 Import
 
-- **실시간 업데이트**: 코드 수정 즉시 RisuAI에 자동 반영
-- **Toast 알림**: 업데이트 완료 시 시각적 피드백
-- **WebSocket 기반**: 포트 13131에서 로컬 개발 서버 실행
-- **프로덕션 안전**: 개발 코드가 프로덕션 빌드에서 완전히 제거됨
+1. RisuAI 설정 → 플러그인 관리
+2. 플러그인 URL 또는 파일로 Import
+3. 채팅 입력창 옆 책 아이콘 클릭하여 뷰어 실행
 
-### 🚀 자동화된 릴리즈 시스템
+### 뷰어 조작
 
-- **원스톱 배포**: 한 명령으로 버전 업데이트 → 빌드 → npm 배포 → Git 푸시
-- **릴리즈 노트 자동 생성**: 버전별 변경사항 자동 기록
-- **작업 중 릴리즈**: Git working directory가 clean하지 않아도 배포 가능
+**PC 버전**
+- `←` `→` 또는 `PageUp` `PageDown`: 페이지 이동
+- `Escape`: 뷰어 닫기
+- 우측 하단 설정 메뉴로 읽기 설정 변경
 
-### 🎨 현대적인 개발 스택
-
-- **Svelte 5**: 최신 Svelte 5 runes 모드 지원
-- **CSS Modules**: 스타일 충돌 방지 및 스코프 격리
-- **Vite 6**: 초고속 번들링 시스템
-- **IndexedDB**: 클라이언트 사이드 데이터 저장
-
-### 🔄 자동 업데이트 시스템
-
-- **unpkg CDN 연동**: 최신 버전 자동 감지
-- **사용자 알림**: 업데이트 가능 시 다이얼로그 표시
-- **릴리즈 노트 표시**: 변경사항 자동 표시
+**Mobile 버전**
+- 좌/우 스와이프: 페이지 이동
+- 하단 이전/다음 버튼: 페이지 이동
+- 상단 설정 버튼: 읽기 설정 변경
 
 ---
 
-## 🛠️ 개발 환경
+## 스크립트 명령어
 
-### 스크립트 명령어
-
-#### 개발
+### 개발
 
 ```bash
-# Hot Reload 개발 모드 (권장)
-npm run dev
-
-# WebSocket 서버만 시작
-npm run dev:server
-
-# Vite watch 모드만 시작
-npm run dev:vite
+npm run dev          # Hot Reload 개발 모드
+npm run dev:server   # WebSocket 서버만 시작
+npm run dev:vite     # Vite watch 모드만 시작
 ```
 
-#### 빌드
+### 빌드
 
 ```bash
-# 프로덕션 빌드
-npm run build
-
-# 개발 모드 빌드 (디버깅용)
-npm run build:dev
+npm run build        # 프로덕션 빌드
+npm run build:dev    # 개발 모드 빌드
 ```
 
-#### 릴리즈 (자동화)
+### 코드 품질
 
 ```bash
-# Patch 릴리즈 (0.6.8 → 0.6.9) - 버그 수정
-npm run release -- patch "fix: 로그인 에러 해결"
-npm run release:patch  # 대화형 입력
-
-# Minor 릴리즈 (0.6.8 → 0.7.0) - 새 기능
-npm run release -- minor "feat: 다크모드 지원"
-npm run release:minor  # 대화형 입력
-
-# Major 릴리즈 (0.6.8 → 1.0.0) - Breaking Change
-npm run release -- major "breaking: API 구조 변경"
-npm run release:major  # 대화형 입력
+npm run lint         # ESLint 검사
+npm run lint:fix     # ESLint 자동 수정
+npm run format       # Prettier 포맷팅
+npm run format:check # Prettier 검사
 ```
 
-**릴리즈 스크립트가 자동으로 수행하는 작업**:
-
-1. ✅ Git 저장소 확인
-2. ✅ NPM 로그인 확인
-3. ✅ 버전 업데이트 (`package.json`)
-4. ✅ 프로덕션 빌드
-5. ✅ 릴리즈 노트 생성 (`dist/release-notes.json`)
-6. ✅ Git 커밋 & 태그
-7. ✅ NPM 배포
-8. ✅ Git 푸시 (커밋 + 태그)
-
----
-
-## 📦 빌드 & 배포
-
-### 빠른 배포 (권장)
+### 릴리즈
 
 ```bash
-# 작업 중... (커밋 안 해도 됨!)
-# 변경사항이 있어도 OK!
-
-# 릴리즈 한 번에 완료
 npm run release -- patch "fix: 버그 수정"
-
-# 끝! 🎉
-# - 모든 변경사항이 하나의 커밋으로 통합
-# - npm에 자동 배포
-# - git에 자동 푸시 (커밋 + 태그)
-```
-
-### 수동 배포
-
-상세한 배포 가이드는 [docs/how_to_publish.md](docs/how_to_publish.md) 참조
-
----
-
-## 📁 프로젝트 구조
-
-```
-risu-ebooklike-viewer/
-├── dist/                          # 빌드 결과물
-│   ├── risu-ebooklike-viewer.js              # 번들 파일
-│   └── release-notes.json        # 릴리즈 노트
-│
-├── docs/                          # 문서
-│   ├── how_to_publish.md         # 배포 가이드
-│   ├── development-guide.md      # 개발 가이드
-│   └── css-modules.md            # CSS Modules 가이드
-│
-├── scripts/                       # 자동화 스크립트
-│   ├── dev-server.js             # WebSocket 개발 서버 (Hot Reload)
-│   ├── vite-plugin-devmode.js    # 개발 모드 플러그인
-│   ├── vite-plugin-args.js       # Plugin Args 자동 생성
-│   ├── release.js                # 릴리즈 자동화
-│   ├── sync-version.js           # 버전 동기화
-│   └── script-util.js            # 유틸리티
-│
-├── src/                           # 소스 코드
-│   ├── index.js                  # 메인 엔트리 포인트
-│   ├── App.svelte                # 메인 Svelte 컴포넌트
-│   ├── constants.js              # 상수 정의
-│   ├── plugin-args.json          # 플러그인 인자 정의
-│   │
-│   ├── core/                     # 핵심 로직
-│   │   ├── risu-api.js          # RisuAPI 래퍼
-│   │   ├── update-manager.js    # 자동 업데이트 시스템
-│   │   ├── script-updater.js    # 스크립트 업데이터
-│   │   ├── plugin-config.js     # Plugin Args Config (자동 생성)
-│   │   ├── dev-reload.js        # Hot Reload 클라이언트 (자동 생성)
-│   │   └── idb-storage.js       # IndexedDB 저장소
-│   │
-│   ├── ui/                       # UI 관련
-│   │   ├── styles/              # CSS 스타일
-│   │   │   ├── index.js         # 스타일 레지스트리
-│   │   │   ├── global.css       # 전역 스타일
-│   │   │   └── *.module.css     # CSS Modules
-│   │   │
-│   │   └── components/          # Svelte 컴포넌트
-│   │       ├── index.js         # 컴포넌트 레지스트리
-│   │       ├── UpdateDialog.svelte    # 업데이트 다이얼로그
-│   │       ├── AlertDialog.svelte     # 알림 다이얼로그
-│   │       ├── LoadingDialog.svelte   # 로딩 다이얼로그
-│   │       └── dialogHelpers.js       # 다이얼로그 헬퍼 함수
-│   │
-│   └── utils/                   # 유틸리티
-│       └── helpers.js          # 헬퍼 함수
-│
-├── .gitignore                    # Git 제외 파일
-├── package.json                  # 패키지 설정
-├── vite.config.js                # Vite 설정
-├── svelte.config.js              # Svelte 설정
-└── README.md                     # 프로젝트 문서
+npm run release -- minor "feat: 새 기능"
+npm run release -- major "breaking: API 변경"
 ```
 
 ---
 
-## 📚 문서
-
-### 개발 가이드
-
-- **[개발 가이드](docs/development-guide.md)**: Svelte 컴포넌트 개발 상세 가이드
-- **[CSS Modules 가이드](docs/css-modules.md)**: CSS Modules 사용법 및 Best Practices
-- **[배포 가이드](docs/how_to_publish.md)**: npm 배포 및 릴리즈 프로세스
-
-### 주요 기능
-
-- **Hot Reload**: 실시간 코드 업데이트 시스템 (포트 13131)
-- **자동 업데이트**: unpkg CDN 기반 자동 업데이트
-- **릴리즈 자동화**: 원스톱 배포 시스템
-
----
-
-## 🔧 기술 스택
+## 기술 스택
 
 - **프레임워크**: Svelte 5 (runes 모드)
 - **빌드**: Vite 6
-- **스타일**: CSS Modules
-- **저장소**: IndexedDB (idb)
+- **아이콘**: lucide-svelte
+- **스타일**: CSS (CSS Variables 기반 테마)
+- **저장소**: localStorage (설정), IndexedDB (캐시)
 - **개발**: Hot Reload (WebSocket)
-- **배포**: npm + unpkg CDN
 
 ---
 
-## 📄 라이선스
+## 라이선스
 
 MIT License
 
----
-
-## 📞 문의
-
-프로젝트 관련 문의사항은 Issue를 통해 남겨주세요.

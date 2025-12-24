@@ -2,7 +2,13 @@
   /**
    * NavControls - 하단 네비게이션 컨트롤
    */
-  import { ChevronLeft, ChevronRight, Settings, Layers } from 'lucide-svelte';
+  import {
+    ChevronLeft,
+    ChevronRight,
+    Settings,
+    Layers,
+    Loader2,
+  } from 'lucide-svelte';
   import SettingsMenu from './SettingsMenu.svelte';
   import LBModuleMenu from './LBModuleMenu.svelte';
 
@@ -20,6 +26,7 @@
     onOpenCustomCss,
     lbModules = [],
     onLBModuleClick,
+    isLBLoading = false,
   } = $props();
 
   let isSettingsOpen = $state(false);
@@ -92,17 +99,23 @@
   </button>
 
   <div class="nav-right-buttons">
-    {#if lbModules.length > 0}
+    {#if lbModules.length > 0 || isLBLoading}
       <div class="lb-menu-container">
         <button
           class="nav-icon-btn lb-btn"
+          class:loading={isLBLoading}
           onclick={e => {
             e.stopPropagation();
-            toggleLBMenu();
+            if (!isLBLoading) toggleLBMenu();
           }}
-          title="LB 모듈"
+          disabled={isLBLoading}
+          title={isLBLoading ? 'LB 모듈 처리 중...' : 'LB 모듈'}
         >
-          <Layers size={18} />
+          {#if isLBLoading}
+            <Loader2 size={18} />
+          {:else}
+            <Layers size={18} />
+          {/if}
           <span>LB</span>
         </button>
         <LBModuleMenu
