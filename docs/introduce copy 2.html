@@ -1,0 +1,1194 @@
+<div
+  style="
+    max-width: 900px;
+    margin: 0 auto;
+    background: linear-gradient(180deg, #0a0a0c 0%, #12121a 50%, #0a0a0c 100%);
+    color: #e8e8e8;
+    font-family: 'Noto Sans KR', 'Pretendard', sans-serif;
+    padding: 30px;
+    line-height: 1.7;
+    word-break: keep-all;
+    border: 1px solid #2a2a3a;
+    box-shadow:
+      0 0 40px rgba(0, 0, 0, 0.9),
+      inset 0 0 80px rgba(100, 80, 200, 0.03);
+  "
+>
+  <!-- 상단 장식 바 -->
+  <div
+    style="
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        #8b5cf6,
+        #06b6d4,
+        #8b5cf6,
+        transparent
+      );
+      margin-bottom: 40px;
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    "
+  ></div>
+
+  <!-- 헤더 영역 -->
+  <div
+    style="
+      text-align: center;
+      margin-bottom: 60px;
+      padding: 50px 20px;
+      position: relative;
+      background: radial-gradient(
+        ellipse at center,
+        rgba(139, 92, 246, 0.08) 0%,
+        transparent 70%
+      );
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      border-radius: 12px;
+    "
+  >
+    <!-- 버전 뱃지 -->
+    <span
+      style="
+        display: inline-block;
+        background: linear-gradient(135deg, #8b5cf6, #6366f1);
+        color: #fff;
+        padding: 4px 14px;
+        font-size: 0.75em;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+      "
+      >v0.1.0 RELEASE</span
+    >
+
+    <!-- 메인 타이틀 -->
+    <h1
+      style="
+        font-size: 3.2em;
+        font-weight: 900;
+        margin: 20px 0;
+        line-height: 1.15;
+        letter-spacing: -1px;
+      "
+    >
+      <span
+        style="
+          display: block;
+          background: linear-gradient(
+            90deg,
+            #ff6b6b,
+            #feca57,
+            #48dbfb,
+            #ff9ff3,
+            #54a0ff,
+            #5f27cd
+          );
+          background-size: 300% 300%;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          filter: drop-shadow(0 0 20px rgba(255, 107, 107, 0.5))
+            drop-shadow(0 0 40px rgba(84, 160, 255, 0.3));
+        "
+        >이북리수</span
+      >
+      <span
+        style="
+          display: block;
+          background: linear-gradient(
+            135deg,
+            #fff 0%,
+            #e0e7ff 25%,
+            #c4b5fd 50%,
+            #67e8f9 75%,
+            #fff 100%
+          );
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          filter: drop-shadow(0 2px 10px rgba(139, 92, 246, 0.4));
+        "
+        >E-Book Viewer For RisuAI</span
+      >
+    </h1>
+
+    <!-- 서브타이틀 -->
+    <p
+      style="
+        color: #a78bfa;
+        font-size: 1.1em;
+        margin-bottom: 25px;
+        font-weight: 500;
+      "
+    >
+      채팅을 책처럼, 몰입을 극대화하다
+    </p>
+
+    <!-- 태그들 -->
+    <div
+      style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px"
+    >
+      <span
+        style="
+          background: rgba(6, 182, 212, 0.15);
+          border: 1px solid rgba(6, 182, 212, 0.4);
+          color: #22d3ee;
+          padding: 6px 16px;
+          border-radius: 6px;
+          font-size: 0.85em;
+          font-weight: 500;
+        "
+        >#RisuAI</span
+      >
+      <span
+        style="
+          background: rgba(139, 92, 246, 0.15);
+          border: 1px solid rgba(139, 92, 246, 0.4);
+          color: #a78bfa;
+          padding: 6px 16px;
+          border-radius: 6px;
+          font-size: 0.85em;
+          font-weight: 500;
+        "
+        >#E-Book</span
+      >
+      <span
+        style="
+          background: rgba(244, 114, 182, 0.15);
+          border: 1px solid rgba(244, 114, 182, 0.4);
+          color: #f472b6;
+          padding: 6px 16px;
+          border-radius: 6px;
+          font-size: 0.85em;
+          font-weight: 500;
+        "
+        >#Plugin</span
+      >
+    </div>
+
+    <!-- [이미지 제안] 메인 히어로 이미지 -->
+    <div
+      style="
+        margin-top: 35px;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 2px dashed rgba(139, 92, 246, 0.3);
+        border-radius: 12px;
+      "
+    >
+      <p style="color: #6b7280; font-size: 0.85em; margin: 0">
+        [이미지 제안] PC와 모바일에서 이북 뷰어가 열려있는 목업 스크린샷<br />양면
+        펼침 레이아웃이 보이는 우아한 뷰어 UI 캡처
+      </p>
+    </div>
+
+    <!-- 다운로드 버튼 -->
+    <div
+      style="
+        margin-top: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+      "
+    >
+      <a
+        href="#"
+        style="
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: linear-gradient(
+            135deg,
+            #8b5cf6 0%,
+            #6366f1 50%,
+            #4f46e5 100%
+          );
+          color: #fff;
+          padding: 16px 36px;
+          border-radius: 12px;
+          text-decoration: none;
+          font-weight: 700;
+          font-size: 1.05em;
+          box-shadow:
+            0 8px 25px rgba(139, 92, 246, 0.5),
+            0 0 40px rgba(139, 92, 246, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        "
+      >
+        <span style="font-size: 1.2em">📥</span> 플러그인 다운로드
+      </a>
+      <a
+        href="#"
+        style="
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(6, 182, 212, 0.1);
+          color: #22d3ee;
+          padding: 16px 36px;
+          border-radius: 12px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 1.05em;
+          border: 2px solid rgba(6, 182, 212, 0.4);
+          box-shadow: 0 4px 15px rgba(6, 182, 212, 0.2);
+        "
+      >
+        <span style="font-size: 1.2em">📘</span> 사용 가이드
+      </a>
+    </div>
+  </div>
+
+  <!-- 핵심 소개 박스 -->
+  <div
+    style="
+      background: linear-gradient(
+        135deg,
+        rgba(139, 92, 246, 0.1) 0%,
+        rgba(6, 182, 212, 0.1) 100%
+      );
+      border-left: 4px solid #8b5cf6;
+      border-radius: 0 12px 12px 0;
+      padding: 25px 30px;
+      margin-bottom: 50px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    "
+  >
+    <h3
+      style="
+        margin: 0 0 15px 0;
+        color: #c4b5fd;
+        font-size: 1.2em;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      "
+    >
+      What is this?
+    </h3>
+    <p style="margin: 0; color: #d1d5db; font-size: 1em; line-height: 1.8">
+      RisuAI의 채팅 메시지를
+      <strong style="color: #22d3ee">실제 책을 읽는 듯한 경험</strong>으로
+      바꿔주는 뷰어 플러그인입니다.<br />
+      긴 AI 응답도 페이지 단위로 나뉘어
+      <strong style="color: #a78bfa">편안하게 읽을 수 있습니다.</strong>
+    </p>
+  </div>
+
+  <!-- 주요 기능 섹션 -->
+  <div style="margin-bottom: 50px">
+    <h2
+      style="
+        font-size: 1.6em;
+        color: #fff;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      "
+    >
+      <span
+        style="
+          display: inline-block;
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #8b5cf6, #6366f1);
+          border-radius: 10px;
+          text-align: center;
+          line-height: 40px;
+          font-size: 0.7em;
+          box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        "
+        >01</span
+      >
+      <span
+        style="
+          background: linear-gradient(90deg, #fff, #c4b5fd);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        "
+        >Core Features</span
+      >
+    </h2>
+
+    <!-- 기능 그리드 -->
+    <div
+      style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+      "
+    >
+      <!-- PC 양면 펼침 -->
+      <div
+        style="
+          background: linear-gradient(180deg, #18181f 0%, #0f0f14 100%);
+          padding: 25px;
+          border-radius: 16px;
+          border: 1px solid rgba(139, 92, 246, 0.2);
+          transition: all 0.3s;
+        "
+      >
+        <div
+          style="
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(
+              135deg,
+              rgba(139, 92, 246, 0.2),
+              rgba(139, 92, 246, 0.05)
+            );
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+          "
+        >
+          <span style="font-size: 1.5em">📖</span>
+        </div>
+        <h4
+          style="
+            color: #e2e8f0;
+            font-size: 1.1em;
+            margin: 0 0 10px 0;
+            font-weight: 600;
+          "
+        >
+          PC 양면 펼침
+        </h4>
+        <p
+          style="color: #9ca3af; font-size: 0.9em; margin: 0; line-height: 1.6"
+        >
+          실제 책처럼 좌우 2페이지 레이아웃으로 몰입감 있는 독서 경험
+        </p>
+      </div>
+
+      <!-- 모바일 최적화 -->
+      <div
+        style="
+          background: linear-gradient(180deg, #18181f 0%, #0f0f14 100%);
+          padding: 25px;
+          border-radius: 16px;
+          border: 1px solid rgba(6, 182, 212, 0.2);
+        "
+      >
+        <div
+          style="
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(
+              135deg,
+              rgba(6, 182, 212, 0.2),
+              rgba(6, 182, 212, 0.05)
+            );
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+          "
+        >
+          <span style="font-size: 1.5em">📱</span>
+        </div>
+        <h4
+          style="
+            color: #e2e8f0;
+            font-size: 1.1em;
+            margin: 0 0 10px 0;
+            font-weight: 600;
+          "
+        >
+          Mobile 최적화
+        </h4>
+        <p
+          style="color: #9ca3af; font-size: 0.9em; margin: 0; line-height: 1.6"
+        >
+          스와이프 제스처로 페이지 넘김, 모바일에 최적화된 단일 페이지 뷰
+        </p>
+      </div>
+
+      <!-- 다양한 테마 -->
+      <div
+        style="
+          background: linear-gradient(180deg, #18181f 0%, #0f0f14 100%);
+          padding: 25px;
+          border-radius: 16px;
+          border: 1px solid rgba(244, 114, 182, 0.2);
+        "
+      >
+        <div
+          style="
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(
+              135deg,
+              rgba(244, 114, 182, 0.2),
+              rgba(244, 114, 182, 0.05)
+            );
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            border: 1px solid rgba(244, 114, 182, 0.3);
+          "
+        >
+          <span style="font-size: 1.5em">🎨</span>
+        </div>
+        <h4
+          style="
+            color: #e2e8f0;
+            font-size: 1.1em;
+            margin: 0 0 10px 0;
+            font-weight: 600;
+          "
+        >
+          다양한 테마
+        </h4>
+        <p
+          style="color: #9ca3af; font-size: 0.9em; margin: 0; line-height: 1.6"
+        >
+          Light, Sepia, Dark 테마와 17종 한글 웹폰트 지원
+        </p>
+      </div>
+
+      <!-- 커스텀 CSS -->
+      <div
+        style="
+          background: linear-gradient(180deg, #18181f 0%, #0f0f14 100%);
+          padding: 25px;
+          border-radius: 16px;
+          border: 1px solid rgba(34, 197, 94, 0.2);
+        "
+      >
+        <div
+          style="
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(
+              135deg,
+              rgba(34, 197, 94, 0.2),
+              rgba(34, 197, 94, 0.05)
+            );
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+          "
+        >
+          <span style="font-size: 1.5em">🛠️</span>
+        </div>
+        <h4
+          style="
+            color: #e2e8f0;
+            font-size: 1.1em;
+            margin: 0 0 10px 0;
+            font-weight: 600;
+          "
+        >
+          커스텀 CSS
+        </h4>
+        <p
+          style="color: #9ca3af; font-size: 0.9em; margin: 0; line-height: 1.6"
+        >
+          자신만의 스타일을 CSS로 적용하여 완전한 커스터마이징
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- [이미지 제안] 기능 스크린샷 갤러리 -->
+  <div
+    style="
+      margin-bottom: 50px;
+      padding: 25px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px dashed rgba(6, 182, 212, 0.3);
+      border-radius: 16px;
+    "
+  >
+    <p style="color: #6b7280; font-size: 0.9em; margin: 0; text-align: center">
+      [이미지 갤러리 제안]<br />
+      1. PC 양면 펼침 모드 스크린샷<br />
+      2. 모바일 단일 페이지 뷰 스크린샷<br />
+      3. 설정 메뉴 (테마, 폰트 선택) 스크린샷<br />
+      4. 다크/라이트/세피아 테마 비교 이미지
+    </p>
+  </div>
+
+  <!-- 읽기 설정 섹션 -->
+  <div style="margin-bottom: 50px">
+    <h2
+      style="
+        font-size: 1.6em;
+        color: #fff;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      "
+    >
+      <span
+        style="
+          display: inline-block;
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #06b6d4, #0891b2);
+          border-radius: 10px;
+          text-align: center;
+          line-height: 40px;
+          font-size: 0.7em;
+          box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+        "
+        >02</span
+      >
+      <span
+        style="
+          background: linear-gradient(90deg, #fff, #67e8f9);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        "
+        >Reading Settings</span
+      >
+    </h2>
+
+    <div
+      style="
+        background: linear-gradient(180deg, #18181f 0%, #0f0f14 100%);
+        border-radius: 16px;
+        padding: 30px;
+        border: 1px solid rgba(6, 182, 212, 0.15);
+      "
+    >
+      <div
+        style="
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 25px;
+        "
+      >
+        <div style="text-align: center">
+          <div style="font-size: 2.5em; margin-bottom: 10px">Aa</div>
+          <p style="color: #22d3ee; font-weight: 600; margin: 0 0 5px 0">
+            글자 크기
+          </p>
+          <p style="color: #6b7280; font-size: 0.85em; margin: 0">
+            14px ~ 24px
+          </p>
+        </div>
+
+        <div style="text-align: center">
+          <div style="font-size: 2.5em; margin-bottom: 10px">≡</div>
+          <p style="color: #22d3ee; font-weight: 600; margin: 0 0 5px 0">
+            줄 간격
+          </p>
+          <p style="color: #6b7280; font-size: 0.85em; margin: 0">1.4 ~ 2.2</p>
+        </div>
+
+        <div style="text-align: center">
+          <div style="font-size: 2.5em; margin-bottom: 10px">◐</div>
+          <p style="color: #22d3ee; font-weight: 600; margin: 0 0 5px 0">
+            테마
+          </p>
+          <p style="color: #6b7280; font-size: 0.85em; margin: 0">
+            Light / Sepia / Dark
+          </p>
+        </div>
+
+        <div style="text-align: center">
+          <div style="font-size: 2.5em; margin-bottom: 10px">가</div>
+          <p style="color: #22d3ee; font-weight: 600; margin: 0 0 5px 0">
+            폰트
+          </p>
+          <p style="color: #6b7280; font-size: 0.85em; margin: 0">
+            17종 한글 웹폰트
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 채팅 네비게이션 섹션 -->
+  <div style="margin-bottom: 50px">
+    <h2
+      style="
+        font-size: 1.6em;
+        color: #fff;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      "
+    >
+      <span
+        style="
+          display: inline-block;
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #f472b6, #ec4899);
+          border-radius: 10px;
+          text-align: center;
+          line-height: 40px;
+          font-size: 0.7em;
+          box-shadow: 0 4px 15px rgba(244, 114, 182, 0.4);
+        "
+        >03</span
+      >
+      <span
+        style="
+          background: linear-gradient(90deg, #fff, #f9a8d4);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        "
+        >Smart Navigation</span
+      >
+    </h2>
+
+    <div
+      style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+      "
+    >
+      <div
+        style="
+          background: linear-gradient(
+            135deg,
+            rgba(244, 114, 182, 0.1),
+            rgba(244, 114, 182, 0.02)
+          );
+          padding: 25px;
+          border-radius: 16px;
+          border: 1px solid rgba(244, 114, 182, 0.2);
+        "
+      >
+        <h4 style="color: #f9a8d4; margin: 0 0 12px 0; font-size: 1.05em">
+          Chat Index 이동
+        </h4>
+        <p
+          style="color: #9ca3af; font-size: 0.9em; margin: 0; line-height: 1.6"
+        >
+          이전/다음 채팅 메시지로 빠르게 점프. 긴 대화도 쉽게 탐색
+        </p>
+      </div>
+
+      <div
+        style="
+          background: linear-gradient(
+            135deg,
+            rgba(244, 114, 182, 0.1),
+            rgba(244, 114, 182, 0.02)
+          );
+          padding: 25px;
+          border-radius: 16px;
+          border: 1px solid rgba(244, 114, 182, 0.2);
+        "
+      >
+        <h4 style="color: #f9a8d4; margin: 0 0 12px 0; font-size: 1.05em">
+          새 채팅 알림
+        </h4>
+        <p
+          style="color: #9ca3af; font-size: 0.9em; margin: 0; line-height: 1.6"
+        >
+          AI 응답 수신 시 토스트 알림으로 새 메시지 안내
+        </p>
+      </div>
+
+      <div
+        style="
+          background: linear-gradient(
+            135deg,
+            rgba(244, 114, 182, 0.1),
+            rgba(244, 114, 182, 0.02)
+          );
+          padding: 25px;
+          border-radius: 16px;
+          border: 1px solid rgba(244, 114, 182, 0.2);
+        "
+      >
+        <h4 style="color: #f9a8d4; margin: 0 0 12px 0; font-size: 1.05em">
+          자동 이동
+        </h4>
+        <p
+          style="color: #9ca3af; font-size: 0.9em; margin: 0; line-height: 1.6"
+        >
+          메시지 전송 시 자동으로 해당 채팅으로 이동
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LB 모듈 지원 섹션 -->
+  <div
+    style="
+      margin-bottom: 50px;
+      background: linear-gradient(
+        135deg,
+        rgba(251, 191, 36, 0.08),
+        rgba(251, 191, 36, 0.02)
+      );
+      border: 1px solid rgba(251, 191, 36, 0.2);
+      border-radius: 16px;
+      padding: 30px;
+    "
+  >
+    <h2
+      style="
+        font-size: 1.4em;
+        color: #fcd34d;
+        margin: 0 0 20px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      "
+    >
+      <span style="font-size: 1.2em">⚡</span> LB 모듈 완벽 지원
+    </h2>
+    <ul style="margin: 0; padding-left: 20px; color: #d1d5db">
+      <li style="margin-bottom: 10px">LB 모듈 버튼 목록을 뷰어 내에서 표시</li>
+      <li style="margin-bottom: 10px">뷰어를 닫지 않고 바로 LB 모듈 실행</li>
+      <li style="margin-bottom: 0">리롤링 시 로딩 인디케이터로 상태 표시</li>
+    </ul>
+  </div>
+
+  <!-- 사용 방법 섹션 -->
+  <div style="margin-bottom: 50px">
+    <h2
+      style="
+        font-size: 1.6em;
+        color: #fff;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      "
+    >
+      <span
+        style="
+          display: inline-block;
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #22c55e, #16a34a);
+          border-radius: 10px;
+          text-align: center;
+          line-height: 40px;
+          font-size: 0.7em;
+          box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+        "
+        >04</span
+      >
+      <span
+        style="
+          background: linear-gradient(90deg, #fff, #86efac);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        "
+        >How to Use</span
+      >
+    </h2>
+
+    <!-- 설치 단계 -->
+    <div
+      style="
+        background: linear-gradient(180deg, #18181f 0%, #0f0f14 100%);
+        border-radius: 16px;
+        padding: 30px;
+        border: 1px solid rgba(34, 197, 94, 0.15);
+        margin-bottom: 25px;
+      "
+    >
+      <h4 style="color: #4ade80; margin: 0 0 20px 0; font-size: 1.1em">
+        설치하기
+      </h4>
+      <div style="display: flex; flex-direction: column; gap: 15px">
+        <div style="display: flex; align-items: flex-start; gap: 15px">
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              min-width: 28px;
+              height: 28px;
+              background: rgba(34, 197, 94, 0.2);
+              border-radius: 50%;
+              color: #4ade80;
+              font-size: 0.85em;
+              font-weight: 600;
+            "
+            >1</span
+          >
+          <p style="margin: 0; color: #d1d5db">
+            RisuAI 설정 → 플러그인 관리 메뉴 진입
+          </p>
+        </div>
+        <div style="display: flex; align-items: flex-start; gap: 15px">
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              min-width: 28px;
+              height: 28px;
+              background: rgba(34, 197, 94, 0.2);
+              border-radius: 50%;
+              color: #4ade80;
+              font-size: 0.85em;
+              font-weight: 600;
+            "
+            >2</span
+          >
+          <p style="margin: 0; color: #d1d5db">플러그인 파일 Import</p>
+        </div>
+        <div style="display: flex; align-items: flex-start; gap: 15px">
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              min-width: 28px;
+              height: 28px;
+              background: rgba(34, 197, 94, 0.2);
+              border-radius: 50%;
+              color: #4ade80;
+              font-size: 0.85em;
+              font-weight: 600;
+            "
+            >3</span
+          >
+          <p style="margin: 0; color: #d1d5db">
+            채팅 입력창 옆
+            <strong style="color: #4ade80">📖 책 아이콘</strong> 클릭!
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 조작법 -->
+    <div
+      style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+      "
+    >
+      <!-- PC 조작법 -->
+      <div
+        style="
+          background: linear-gradient(180deg, #18181f 0%, #0f0f14 100%);
+          border-radius: 16px;
+          padding: 25px;
+          border: 1px solid rgba(139, 92, 246, 0.15);
+        "
+      >
+        <h4
+          style="
+            color: #a78bfa;
+            margin: 0 0 15px 0;
+            font-size: 1.05em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          "
+        >
+          <span>🖥️</span> PC 조작
+        </h4>
+        <ul
+          style="
+            margin: 0;
+            padding-left: 18px;
+            color: #9ca3af;
+            font-size: 0.9em;
+          "
+        >
+          <li style="margin-bottom: 8px">
+            <strong style="color: #c4b5fd">← →</strong> 또는
+            <strong style="color: #c4b5fd">PageUp/Down</strong>: 페이지 이동
+          </li>
+          <li style="margin-bottom: 8px">
+            <strong style="color: #c4b5fd">Escape</strong>: 뷰어 닫기
+          </li>
+          <li style="margin-bottom: 0">우측 하단 메뉴로 설정 변경</li>
+        </ul>
+      </div>
+
+      <!-- Mobile 조작법 -->
+      <div
+        style="
+          background: linear-gradient(180deg, #18181f 0%, #0f0f14 100%);
+          border-radius: 16px;
+          padding: 25px;
+          border: 1px solid rgba(6, 182, 212, 0.15);
+        "
+      >
+        <h4
+          style="
+            color: #22d3ee;
+            margin: 0 0 15px 0;
+            font-size: 1.05em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          "
+        >
+          <span>📱</span> Mobile 조작
+        </h4>
+        <ul
+          style="
+            margin: 0;
+            padding-left: 18px;
+            color: #9ca3af;
+            font-size: 0.9em;
+          "
+        >
+          <li style="margin-bottom: 8px">
+            <strong style="color: #67e8f9">좌/우 스와이프</strong>: 페이지 이동
+          </li>
+          <li style="margin-bottom: 8px">
+            하단 <strong style="color: #67e8f9">이전/다음 버튼</strong>
+          </li>
+          <li style="margin-bottom: 0">상단 설정 버튼으로 설정 변경</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- [이미지 제안] 사용법 GIF/동영상 -->
+  <div
+    style="
+      margin-bottom: 50px;
+      padding: 25px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px dashed rgba(34, 197, 94, 0.3);
+      border-radius: 16px;
+    "
+  >
+    <p style="color: #6b7280; font-size: 0.9em; margin: 0; text-align: center">
+      [동영상/GIF 제안]<br />
+      실제 사용 모습을 보여주는 짧은 데모 영상 또는 GIF<br />
+      1. 뷰어 열기 → 페이지 넘기기 → 설정 변경 → 닫기 플로우<br />
+      2. 모바일 스와이프 동작 GIF
+    </p>
+  </div>
+
+  <!-- 기술 스택 섹션 -->
+  <div style="margin-bottom: 50px">
+    <h2
+      style="
+        font-size: 1.6em;
+        color: #fff;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      "
+    >
+      <span
+        style="
+          display: inline-block;
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #6366f1, #4f46e5);
+          border-radius: 10px;
+          text-align: center;
+          line-height: 40px;
+          font-size: 0.7em;
+          box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        "
+        >05</span
+      >
+      <span
+        style="
+          background: linear-gradient(90deg, #fff, #a5b4fc);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        "
+        >Tech Stack</span
+      >
+    </h2>
+
+    <div
+      style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center"
+    >
+      <span
+        style="
+          background: linear-gradient(135deg, #ff3e00, #ff6b35);
+          color: #fff;
+          padding: 10px 20px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.9em;
+          box-shadow: 0 4px 15px rgba(255, 62, 0, 0.3);
+        "
+        >Svelte 5</span
+      >
+      <span
+        style="
+          background: linear-gradient(135deg, #646cff, #535bf2);
+          color: #fff;
+          padding: 10px 20px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.9em;
+          box-shadow: 0 4px 15px rgba(100, 108, 255, 0.3);
+        "
+        >Vite 6</span
+      >
+      <span
+        style="
+          background: linear-gradient(135deg, #3178c6, #235a97);
+          color: #fff;
+          padding: 10px 20px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.9em;
+          box-shadow: 0 4px 15px rgba(49, 120, 198, 0.3);
+        "
+        >TypeScript</span
+      >
+      <span
+        style="
+          background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+          color: #fff;
+          padding: 10px 20px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.9em;
+          box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+        "
+        >Tailwind CSS</span
+      >
+      <span
+        style="
+          background: linear-gradient(135deg, #f59e0b, #d97706);
+          color: #fff;
+          padding: 10px 20px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.9em;
+          box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        "
+        >Lucide Icons</span
+      >
+    </div>
+  </div>
+
+  <!-- 다운로드/링크 섹션 -->
+  <div
+    style="
+      text-align: center;
+      padding: 40px 20px;
+      background: linear-gradient(
+        180deg,
+        rgba(139, 92, 246, 0.1),
+        rgba(6, 182, 212, 0.1)
+      );
+      border-radius: 16px;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      margin-bottom: 40px;
+    "
+  >
+    <h3
+      style="
+        color: #fff;
+        font-size: 1.4em;
+        margin: 0 0 20px 0;
+        font-weight: 700;
+      "
+    >
+      지금 바로 사용해보세요!
+    </h3>
+    <p style="color: #9ca3af; margin: 0 0 25px 0; font-size: 0.95em">
+      RisuAI에서 플러그인을 Import하고 새로운 독서 경험을 시작하세요.
+    </p>
+
+    <div
+      style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center"
+    >
+      <a
+        href="#"
+        style="
+          display: inline-block;
+          background: linear-gradient(135deg, #8b5cf6, #6366f1);
+          color: #fff;
+          padding: 14px 32px;
+          border-radius: 10px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 1em;
+          box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        "
+      >
+        📥 플러그인 다운로드
+      </a>
+      <a
+        href="#"
+        style="
+          display: inline-block;
+          background: transparent;
+          color: #a78bfa;
+          padding: 14px 32px;
+          border-radius: 10px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 1em;
+          border: 2px solid rgba(139, 92, 246, 0.5);
+        "
+      >
+        📘 사용 가이드
+      </a>
+    </div>
+  </div>
+
+  <!-- 개발자 정보 -->
+  <div
+    style="
+      text-align: center;
+      padding: 25px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      margin-bottom: 30px;
+    "
+  >
+    <p style="color: #6b7280; font-size: 0.85em; margin: 0 0 10px 0">
+      Developed with ❤️ by
+    </p>
+    <p style="color: #a78bfa; font-size: 1.1em; font-weight: 600; margin: 0">
+      Chaebboong
+    </p>
+    <p style="color: #4b5563; font-size: 0.8em; margin: 10px 0 0 0">
+      MIT License • Open Source
+    </p>
+  </div>
+
+  <!-- 하단 장식 바 -->
+  <div
+    style="
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        #06b6d4,
+        #8b5cf6,
+        #06b6d4,
+        transparent
+      );
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+    "
+  ></div>
+</div>

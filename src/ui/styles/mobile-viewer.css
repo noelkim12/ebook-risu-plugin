@@ -403,7 +403,7 @@
   margin: 1.8em 0 0.8em;
   text-indent: 0;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--bv-text-color);
   letter-spacing: -0.02em;
 }
 

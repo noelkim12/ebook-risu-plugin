@@ -254,18 +254,21 @@
   font-weight: 800;
   font-size: 2.25em;
   line-height: 1.1111111;
+  color: var(--bv-text-color);
 }
 
 .text-content h2 {
   font-weight: 700;
   font-size: 1.5em;
   line-height: 1.3333333;
+  color: var(--bv-text-color);
 }
 
 .text-content h3 {
   font-weight: 600;
   font-size: 1.25em;
   line-height: 1.6;
+  color: var(--bv-text-color);
 }
 
 /* ===== 책 래퍼 (전체 화면) ===== */
