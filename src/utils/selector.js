@@ -20,6 +20,7 @@ export const LOCATOR = {
     textarea: {
       cssClass: [
         'div.default-chat-screen > div.mt-2.mb-2.flex.items-stretch.w-full > textarea',
+        'div.default-chat-screen textarea.text-input-area',
       ],
       className: `${PLUGIN_NAME}-input-textarea`,
     },

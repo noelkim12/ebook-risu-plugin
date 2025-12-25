@@ -5,6 +5,10 @@
    */
   import LoadingOverlay from '../LoadingOverlay.svelte';
   import { delegateButtonEvents } from '../../../../utils/dom-helper.js';
+  import {
+    applyCensoredOverlay,
+    removeCensoredOverlay,
+  } from '../../../../core/viewer/page-manager.js';
 
   let {
     content = '',
@@ -12,6 +16,7 @@
     isLoading = false,
     loadingMessage = '',
     liveContentButtons = [],
+    imageCensored = false,
   } = $props();
 
   let contentRef = $state(null);
@@ -27,6 +32,13 @@
         // 이벤트 위임 설정
         if (liveContentButtons.length > 0) {
           delegateButtonEvents(contentRef, liveContentButtons);
+        }
+
+        // 이미지 검열 오버레이 적용
+        if (imageCensored) {
+          applyCensoredOverlay(contentRef);
+        } else {
+          removeCensoredOverlay(contentRef);
         }
       });
     }

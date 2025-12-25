@@ -1,12 +1,17 @@
 <script>
   import { BookOpen } from 'lucide-svelte';
-  import { openViewer } from './viewer/pc/viewerHelpers.js';
+  import { isMobile, openViewer } from './viewer/pc/viewerHelpers.js';
+  import { openMobileViewer } from './viewer/mobile/viewerHelpers.js';
 
   let { chatIndex } = $props();
 
   async function handleClick(event) {
     event.stopPropagation();
-    await openViewer(chatIndex);
+    if (isMobile()) {
+      await openMobileViewer();
+    } else {
+      await openViewer(chatIndex);
+    }
   }
 </script>
 

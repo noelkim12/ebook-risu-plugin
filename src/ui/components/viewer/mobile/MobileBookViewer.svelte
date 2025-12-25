@@ -73,6 +73,7 @@
     lineHeight: 1.85,
     theme: 'dark',
     fontFamily: 'Pretendard',
+    imageCensored: false,
   });
   let headerInfo = $state({
     thumbnailUrl: '',
@@ -702,6 +703,7 @@
       {isLoading}
       {loadingMessage}
       {liveContentButtons}
+      imageCensored={settings.imageCensored}
     />
 
     <MobileNavFooter

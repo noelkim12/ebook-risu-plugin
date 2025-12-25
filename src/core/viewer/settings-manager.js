@@ -9,7 +9,8 @@ const DEFAULT_SETTINGS = {
   fontSize: 17,
   lineHeight: 1.9,
   theme: 'light',
-  fontFamily: '나눔스퀘어네오'
+  fontFamily: '나눔스퀘어네오',
+  imageCensored: false
 };
 
 /**
@@ -25,7 +26,8 @@ export function loadSettings() {
         fontSize: parsed.fontSize ?? DEFAULT_SETTINGS.fontSize,
         lineHeight: parsed.lineHeight ?? DEFAULT_SETTINGS.lineHeight,
         theme: parsed.theme ?? DEFAULT_SETTINGS.theme,
-        fontFamily: parsed.fontFamily ?? DEFAULT_SETTINGS.fontFamily
+        fontFamily: parsed.fontFamily ?? DEFAULT_SETTINGS.fontFamily,
+        imageCensored: parsed.imageCensored ?? DEFAULT_SETTINGS.imageCensored
       };
     }
   } catch (error) {

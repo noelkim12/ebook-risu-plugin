@@ -10,6 +10,7 @@
       lineHeight: 1.5,
       theme: 'dark',
       fontFamily: '나눔스퀘어네오',
+      imageCensored: false,
     },
     onSettingsChange,
     onOpenCustomCss,
@@ -55,6 +56,11 @@
 
   function handleFontChange(e) {
     const newSettings = { ...settings, fontFamily: e.target.value };
+    onSettingsChange?.(newSettings);
+  }
+
+  function handleImageCensoredChange(e) {
+    const newSettings = { ...settings, imageCensored: e.target.checked };
     onSettingsChange?.(newSettings);
   }
 
@@ -115,6 +121,21 @@
         <option value="sepia">세피아</option>
         <option value="dark">다크 테마</option>
       </select>
+    </div>
+
+    <div class="setting-item toggle-item">
+      <div class="toggle-content">
+        <span class="toggle-label">이미지 검열</span>
+        <span class="toggle-description">이미지 위에 오버레이 표시</span>
+      </div>
+      <label class="toggle-switch">
+        <input
+          type="checkbox"
+          checked={settings.imageCensored}
+          onchange={handleImageCensoredChange}
+        />
+        <span class="toggle-slider"></span>
+      </label>
     </div>
 
     <div class="setting-item">

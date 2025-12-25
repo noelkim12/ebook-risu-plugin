@@ -2,7 +2,8 @@
   import { onMount, onDestroy } from 'svelte';
   import { Book } from 'lucide-svelte';
   import { LOCATOR, risuSelector } from '../../utils/selector.js';
-  import { openViewer } from './viewer/pc/viewerHelpers.js';
+  import { isMobile, openViewer } from './viewer/pc/viewerHelpers.js';
+  import { openMobileViewer } from './viewer/mobile/viewerHelpers.js';
 
   let inputHeight = $state('44px');
   let resizeObserver = null;
@@ -33,7 +34,11 @@
 
   async function handleClick(event) {
     event.stopPropagation();
-    await openViewer();
+    if (isMobile()) {
+      await openMobileViewer();
+    } else {
+      await openViewer();
+    }
   }
 </script>
 

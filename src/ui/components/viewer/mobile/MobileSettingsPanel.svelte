@@ -10,6 +10,7 @@
       lineHeight: 1.85,
       theme: 'dark',
       fontFamily: 'Pretendard',
+      imageCensored: false,
     },
     onSettingsChange = () => {},
     onOpenCustomCss = () => {},
@@ -53,6 +54,10 @@
 
   function handleFontChange(fontFamily) {
     onSettingsChange({ ...settings, fontFamily });
+  }
+
+  function handleImageCensoredChange(e) {
+    onSettingsChange({ ...settings, imageCensored: e.target.checked });
   }
 
   function handleOverlayClick() {
@@ -162,6 +167,22 @@
               어둡게
             </button>
           </div>
+        </div>
+
+        <!-- 이미지 검열 -->
+        <div class="setting-item toggle-item">
+          <div class="toggle-content">
+            <span class="toggle-label">이미지 검열</span>
+            <span class="toggle-description">이미지 위에 검열 오버레이 표시</span>
+          </div>
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              checked={settings.imageCensored}
+              onchange={handleImageCensoredChange}
+            />
+            <span class="toggle-slider"></span>
+          </label>
         </div>
 
         <!-- 사용자 CSS -->

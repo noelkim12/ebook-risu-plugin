@@ -13,3 +13,29 @@
   z-index: 50;
 } 
 */
+
+.censored-image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.censored-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 10;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.censored-overlay.vanished {
+  opacity: 0;
+  transform: scale(1.5) rotate(10deg);
+  filter: blur(20px) grayscale(100%);
+  pointer-events: none;
+}

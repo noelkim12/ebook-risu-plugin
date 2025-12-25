@@ -4,6 +4,7 @@
 
 import { TextSplitterPC } from './pc/text-splitter.js';
 import { LOCATOR, risuSelector } from '../../utils/selector.js';
+import { censored } from './img-encoded.js';
 /**
  * 측정용 컨테이너 생성
  * @param {HTMLElement} referenceElement - 실제 페이지 콘텐츠 요소
@@ -464,5 +465,63 @@ export function waitForLayout() {
         resolve();
       });
     });
+  });
+}
+
+/**
+ * 이미지 요소에 검열 오버레이 추가
+ * @param {HTMLElement} container - 검열 오버레이를 추가할 컨테이너
+ */
+export function applyCensoredOverlay(container) {
+  const images = container.querySelectorAll('img');
+
+  images.forEach(img => {
+    // 이미 처리된 이미지는 스킵
+    if (img.closest('.censored-image-container')) {
+      return;
+    }
+
+    // 컨테이너 생성
+    const wrapper = document.createElement('div');
+    wrapper.className = 'censored-image-container';
+
+    // 오버레이 생성
+    const overlay = document.createElement('div');
+    overlay.className = 'censored-overlay';
+    overlay.style.backgroundImage = `url(${censored})`;
+
+    // 클릭 시 페이드아웃 후 제거
+    overlay.addEventListener('click', e => {
+      e.stopPropagation();
+      overlay.classList.add('vanished');
+      setTimeout(() => {
+        overlay.remove();
+      }, 1000);
+    });
+
+    // 이미지를 wrapper로 감싸고 오버레이 추가
+    img.parentNode.insertBefore(wrapper, img);
+    wrapper.appendChild(img);
+    wrapper.appendChild(overlay);
+  });
+}
+
+/**
+ * 컨테이너에서 검열 오버레이 제거
+ * @param {HTMLElement} container - 검열 오버레이를 제거할 컨테이너
+ */
+export function removeCensoredOverlay(container) {
+  // 모든 오버레이 제거
+  const overlays = container.querySelectorAll('.censored-overlay');
+  overlays.forEach(overlay => overlay.remove());
+
+  // wrapper 해제 (이미지를 원래 위치로 복원)
+  const wrappers = container.querySelectorAll('.censored-image-container');
+  wrappers.forEach(wrapper => {
+    const img = wrapper.querySelector('img');
+    if (img && wrapper.parentNode) {
+      wrapper.parentNode.insertBefore(img, wrapper);
+      wrapper.remove();
+    }
   });
 }

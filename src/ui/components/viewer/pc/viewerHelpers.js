@@ -18,15 +18,6 @@ import {
 } from '../../../../utils/selector.js';
 import { RisuAPI } from '../../../../core/risu-api.js';
 
-// 모바일 헬퍼 (lazy import)
-let mobileHelpers = null;
-async function getMobileHelpers() {
-  if (!mobileHelpers) {
-    mobileHelpers = await import('../mobile/viewerHelpers.js');
-  }
-  return mobileHelpers;
-}
-
 // lodash deep copy
 import { cloneDeep } from 'lodash';
 
@@ -210,12 +201,7 @@ export async function openViewer(
   toggleViewer = true,
   showLoading = false,
 ) {
-  if (isMobile()) {
-    const mobile = await getMobileHelpers();
-    return mobile.openMobileViewer(chatIndex, toggleViewer, showLoading);
-  } else {
-    return openPCViewer(chatIndex, toggleViewer, showLoading);
-  }
+  return openPCViewer(chatIndex, toggleViewer, showLoading);
 }
 
 /**
@@ -223,12 +209,7 @@ export async function openViewer(
  * @returns {Promise<boolean>} 성공 여부
  */
 export async function closeViewer() {
-  if (isMobile()) {
-    const mobile = await getMobileHelpers();
-    return mobile.closeMobileViewer();
-  } else {
-    return closePCViewer();
-  }
+  return closePCViewer();
 }
 
 /**
@@ -236,12 +217,7 @@ export async function closeViewer() {
  * @returns {Promise<boolean>}
  */
 export async function isViewerOpen() {
-  if (isMobile()) {
-    const mobile = await getMobileHelpers();
-    return mobile.isMobileViewerOpen();
-  } else {
-    return isPCViewerOpen();
-  }
+  return isPCViewerOpen();
 }
 
 /**
@@ -250,10 +226,5 @@ export async function isViewerOpen() {
  * @returns {Promise<boolean>} 열렸으면 true, 닫혔으면 false
  */
 export async function toggleViewer(chatIndex = null) {
-  if (isMobile()) {
-    const mobile = await getMobileHelpers();
-    return mobile.toggleMobileViewer(chatIndex);
-  } else {
-    return togglePCViewer(chatIndex);
-  }
+  return togglePCViewer(chatIndex);
 }

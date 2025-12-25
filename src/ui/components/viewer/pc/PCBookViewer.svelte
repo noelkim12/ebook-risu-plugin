@@ -69,6 +69,7 @@
     lineHeight: 1.5,
     theme: 'dark',
     fontFamily: '나눔스퀘어네오',
+    imageCensored: false,
   });
   let headerInfo = $state({
     thumbnailUrl: '',
@@ -611,6 +612,7 @@
       {isLoading}
       {loadingMessage}
       {liveContentButtons}
+      imageCensored={settings.imageCensored}
     />
 
     <NavControls

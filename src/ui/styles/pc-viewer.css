@@ -182,6 +182,55 @@
   --bv-mark2-color: var(--FontColorQuote2);
   --bv-em-color: var(--FontColorItalic);
 }
+.book-viewer-root [data-theme='light'] {
+  /* 프리미엄 컬러 팔레트 */
+  --bv-bg-gradient-start: #1a1f35;
+  --bv-bg-gradient-end: #2d3654;
+  --bv-page-color: #fdfbf7;
+  --bv-page-shadow: #f5f0e8;
+  --bv-text-color: #2c2c2c;
+  --bv-text-secondary: #6b6b6b;
+  --bv-accent-color: #c9a66b;
+  --bv-accent-hover: #b8935a;
+  --bv-divider-color: #e8e4dc;
+  --bv-spine-gradient: linear-gradient(
+    90deg,
+    #d4cfc4 0%,
+    hsl(41, 13%, 76%) 50%,
+    #d4cfc4 100%
+  );
+
+  /* 그림자 시스템 */
+  --bv-shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --bv-shadow-medium: 0 8px 40px rgba(0, 0, 0, 0.12);
+  --bv-shadow-strong: 0 20px 60px rgba(0, 0, 0, 0.2);
+  --bv-shadow-inner: inset 0 0 30px rgba(0, 0, 0, 0.03);
+
+  /* 타이포그래피 */
+  --bv-font-size: 17px;
+  --bv-line-height: 1.9;
+  --bv-font-family:
+    'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --bv-font-serif: 'Noto Serif KR', 'Crimson Text', 'Georgia', serif;
+
+  /* 애니메이션 */
+  --bv-transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --bv-transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --bv-transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* 폰트 컬러 (Light) */
+  --FontColorStandard: #2c2c2c;
+  --FontColorItalic: #5a5a5a;
+  --FontColorBold: #1a1a1a;
+  --FontColorItalicBold: #5a5a5a;
+  --FontColorQuote1: #0e7490;
+  --FontColorQuote2: #c2410c;
+
+  --bv-font-color: var(--FontColorStandard);
+  --bv-mark1-color: var(--FontColorQuote1);
+  --bv-mark2-color: var(--FontColorQuote2);
+  --bv-em-color: var(--FontColorItalic);
+}
 
 /* 테마: Sepia */
 .book-viewer-root[data-theme='sepia'] {
@@ -518,7 +567,6 @@
 }
 
 .page-left {
-  border-radius: 4px 0 0 4px;
   box-shadow: var(--bv-shadow-inner);
 }
 
@@ -534,7 +582,6 @@
 }
 
 .page-right {
-  border-radius: 0 4px 4px 0;
   box-shadow: var(--bv-shadow-inner);
 }
 
@@ -841,6 +888,225 @@
   height: 18px;
 }
 
+/* ===== 설정 아이템 ===== */
+.setting-item {
+  margin-bottom: 16px;
+}
+.setting-item:last-child {
+  margin-bottom: 0;
+}
+
+.setting-item label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bv-text-color);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.setting-item input[type='range'] {
+  width: 100%;
+  height: 5px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e8e4dc;
+  border-radius: 3px;
+  outline: none;
+  margin-bottom: 6px;
+}
+
+.book-viewer-root[data-theme='dark'] .setting-item input[type='range'] {
+  background: #30363d;
+}
+
+.setting-item input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--bv-accent-color);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(201, 166, 107, 0.4);
+  transition: all var(--bv-transition-fast);
+}
+
+.setting-item input[type='range']::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.setting-item input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--bv-accent-color);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.setting-item select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #e8e4dc;
+  border-radius: 10px;
+  font-size: 13px;
+  background: #fff;
+  cursor: pointer;
+  transition: all var(--bv-transition-fast);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23c9a66b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+.setting-item select:hover {
+  border-color: var(--bv-accent-color);
+}
+.setting-item select:focus {
+  outline: none;
+  border-color: var(--bv-accent-color);
+  box-shadow: 0 0 0 3px rgba(201, 166, 107, 0.15);
+}
+
+.setting-item span {
+  font-size: 11px;
+  color: var(--bv-text-secondary);
+  font-weight: 500;
+}
+
+.custom-css-btn {
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--bv-accent-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--bv-transition-fast);
+}
+
+.custom-css-btn:hover {
+  background: var(--bv-accent-hover);
+  transform: translateY(-1px);
+}
+
+/* ===== 토글 스위치 ===== */
+.toggle-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-top: 1px solid rgba(201, 166, 107, 0.15);
+  border-bottom: 1px solid rgba(201, 166, 107, 0.15);
+}
+
+.toggle-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.toggle-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bv-font-color);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.toggle-description {
+  font-size: 11px;
+  color: var(--bv-text-secondary);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #e8e4dc;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 24px;
+}
+
+.toggle-slider::before {
+  position: absolute;
+  content: '';
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--bv-accent-color);
+  box-shadow: 0 0 10px rgba(201, 166, 107, 0.35);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+.toggle-switch:hover .toggle-slider {
+  box-shadow: 0 0 0 3px rgba(201, 166, 107, 0.15);
+}
+
+/* 다크 테마 토글 */
+.book-viewer-root[data-theme='dark'] .toggle-slider {
+  background: #30363d;
+}
+
+.book-viewer-root[data-theme='dark'] .toggle-slider::before {
+  background: #8b949e;
+}
+
+.book-viewer-root[data-theme='dark']
+  .toggle-switch
+  input:checked
+  + .toggle-slider::before {
+  background: white;
+}
+.book-viewer-root[data-theme='dark'] .setting-item select {
+  background-color: #21262d;
+  border-color: #30363d;
+  color: var(--bv-font-color);
+}
+
+.book-viewer-root[data-theme='light'] .setting-item select {
+  color: var(--bv-font-color);
+}
+
+.book-viewer-root[data-theme='sepia'] .setting-item select {
+  color: var(--bv-font-color);
+}
+
 /* LB 버튼 로딩 상태 */
 .nav-icon-btn.loading {
   opacity: 0.7;
@@ -911,127 +1177,6 @@
   border-bottom: 1px solid var(--bv-divider-color);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-}
-
-/* ===== 설정 아이템 ===== */
-.setting-item {
-  margin-bottom: 16px;
-}
-.setting-item:last-child {
-  margin-bottom: 0;
-}
-
-.setting-item label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--bv-font-color);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.setting-item input[type='range'] {
-  width: 100%;
-  height: 5px;
-  -webkit-appearance: none;
-  appearance: none;
-  background: #e8e4dc;
-  border-radius: 3px;
-  outline: none;
-  margin-bottom: 6px;
-}
-
-.book-viewer-root[data-theme='dark'] .setting-item input[type='range'] {
-  background: #30363d;
-}
-
-.setting-item input[type='range']::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  background: var(--bv-accent-color);
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(201, 166, 107, 0.4);
-  transition: all var(--bv-transition-fast);
-}
-
-.setting-item input[type='range']::-webkit-slider-thumb:hover {
-  transform: scale(1.1);
-}
-
-.setting-item input[type='range']::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  background: var(--bv-accent-color);
-  border-radius: 50%;
-  cursor: pointer;
-  border: none;
-}
-
-.setting-item select {
-  width: 100%;
-  padding: 10px 14px;
-  border: 2px solid #e8e4dc;
-  border-radius: 10px;
-  font-size: 13px;
-  background: #fff;
-  cursor: pointer;
-  transition: all var(--bv-transition-fast);
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23c9a66b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
-}
-
-.book-viewer-root[data-theme='dark'] .setting-item select {
-  background-color: #21262d;
-  border-color: #30363d;
-  color: var(--bv-font-color);
-}
-
-.book-viewer-root[data-theme='light'] .setting-item select {
-  color: var(--bv-font-color);
-}
-
-.book-viewer-root[data-theme='sepia'] .setting-item select {
-  color: var(--bv-font-color);
-}
-
-.setting-item select:hover {
-  border-color: var(--bv-accent-color);
-}
-.setting-item select:focus {
-  outline: none;
-  border-color: var(--bv-accent-color);
-  box-shadow: 0 0 0 3px rgba(201, 166, 107, 0.15);
-}
-
-.setting-item span {
-  font-size: 11px;
-  color: var(--bv-text-secondary);
-  font-weight: 500;
-}
-
-.custom-css-btn {
-  width: 100%;
-  padding: 10px 16px;
-  background: var(--bv-accent-color);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--bv-transition-fast);
-}
-
-.custom-css-btn:hover {
-  background: var(--bv-accent-hover);
-  transform: translateY(-1px);
 }
 
 /* ===== LB 모듈 리스트 ===== */
