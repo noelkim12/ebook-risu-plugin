@@ -182,6 +182,7 @@ export class TextSplitterPC {
     const container = document.createElement('div');
     const styles = getComputedStyle(referenceElement);
 
+    container.className = 'text-content chattext';
     container.style.cssText = `
       position: absolute;
       visibility: hidden;
