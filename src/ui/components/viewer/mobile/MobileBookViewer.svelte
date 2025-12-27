@@ -449,7 +449,7 @@
     const measureContainer = createMeasureContainer(
       measureRef || document.body,
     );
-    document.body.appendChild(measureContainer);
+    // createMeasureContainer가 이미 뷰어 루트에 추가하므로 여기서는 추가하지 않음
 
     try {
       pages = splitIntoPagesHTML(
@@ -458,7 +458,10 @@
         textSplitter,
       );
     } finally {
-      document.body.removeChild(measureContainer);
+      // 측정 컨테이너가 뷰어 루트에 추가되었으므로 부모에서 제거
+      if (measureContainer.parentNode) {
+        measureContainer.parentNode.removeChild(measureContainer);
+      }
     }
   }
 

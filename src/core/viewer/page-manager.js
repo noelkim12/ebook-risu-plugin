@@ -22,12 +22,64 @@ export function createMeasureContainer(referenceElement) {
     const rect = referenceElement.getBoundingClientRect();
     const styles = window.getComputedStyle(referenceElement);
 
+    // 기본 크기 및 패딩
     container.style.width = rect.width + 'px';
     container.style.height = rect.height + 'px';
     container.style.padding = styles.padding;
+    container.style.margin = styles.margin;
+    container.style.boxSizing = styles.boxSizing;
+
+    // 타이포그래피 (CSS 변수 포함)
     container.style.fontSize = styles.fontSize;
     container.style.lineHeight = styles.lineHeight;
     container.style.fontFamily = styles.fontFamily;
+    container.style.fontWeight = styles.fontWeight;
+    container.style.fontStyle = styles.fontStyle;
+    container.style.letterSpacing = styles.letterSpacing;
+    container.style.wordSpacing = styles.wordSpacing;
+
+    // 텍스트 관련
+    container.style.textAlign = styles.textAlign;
+    container.style.textIndent = styles.textIndent;
+    container.style.textTransform = styles.textTransform;
+    container.style.whiteSpace = styles.whiteSpace;
+    container.style.wordBreak = styles.wordBreak;
+    container.style.wordWrap = styles.wordWrap;
+
+    // 뷰어 루트 컨테이너 찾기 (CSS 변수 및 스타일 상속을 위해)
+    const viewerRoot =
+      referenceElement.closest('.book-viewer-root') ||
+      referenceElement.closest('.mobile-reader');
+
+    if (viewerRoot) {
+      // 뷰어 루트 안에 추가하여 CSS 선택자(.text-content p 등)가 작동하도록 함
+      viewerRoot.appendChild(container);
+
+      // CSS 변수 값들을 직접 가져와서 적용 (이미 상속되지만 명시적으로 설정)
+      const rootStyles = window.getComputedStyle(viewerRoot);
+      const fontSize =
+        rootStyles.getPropertyValue('--bv-font-size') ||
+        rootStyles.getPropertyValue('--mv-font-size') ||
+        styles.fontSize;
+      const lineHeight =
+        rootStyles.getPropertyValue('--bv-line-height') ||
+        rootStyles.getPropertyValue('--mv-line-height') ||
+        styles.lineHeight;
+      const fontFamily =
+        rootStyles.getPropertyValue('--bv-font-family') ||
+        rootStyles.getPropertyValue('--mv-font-family') ||
+        styles.fontFamily;
+
+      if (fontSize) container.style.fontSize = fontSize;
+      if (lineHeight) container.style.lineHeight = lineHeight;
+      if (fontFamily) container.style.fontFamily = fontFamily;
+    } else {
+      // 뷰어 루트를 찾을 수 없으면 document.body에 추가 (폴백)
+      document.body.appendChild(container);
+    }
+  } else {
+    // referenceElement가 없으면 document.body에 추가
+    document.body.appendChild(container);
   }
 
   return container;
@@ -160,7 +212,8 @@ export function splitIntoPagesHTML(content, measureContainer, textSplitter) {
       element.querySelector('img') ||
       element.tagName === 'IMG' ||
       (element.tagName === 'DIV' &&
-        element.classList.contains('x-risu-image-container'))
+        element.classList.contains('x-risu-image-container')) ||
+      element.tagName === 'DETAILS'
     ) {
       if (currentPageContent.length > 0) {
         pages.push(createPageHTML(currentPageContent));

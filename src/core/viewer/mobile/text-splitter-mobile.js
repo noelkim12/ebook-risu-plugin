@@ -257,6 +257,18 @@ export class TextSplitterMobile {
     const container = document.createElement('div');
     const styles = getComputedStyle(referenceElement);
 
+    // 뷰어 루트 컨테이너 찾기 (CSS 변수 상속을 위해)
+    const viewerRoot = referenceElement.closest('.mobile-reader');
+    const rootStyles = viewerRoot ? getComputedStyle(viewerRoot) : null;
+
+    // CSS 변수 값 가져오기
+    const fontSize =
+      rootStyles?.getPropertyValue('--mv-font-size') || styles.fontSize;
+    const lineHeight =
+      rootStyles?.getPropertyValue('--mv-line-height') || styles.lineHeight;
+    const fontFamily =
+      rootStyles?.getPropertyValue('--mv-font-family') || styles.fontFamily;
+
     container.className = 'text-content chattext';
     container.style.cssText = `
       position: absolute;
@@ -264,11 +276,30 @@ export class TextSplitterMobile {
       pointer-events: none;
       width: ${referenceElement.clientWidth}px;
       padding: ${styles.padding};
-      font-size: ${styles.fontSize};
-      line-height: ${styles.lineHeight};
-      font-family: ${styles.fontFamily};
+      margin: ${styles.margin};
+      box-sizing: ${styles.boxSizing};
+      font-size: ${fontSize};
+      line-height: ${lineHeight};
+      font-family: ${fontFamily};
+      font-weight: ${styles.fontWeight};
+      font-style: ${styles.fontStyle};
+      letter-spacing: ${styles.letterSpacing};
+      word-spacing: ${styles.wordSpacing};
+      text-align: ${styles.textAlign};
+      text-indent: ${styles.textIndent};
+      text-transform: ${styles.textTransform};
+      white-space: ${styles.whiteSpace};
+      word-break: ${styles.wordBreak};
+      word-wrap: ${styles.wordWrap};
       overflow: hidden;
     `;
+
+    // 뷰어 루트 안에 추가하여 CSS 선택자(.text-content p 등)가 작동하도록 함
+    if (viewerRoot) {
+      viewerRoot.appendChild(container);
+    } else {
+      document.body.appendChild(container);
+    }
 
     return container;
   }

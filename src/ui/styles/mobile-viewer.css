@@ -402,7 +402,7 @@
 
 /* 텍스트 포맷팅 */
 .mobile-reader .text-content :global(p) {
-  margin-bottom: 1.3em;
+  margin-bottom: 0.6em;
 }
 
 .mobile-reader .text-content :global(p:first-child) {

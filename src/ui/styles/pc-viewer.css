@@ -298,7 +298,6 @@
 /* 텍스트 색상 */
 .text-content p {
   margin-top: 0.55em;
-  /* color: var(--bv-font-color); */
 }
 
 .text-content h1 {
@@ -633,7 +632,8 @@
 .book-viewer-root .page-content > .chattext [class*='-image-wrapper'] {
   max-height: 100%;
 }
-.book-viewer-root .page-content > .chattext [class*='-image-container'] {
+.book-viewer-root .page-content > .chattext [class*='-image-container'],
+.book-viewer-root .page-content > .chattext [class*='-image-cell'] {
   min-height: 98%;
   max-height: 100%;
   background-size: contain;
@@ -645,7 +645,7 @@
 .book-viewer-root .page-content > .chattext .x-risu-image-container:hover {
 }
 
-.book-viewer-root .page-content > .x-risu-image-cell {
+.book-viewer-root .page-content .x-risu-image-cell {
   aspect-ratio: auto;
 }
 
