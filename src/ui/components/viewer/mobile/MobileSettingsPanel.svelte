@@ -67,6 +67,20 @@
     });
   }
 
+  function handleImageCensoredMinWidthChange(e) {
+    onSettingsChange({
+      ...settings,
+      imageCensoredMinWidth: Number(e.target.value),
+    });
+  }
+
+  function handleImageCensoredMinHeightChange(e) {
+    onSettingsChange({
+      ...settings,
+      imageCensoredMinHeight: Number(e.target.value),
+    });
+  }
+
   function handleOverlayClick() {
     onClose();
   }
@@ -193,6 +207,49 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
+
+        {#if settings.imageCensored}
+          <!-- 검열 최소 너비 -->
+          <div class="setting-item">
+            <label for="imageCensoredMinWidth">검열 최소 너비</label>
+            <div class="range-control">
+              <span class="range-label">모든 이미지</span>
+              <input
+                type="range"
+                name="imageCensoredMinWidth"
+                min="0"
+                max="500"
+                step="10"
+                value={settings.imageCensoredMinWidth ?? 100}
+                oninput={handleImageCensoredMinWidthChange}
+              />
+              <span class="range-label">500px</span>
+            </div>
+            <span class="setting-value"
+              >{settings.imageCensoredMinWidth ?? 100}px 이상</span
+            >
+          </div>
+          <!-- 검열 최소 높이 -->
+          <div class="setting-item">
+            <label for="imageCensoredMinHeight">검열 최소 높이</label>
+            <div class="range-control">
+              <span class="range-label">모든 이미지</span>
+              <input
+                type="range"
+                name="imageCensoredMinHeight"
+                min="0"
+                max="500"
+                step="10"
+                value={settings.imageCensoredMinHeight ?? 100}
+                oninput={handleImageCensoredMinHeightChange}
+              />
+              <span class="range-label">500px</span>
+            </div>
+            <span class="setting-value"
+              >{settings.imageCensoredMinHeight ?? 100}px 이상</span
+            >
+          </div>
+        {/if}
 
         <!-- 연속 페이지 이동 -->
         <div class="setting-item toggle-item">

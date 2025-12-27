@@ -17,6 +17,8 @@
     loadingMessage = '',
     liveContentButtons = [],
     imageCensored = false,
+    imageCensoredMinWidth = 100,
+    imageCensoredMinHeight = 100,
   } = $props();
 
   let contentRef = $state(null);
@@ -29,6 +31,9 @@
         // 스크롤 최상단으로
         contentRef.scrollTop = 0;
 
+        // 이전 페이지의 검열 오버레이 제거 (혹시 남아있을 수 있음)
+        removeCensoredOverlay(contentRef);
+
         // 이벤트 위임 설정
         if (liveContentButtons.length > 0) {
           delegateButtonEvents(contentRef, liveContentButtons);
@@ -36,9 +41,11 @@
 
         // 이미지 검열 오버레이 적용
         if (imageCensored) {
-          applyCensoredOverlay(contentRef);
-        } else {
-          removeCensoredOverlay(contentRef);
+          applyCensoredOverlay(
+            contentRef,
+            imageCensoredMinWidth,
+            imageCensoredMinHeight,
+          );
         }
       });
     }

@@ -111,11 +111,9 @@
   margin: unset !important;
   justify-content: unset !important;
 }
-/* 
 .pc-viewer-container code {
   word-break: break-word;
 }
- */
 /* ===== PC Book Viewer Styles ===== */
 .pc-viewer-container {
   position: absolute;
@@ -638,6 +636,9 @@
 .book-viewer-root .page-content > .chattext [class*='-image-container'] {
   min-height: 98%;
   max-height: 100%;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
   height: -webkit-fill-available;
   width: -webkit-fill-available;
 }

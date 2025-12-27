@@ -366,6 +366,9 @@
 .mobile-reader .page-content > .chattext [class*='-image-container'] {
   min-height: 98%;
   max-height: 100%;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
   height: -webkit-fill-available;
   width: -webkit-fill-available;
 }

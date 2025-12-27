@@ -11,6 +11,8 @@ const DEFAULT_SETTINGS = {
   theme: 'light',
   fontFamily: '나눔스퀘어네오',
   imageCensored: false,
+  imageCensoredMinWidth: 100,
+  imageCensoredMinHeight: 100,
   jumpToLastPageOnPrevIndex: false,
 };
 
@@ -29,6 +31,12 @@ export function loadSettings() {
         theme: parsed.theme ?? DEFAULT_SETTINGS.theme,
         fontFamily: parsed.fontFamily ?? DEFAULT_SETTINGS.fontFamily,
         imageCensored: parsed.imageCensored ?? DEFAULT_SETTINGS.imageCensored,
+        imageCensoredMinWidth:
+          parsed.imageCensoredMinWidth ??
+          DEFAULT_SETTINGS.imageCensoredMinWidth,
+        imageCensoredMinHeight:
+          parsed.imageCensoredMinHeight ??
+          DEFAULT_SETTINGS.imageCensoredMinHeight,
         jumpToLastPageOnPrevIndex:
           parsed.jumpToLastPageOnPrevIndex ??
           DEFAULT_SETTINGS.jumpToLastPageOnPrevIndex,

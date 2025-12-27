@@ -72,6 +72,22 @@
     onSettingsChange?.(newSettings);
   }
 
+  function handleImageCensoredMinWidthChange(e) {
+    const newSettings = {
+      ...settings,
+      imageCensoredMinWidth: Number(e.target.value),
+    };
+    onSettingsChange?.(newSettings);
+  }
+
+  function handleImageCensoredMinHeightChange(e) {
+    const newSettings = {
+      ...settings,
+      imageCensoredMinHeight: Number(e.target.value),
+    };
+    onSettingsChange?.(newSettings);
+  }
+
   function handleClickOutside(e) {
     // 외부 클릭 처리는 부모 컴포넌트에서 담당
   }
@@ -145,6 +161,35 @@
         <span class="toggle-slider"></span>
       </label>
     </div>
+
+    {#if settings.imageCensored}
+      <div class="setting-item">
+        <label for="imageCensoredMinWidth">검열 최소 너비</label>
+        <input
+          type="range"
+          id="imageCensoredMinWidth"
+          min="0"
+          max="500"
+          step="10"
+          value={settings.imageCensoredMinWidth ?? 100}
+          oninput={handleImageCensoredMinWidthChange}
+        />
+        <span>{settings.imageCensoredMinWidth ?? 100}px</span>
+      </div>
+      <div class="setting-item">
+        <label for="imageCensoredMinHeight">검열 최소 높이</label>
+        <input
+          type="range"
+          id="imageCensoredMinHeight"
+          min="0"
+          max="500"
+          step="10"
+          value={settings.imageCensoredMinHeight ?? 100}
+          oninput={handleImageCensoredMinHeightChange}
+        />
+        <span>{settings.imageCensoredMinHeight ?? 100}px</span>
+      </div>
+    {/if}
 
     <div class="setting-item toggle-item">
       <div class="toggle-content">

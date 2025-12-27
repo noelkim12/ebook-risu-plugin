@@ -471,14 +471,38 @@ export function waitForLayout() {
 /**
  * 이미지 요소에 검열 오버레이 추가
  * @param {HTMLElement} container - 검열 오버레이를 추가할 컨테이너
+ * @param {number} minWidth - 최소 너비 (픽셀)
+ * @param {number} minHeight - 최소 높이 (픽셀)
  */
-export function applyCensoredOverlay(container) {
+export function applyCensoredOverlay(container, minWidth = 0, minHeight = 0) {
   const images = container.querySelectorAll('img, div.x-risu-image-container');
 
   images.forEach(img => {
     // 이미 처리된 이미지는 스킵
     if (img.closest('.censored-image-container')) {
       return;
+    }
+
+    // 최소 크기 체크
+    if (minWidth > 0 || minHeight > 0) {
+      let width = 0;
+      let height = 0;
+
+      if (img.tagName === 'IMG') {
+        // img 태그인 경우
+        height = img.height || img.naturalHeight || 0;
+        width = img.width || img.naturalWidth || 0;
+      } else if (img.classList.contains('x-risu-image-container')) {
+        // div.x-risu-image-container인 경우
+        const rect = img.getBoundingClientRect();
+        width = rect.width;
+        height = rect.height;
+      }
+
+      // 너비와 높이 모두 최소값 이상이어야 검열 적용
+      if (width < minWidth && height < minHeight) {
+        return;
+      }
     }
 
     // 컨테이너 생성
@@ -515,13 +539,38 @@ export function removeCensoredOverlay(container) {
   const overlays = container.querySelectorAll('.censored-overlay');
   overlays.forEach(overlay => overlay.remove());
 
-  // wrapper 해제 (이미지를 원래 위치로 복원)
-  const wrappers = container.querySelectorAll('.censored-image-container');
+  // wrapper 해제 (이미지 또는 div.x-risu-image-container를 원래 위치로 복원)
+  const wrappers = Array.from(
+    container.querySelectorAll('.censored-image-container'),
+  );
   wrappers.forEach(wrapper => {
-    const img = wrapper.querySelector('img');
-    if (img && wrapper.parentNode) {
-      wrapper.parentNode.insertBefore(img, wrapper);
-      wrapper.remove();
+    if (!wrapper.parentNode) return;
+
+    // 오버레이 제거 (혹시 남아있을 수 있음)
+    const overlay = wrapper.querySelector('.censored-overlay');
+    if (overlay) overlay.remove();
+
+    // wrapper 안의 모든 자식 요소를 찾기 (오버레이 제외)
+    const children = Array.from(wrapper.children).filter(
+      child => !child.classList.contains('censored-overlay'),
+    );
+
+    if (children.length > 0) {
+      // 첫 번째 자식 요소를 원래 위치로 복원
+      // (일반적으로 img 또는 div.x-risu-image-container 하나만 있음)
+      const elementToRestore = children[0];
+      wrapper.parentNode.insertBefore(elementToRestore, wrapper);
+
+      // 나머지 자식 요소들도 복원 (혹시 여러 개가 있을 경우)
+      for (let i = 1; i < children.length; i++) {
+        elementToRestore.parentNode.insertBefore(
+          children[i],
+          elementToRestore.nextSibling,
+        );
+      }
     }
+
+    // wrapper 제거
+    wrapper.remove();
   });
 }

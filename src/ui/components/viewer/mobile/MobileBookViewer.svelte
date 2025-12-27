@@ -76,6 +76,8 @@
     theme: 'dark',
     fontFamily: 'Pretendard',
     imageCensored: false,
+    imageCensoredMinWidth: 100,
+    imageCensoredMinHeight: 100,
     jumpToLastPageOnPrevIndex: false,
   });
   let headerInfo = $state({
@@ -756,6 +758,8 @@
       {loadingMessage}
       {liveContentButtons}
       imageCensored={settings.imageCensored}
+      imageCensoredMinWidth={settings.imageCensoredMinWidth}
+      imageCensoredMinHeight={settings.imageCensoredMinHeight}
     />
 
     <MobileNavFooter

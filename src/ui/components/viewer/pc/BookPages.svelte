@@ -22,6 +22,8 @@
     loadingMessage = '',
     liveContentButtons = [],
     imageCensored = false,
+    imageCensoredMinWidth = 100,
+    imageCensoredMinHeight = 100,
   } = $props();
 
   let leftTextContent = $state(null);
@@ -37,12 +39,16 @@
       }
       // 이미지 검열 오버레이 적용
       if (imageCensored) {
-        applyCensoredOverlay(leftTextContent);
+        applyCensoredOverlay(
+          leftTextContent,
+          imageCensoredMinWidth,
+          imageCensoredMinHeight,
+        );
       } else {
         removeCensoredOverlay(leftTextContent);
       }
 
-      leftContentRef.scrollTop = 0;
+      leftTextContent.scrollTop = 0;
     }
   });
 
@@ -56,12 +62,16 @@
       }
       // 이미지 검열 오버레이 적용
       if (imageCensored) {
-        applyCensoredOverlay(rightTextContent);
+        applyCensoredOverlay(
+          rightTextContent,
+          imageCensoredMinWidth,
+          imageCensoredMinHeight,
+        );
       } else {
         removeCensoredOverlay(rightTextContent);
       }
 
-      rightContentRef.scrollTop = 0;
+      rightTextContent.scrollTop = 0;
     }
   });
 

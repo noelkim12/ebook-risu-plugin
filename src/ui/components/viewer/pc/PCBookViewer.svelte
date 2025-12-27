@@ -73,6 +73,8 @@
     theme: 'dark',
     fontFamily: '나눔스퀘어네오',
     imageCensored: false,
+    imageCensoredMinWidth: 100,
+    imageCensoredMinHeight: 100,
     jumpToLastPageOnPrevIndex: false,
   });
   let headerInfo = $state({
@@ -666,6 +668,8 @@
       {loadingMessage}
       {liveContentButtons}
       imageCensored={settings.imageCensored}
+      imageCensoredMinWidth={settings.imageCensoredMinWidth}
+      imageCensoredMinHeight={settings.imageCensoredMinHeight}
     />
 
     <NavControls
