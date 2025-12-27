@@ -361,13 +361,13 @@
 
 /* 에셋 이미지 */
 .mobile-reader .page-content > .chattext [class*='-image-wrapper'] {
-  height: unset !important;
   max-height: 100%;
 }
 .mobile-reader .page-content > .chattext [class*='-image-container'] {
-  height: unset !important;
   min-height: 98%;
   max-height: 100%;
+  height: -webkit-fill-available;
+  width: -webkit-fill-available;
 }
 .mobile-reader .page-content > .chattext .x-risu-image-container:hover {
 }

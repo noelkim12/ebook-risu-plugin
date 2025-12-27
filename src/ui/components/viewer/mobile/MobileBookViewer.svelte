@@ -64,6 +64,7 @@
     chaId = null,
     onClose,
     initialLoading = false,
+    initialPage = null,
   } = $props();
 
   // State
@@ -75,6 +76,7 @@
     theme: 'dark',
     fontFamily: 'Pretendard',
     imageCensored: false,
+    jumpToLastPageOnPrevIndex: false,
   });
   let headerInfo = $state({
     thumbnailUrl: '',
@@ -407,6 +409,20 @@
       await waitForLayout();
       await splitPages();
 
+      // initialPage가 설정되어 있으면 해당 페이지로 이동
+      if (initialPage !== null && pages.length > 0) {
+        let targetPage;
+        if (initialPage === 'last') {
+          // 마지막 페이지로 이동
+          targetPage = Math.max(0, pages.length - 1);
+        } else {
+          // 숫자 페이지로 이동
+          const maxPage = Math.max(0, pages.length - 1);
+          targetPage = Math.min(Number(initialPage), maxPage);
+        }
+        currentPage = targetPage;
+      }
+
       // 로딩 완료 후 오버레이 숨김
       if (isLoading) {
         setTimeout(() => {
@@ -537,7 +553,10 @@
   function goToPrevChatIndex() {
     const { index, isFirst } = getAdjacentChatIndex(chatIndex, 'prev');
     if (index !== null) {
-      openMobileViewer(index, false, true);
+      // 설정에 따라 마지막 페이지로 이동할지 결정
+      const targetPage = settings.jumpToLastPageOnPrevIndex ? 'last' : null;
+      // 새 뷰어를 로딩 상태로 열기
+      openMobileViewer(index, false, true, targetPage);
     } else if (isFirst) {
       showToast('현재 채팅의 첫 번째 페이지입니다');
     }

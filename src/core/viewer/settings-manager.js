@@ -10,7 +10,8 @@ const DEFAULT_SETTINGS = {
   lineHeight: 1.9,
   theme: 'light',
   fontFamily: '나눔스퀘어네오',
-  imageCensored: false
+  imageCensored: false,
+  jumpToLastPageOnPrevIndex: false,
 };
 
 /**
@@ -27,7 +28,10 @@ export function loadSettings() {
         lineHeight: parsed.lineHeight ?? DEFAULT_SETTINGS.lineHeight,
         theme: parsed.theme ?? DEFAULT_SETTINGS.theme,
         fontFamily: parsed.fontFamily ?? DEFAULT_SETTINGS.fontFamily,
-        imageCensored: parsed.imageCensored ?? DEFAULT_SETTINGS.imageCensored
+        imageCensored: parsed.imageCensored ?? DEFAULT_SETTINGS.imageCensored,
+        jumpToLastPageOnPrevIndex:
+          parsed.jumpToLastPageOnPrevIndex ??
+          DEFAULT_SETTINGS.jumpToLastPageOnPrevIndex,
       };
     }
   } catch (error) {
@@ -55,8 +59,14 @@ export function saveSettings(settings) {
  * @param {{ fontSize: number, lineHeight: number, theme: string }} settings
  */
 export function applySettings(settings) {
-  document.documentElement.style.setProperty('--font-size', `${settings.fontSize}px`);
-  document.documentElement.style.setProperty('--line-height', String(settings.lineHeight));
+  document.documentElement.style.setProperty(
+    '--font-size',
+    `${settings.fontSize}px`,
+  );
+  document.documentElement.style.setProperty(
+    '--line-height',
+    String(settings.lineHeight),
+  );
   document.body.setAttribute('data-theme', settings.theme);
 }
 

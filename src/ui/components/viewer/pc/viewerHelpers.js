@@ -46,6 +46,7 @@ export function openPCViewer(
   chatIndex = null,
   togleViewer = true,
   showLoading = false,
+  initialPage = null,
 ) {
   // togleViewer일 때, 뷰어가 이미 열려있으면 닫기
   if (isMounted(VIEWER_ID)) {
@@ -124,6 +125,7 @@ export function openPCViewer(
         chaId: risuAPI.getChaId(),
         onClose: closePCViewer,
         initialLoading: showLoading,
+        initialPage: initialPage,
       },
       useContents: false,
     });

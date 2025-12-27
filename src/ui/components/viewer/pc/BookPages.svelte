@@ -41,6 +41,8 @@
       } else {
         removeCensoredOverlay(leftTextContent);
       }
+
+      leftContentRef.scrollTop = 0;
     }
   });
 
@@ -58,6 +60,8 @@
       } else {
         removeCensoredOverlay(rightTextContent);
       }
+
+      rightContentRef.scrollTop = 0;
     }
   });
 

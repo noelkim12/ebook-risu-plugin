@@ -60,6 +60,13 @@
     onSettingsChange({ ...settings, imageCensored: e.target.checked });
   }
 
+  function handleJumpToLastPageChange(e) {
+    onSettingsChange({
+      ...settings,
+      jumpToLastPageOnPrevIndex: e.target.checked,
+    });
+  }
+
   function handleOverlayClick() {
     onClose();
   }
@@ -182,6 +189,24 @@
               type="checkbox"
               checked={settings.imageCensored}
               onchange={handleImageCensoredChange}
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- 연속 페이지 이동 -->
+        <div class="setting-item toggle-item">
+          <div class="toggle-content">
+            <span class="toggle-label">연속 페이지 이동</span>
+            <span class="toggle-description"
+              >이전 인덱스 이동 시 마지막 페이지로 이동</span
+            >
+          </div>
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              checked={settings.jumpToLastPageOnPrevIndex ?? false}
+              onchange={handleJumpToLastPageChange}
             />
             <span class="toggle-slider"></span>
           </label>

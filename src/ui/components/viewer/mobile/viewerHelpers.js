@@ -32,11 +32,13 @@ export const STYLE_NAMESPACE = 'mobile-viewer';
  * @param {number|null} chatIndex - 채팅 인덱스 (null이면 마지막 채팅)
  * @param {boolean} toggleViewer - 토글 동작 여부
  * @param {boolean} showLoading - 로딩 오버레이 표시 여부
+ * @param {number|string|null} initialPage - 초기 페이지 (숫자 또는 'last')
  */
 export function openMobileViewer(
   chatIndex = null,
   toggleViewer = true,
   showLoading = false,
+  initialPage = null,
 ) {
   // 이미 열려있으면 닫기 (토글)
   if (toggleViewer && isMounted(MOBILE_VIEWER_ID)) {
@@ -94,6 +96,7 @@ export function openMobileViewer(
       chaId,
       onClose: closeMobileViewer,
       initialLoading: showLoading,
+      initialPage: initialPage,
     },
   });
 }
