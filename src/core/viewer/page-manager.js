@@ -473,7 +473,7 @@ export function waitForLayout() {
  * @param {HTMLElement} container - 검열 오버레이를 추가할 컨테이너
  */
 export function applyCensoredOverlay(container) {
-  const images = container.querySelectorAll('img');
+  const images = container.querySelectorAll('img, div.x-risu-image-container');
 
   images.forEach(img => {
     // 이미 처리된 이미지는 스킵

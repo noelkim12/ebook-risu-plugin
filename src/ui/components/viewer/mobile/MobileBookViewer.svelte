@@ -37,6 +37,7 @@
     resetCustomCss,
   } from '../../../../core/viewer/settings-manager.js';
   import { openMobileViewer, closeMobileViewer } from './viewerHelpers.js';
+  import { isMobile, openViewer, closePCViewer } from '../pc/viewerHelpers.js';
 
   // 스타일
   import '../../../styles/mobile-viewer.css';
@@ -132,6 +133,8 @@
   let viewerHeight = $state('100%');
   let textareaResizeObserver = null;
   let settingPanelObserver = null;
+  let windowResizeObserver = null;
+  let windowResizeHandler = null;
 
   // 타이머
   let resizeTimer = null;
@@ -244,6 +247,17 @@
       });
     }
 
+    // ResizeObserver로 window 크기 변경 감지
+    if (window.ResizeObserver) {
+      windowResizeObserver = new ResizeObserver(handleWindowResize);
+      // documentElement를 관찰하여 window 크기 변경 감지
+      windowResizeObserver.observe(document.documentElement);
+    } else {
+      // ResizeObserver를 지원하지 않는 경우 window resize 이벤트 사용
+      windowResizeHandler = handleWindowResize;
+      window.addEventListener('resize', windowResizeHandler);
+    }
+
     // RisuAPI 구독 설정
     const risuAPI = RisuAPI.getInstance();
 
@@ -322,6 +336,16 @@
     if (settingPanelObserver) {
       settingPanelObserver.disconnect();
       settingPanelObserver = null;
+    }
+    // window ResizeObserver 해제
+    if (windowResizeObserver) {
+      windowResizeObserver.disconnect();
+      windowResizeObserver = null;
+    }
+    // window resize 이벤트 리스너 제거
+    if (windowResizeHandler) {
+      window.removeEventListener('resize', windowResizeHandler);
+      windowResizeHandler = null;
     }
 
     // 스와이프 이벤트 리스너 제거
@@ -650,6 +674,15 @@
   function handleResize() {
     debouncedRepaginate();
   }
+
+  // 화면 크기 변경 감지 (모바일 -> PC 전환)
+  const handleWindowResize = debounce(() => {
+    if (!isMobile()) {
+      // 모바일이 아니면 PC 뷰어로 전환
+      closeMobileViewer();
+      openViewer(chatIndex, false, false);
+    }
+  }, 300);
 
   const debouncedHandleSettingPanel = debounce(handleSettingPanel, 100);
 

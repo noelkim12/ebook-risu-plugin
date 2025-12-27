@@ -21,8 +21,16 @@ import { RisuAPI } from '../../../../core/risu-api.js';
 // lodash deep copy
 import { cloneDeep } from 'lodash';
 
-const VIEWER_ID = 'pc-book-viewer';
-const VIEWER_STYLE_NAMESPACE = 'pc-viewer';
+// 폴드 대응 mobile viewer helpers import
+import {
+  isMobileViewerOpen,
+  closeMobileViewer,
+  MOBILE_VIEWER_ID as MOBILE_VIEWER_ID,
+  STYLE_NAMESPACE as MOBILE_VIEWER_STYLE_NAMESPACE,
+} from '../mobile/viewerHelpers.js';
+
+export const VIEWER_ID = 'pc-book-viewer';
+export const VIEWER_STYLE_NAMESPACE = 'pc-viewer';
 
 // 마운트 타겟 참조 저장
 let mountTarget = null;
@@ -42,8 +50,20 @@ export function openPCViewer(
   // togleViewer일 때, 뷰어가 이미 열려있으면 닫기
   if (isMounted(VIEWER_ID)) {
     closePCViewer();
+    // 갤폴드 대응 모바일 뷰어 열려있으면 닫기
+    if (isMobileViewerOpen()) {
+      closeMobileViewer();
+    }
     // togleViewer true이면 여기서 끝
     if (togleViewer) return true;
+  }
+
+  // 이미 열려있고 토글이 아니면 기존 뷰어 닫고 새로 열기
+  if (isMounted(MOBILE_VIEWER_ID)) {
+    safeUnmount(MOBILE_VIEWER_ID);
+  }
+  if (isMounted(VIEWER_ID)) {
+    safeUnmount(VIEWER_ID);
   }
 
   const risuAPI = RisuAPI.getInstance();
@@ -156,6 +176,7 @@ export function isPCViewerOpen() {
 export function togglePCViewer(chatIndex = null) {
   if (isPCViewerOpen()) {
     closePCViewer();
+
     return false;
   } else {
     openPCViewer(chatIndex);
@@ -173,7 +194,7 @@ export function togglePCViewer(chatIndex = null) {
  */
 export function isMobile() {
   // 화면 크기 기반 감지
-  const isSmallScreen = window.innerWidth <= 768;
+  const isSmallScreen = window.innerWidth <= 680;
 
   // User Agent 기반 감지
   const isMobileUA =
@@ -185,8 +206,8 @@ export function isMobile() {
   const isTouchDevice =
     'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-  // 모바일 판정: 작은 화면이거나 (모바일 UA이면서 터치 디바이스)
-  return isSmallScreen || (isMobileUA && isTouchDevice);
+  // 모바일 판정: 작은 화면이면서 (모바일 UA이면서 터치 디바이스)
+  return isSmallScreen && isMobileUA && isTouchDevice;
 }
 
 /**

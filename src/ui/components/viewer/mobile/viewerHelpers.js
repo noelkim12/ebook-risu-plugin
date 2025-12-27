@@ -16,8 +16,16 @@ import {
 import { RisuAPI } from '../../../../core/risu-api.js';
 import MobileBookViewer from './MobileBookViewer.svelte';
 
-const MOBILE_VIEWER_ID = 'mobile-book-viewer';
-const STYLE_NAMESPACE = 'mobile-viewer';
+// PC viewer helpers import
+import {
+  isPCViewerOpen,
+  closePCViewer,
+  VIEWER_ID as PC_VIEWER_ID,
+  VIEWER_STYLE_NAMESPACE as PC_VIEWER_STYLE_NAMESPACE,
+} from '../pc/viewerHelpers.js';
+
+export const MOBILE_VIEWER_ID = 'mobile-book-viewer';
+export const STYLE_NAMESPACE = 'mobile-viewer';
 
 /**
  * 모바일 뷰어 열기
@@ -33,12 +41,19 @@ export function openMobileViewer(
   // 이미 열려있으면 닫기 (토글)
   if (toggleViewer && isMounted(MOBILE_VIEWER_ID)) {
     closeMobileViewer();
+    // 갤폴드 대응 PC 뷰어 열려있으면 닫기
+    if (isPCViewerOpen()) {
+      closePCViewer();
+    }
     return;
   }
 
   // 이미 열려있고 토글이 아니면 기존 뷰어 닫고 새로 열기
   if (isMounted(MOBILE_VIEWER_ID)) {
     safeUnmount(MOBILE_VIEWER_ID);
+  }
+  if (isMounted(PC_VIEWER_ID)) {
+    safeUnmount(PC_VIEWER_ID);
   }
 
   const risuAPI = RisuAPI.getInstance();

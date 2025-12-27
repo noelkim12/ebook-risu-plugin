@@ -638,6 +638,7 @@
 .book-viewer-root .page-content > .chattext [class*='-image-container'] {
   min-height: 98%;
   max-height: 100%;
+  height: 100%;
 }
 .book-viewer-root .page-content > .chattext .x-risu-image-container:hover {
 }

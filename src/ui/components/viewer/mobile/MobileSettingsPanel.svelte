@@ -173,7 +173,9 @@
         <div class="setting-item toggle-item">
           <div class="toggle-content">
             <span class="toggle-label">이미지 검열</span>
-            <span class="toggle-description">이미지 위에 검열 오버레이 표시</span>
+            <span class="toggle-description"
+              >이미지 위에 검열 오버레이 표시</span
+            >
           </div>
           <label class="toggle-switch">
             <input

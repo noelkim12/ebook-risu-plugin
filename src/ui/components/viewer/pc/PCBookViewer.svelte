@@ -33,7 +33,8 @@
     applyCustomCss,
     resetCustomCss,
   } from '../../../../core/viewer/settings-manager.js';
-  import { openPCViewer } from './viewerHelpers.js';
+  import { isMobile, openPCViewer, closePCViewer } from './viewerHelpers.js';
+  import { openMobileViewer } from '../mobile/viewerHelpers.js';
 
   // 스타일
   import '../../../styles/pc-viewer.css';
@@ -50,6 +51,7 @@
 
   // RisuAPI
   import { RisuAPI } from '../../../../core/risu-api.js';
+  import { debounce } from 'lodash';
 
   // Props
   let {
@@ -108,6 +110,8 @@
   // 뷰어 높이 (textarea 높이에 따라 동적 계산)
   let viewerHeight = $state('100%');
   let textareaResizeObserver = null;
+  let windowResizeObserver = null;
+  let windowResizeHandler = null;
 
   // initialLoading prop 변경 시 상태 업데이트
   $effect(() => {
@@ -190,6 +194,17 @@
     // 콘텐츠 변경 감지 (1초 간격)
     contentCheckInterval = setInterval(checkContentChange, 1000);
 
+    // ResizeObserver로 window 크기 변경 감지
+    if (window.ResizeObserver) {
+      windowResizeObserver = new ResizeObserver(handleWindowResize);
+      // documentElement를 관찰하여 window 크기 변경 감지
+      windowResizeObserver.observe(document.documentElement);
+    } else {
+      // ResizeObserver를 지원하지 않는 경우 window resize 이벤트 사용
+      windowResizeHandler = handleWindowResize;
+      window.addEventListener('resize', windowResizeHandler);
+    }
+
     // RisuAPI 구독 설정
     const risuAPI = RisuAPI.getInstance();
 
@@ -271,6 +286,17 @@
     if (textareaResizeObserver) {
       textareaResizeObserver.disconnect();
       textareaResizeObserver = null;
+    }
+
+    // window ResizeObserver 해제
+    if (windowResizeObserver) {
+      windowResizeObserver.disconnect();
+      windowResizeObserver = null;
+    }
+    // window resize 이벤트 리스너 제거
+    if (windowResizeHandler) {
+      window.removeEventListener('resize', windowResizeHandler);
+      windowResizeHandler = null;
     }
 
     // 구독 해제
@@ -574,6 +600,15 @@
   function handleResize() {
     debouncedRepaginate();
   }
+
+  // 화면 크기 변경 감지 (PC -> 모바일 전환)
+  const handleWindowResize = debounce(() => {
+    if (isMobile()) {
+      // 모바일이면 모바일 뷰어로 전환
+      closePCViewer();
+      openMobileViewer(chatIndex, false, false);
+    }
+  }, 300);
 </script>
 
 <svelte:window onkeydown={handleKeydown} onresize={handleResize} />

@@ -52,7 +52,8 @@ async function fetchLatestManifest() {
       version: latestVersion,
       url: resolvedUrl,
       name: bannerMatch?.[1]?.trim() || PLUGIN_NAME,
-      displayName: bannerMatch?.[2]?.trim() || `${PLUGIN_NAME}_v${latestVersion}`,
+      displayName:
+        bannerMatch?.[2]?.trim() || `${PLUGIN_NAME}_v${latestVersion}`,
       description: bannerMatch?.[4]?.trim() || '',
       mandatory: releaseData.mandatory || false,
       notes: releaseData.notes || [],
@@ -60,7 +61,9 @@ async function fetchLatestManifest() {
     };
   } catch (error) {
     // npm에 publish되지 않은 경우 정상적으로 fetch 실패할 수 있음
-    console.log(`[${PLUGIN_NAME}] Update check skipped: Plugin not published to npm yet`);
+    console.log(
+      `[${PLUGIN_NAME}] Update check skipped: Plugin not published to npm yet`,
+    );
     return null;
   }
 }
@@ -92,7 +95,10 @@ function compareVersions(v1, v2) {
 async function updatePluginScript(manifest) {
   try {
     // 1. unpkg에서 최신 스크립트 fetch
-    console.log('[UpdateManager] Fetching latest script from unpkg:', manifest.url);
+    console.log(
+      '[UpdateManager] Fetching latest script from unpkg:',
+      manifest.url,
+    );
     const scriptContent = await fetch(manifest.url).then(r => r.text());
 
     // 2. 스크립트 파싱
@@ -180,7 +186,9 @@ function checkSkippedVersion(latestVersion, force, silent) {
 
   if (skipVersion === latestVersion) {
     if (!silent) {
-      console.log(`[UpdateManager] Version ${latestVersion} is skipped by user`);
+      console.log(
+        `[UpdateManager] Version ${latestVersion} is skipped by user`,
+      );
     }
     return { available: false, skipped: true, version: latestVersion };
   }
@@ -232,9 +240,9 @@ async function executeUpdate(manifest, latestVersion) {
 
     // 업데이트 완료 알림 및 새로고침
     await showAlert(
-      '업데이트가 완료되었습니다.\n\n업데이트된 스크립트를 적용하기 위해\n페이지를 새로고침합니다.',
+      `업데이트가 완료되었습니다.\n\n업데이트된 스크립트를 적용하기 위해\n페이지를 새로고침해야합니다.
+      \n안정적인 업데이트를 위해 잠시 후\n수동으로 새로고침해 주세요.`,
     );
-    window.location.reload();
     return { available: true, action: 'updated', version: latestVersion };
   }
 
@@ -250,7 +258,7 @@ async function executeUpdate(manifest, latestVersion) {
 }
 
 /**
- * 사용자 액션 결과 처리
+ * 사용자 액션 결과 처리 
  * @param {Object} result - confirmUpdate 결과
  * @param {Object} manifest - 매니페스트
  * @param {string} latestVersion - 최신 버전
@@ -303,10 +311,16 @@ export async function checkForUpdates(options = {}) {
     if (skipResult) return skipResult;
 
     // 버전 비교
-    const versionResult = checkVersionUpdateNeeded(latestVersion, currentVersion, silent);
+    const versionResult = checkVersionUpdateNeeded(
+      latestVersion,
+      currentVersion,
+      silent,
+    );
     if (versionResult) return versionResult;
 
-    console.log(`[UpdateManager] New version available: ${currentVersion} → ${latestVersion}`);
+    console.log(
+      `[UpdateManager] New version available: ${currentVersion} → ${latestVersion}`,
+    );
 
     // 사용자 확인 UI 표시
     const result = await confirmUpdate({
