@@ -1,3 +1,5 @@
+import { closePCViewer } from '../ui/components/viewer/pc/viewerHelpers.js';
+import { closeMobileViewer } from '../ui/components/viewer/mobile/viewerHelpers.js';
 /**
  * dom-helper.js - DOM 조작 유틸리티
  */
@@ -46,6 +48,10 @@ export function cloneButtonsWithEventDelegation(
         cancelable: true,
       });
       btn.dispatchEvent(mouseEvent);
+      if (cloned.classList.contains('button-icon-edit')) {
+        closePCViewer();
+        closeMobileViewer();
+      }
     });
 
     container.appendChild(cloned);

@@ -241,7 +241,7 @@ async function executeUpdate(manifest, latestVersion) {
     // 업데이트 완료 알림 및 새로고침
     await showAlert(
       `업데이트가 완료되었습니다.\n\n업데이트된 스크립트를 적용하기 위해\n페이지를 새로고침해야합니다.
-      \n안정적인 업데이트를 위해 잠시 후\n수동으로 새로고침해 주세요.`,
+      \n안정적인 업데이트를 위해 충분한 시간을 두고\n수동으로 새로고침해 주세요.`,
     );
     return { available: true, action: 'updated', version: latestVersion };
   }
@@ -258,7 +258,7 @@ async function executeUpdate(manifest, latestVersion) {
 }
 
 /**
- * 사용자 액션 결과 처리 
+ * 사용자 액션 결과 처리
  * @param {Object} result - confirmUpdate 결과
  * @param {Object} manifest - 매니페스트
  * @param {string} latestVersion - 최신 버전

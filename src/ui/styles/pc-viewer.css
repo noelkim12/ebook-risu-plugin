@@ -183,6 +183,8 @@
   --bv-mark1-color: var(--FontColorQuote1);
   --bv-mark2-color: var(--FontColorQuote2);
   --bv-em-color: var(--FontColorItalic);
+
+  --bv-page-content-padding: 40px 40px 20px;
 }
 .book-viewer-root [data-theme='light'] {
   /* 프리미엄 컬러 팔레트 */
@@ -295,9 +297,14 @@
   --bv-em-color: var(--FontColorItalic);
 }
 
+.chattext p:first-child {
+  margin-bottom: 0.55rem;
+  margin-top: unset;
+}
+
 /* 텍스트 색상 */
 .text-content p {
-  margin-top: 0.55em;
+  margin-bottom: 0.55em;
 }
 
 .text-content h1 {
@@ -620,7 +627,7 @@
 
 /* ===== 페이지 콘텐츠 ===== */
 .book-viewer-root .page-content {
-  padding: 50px 60px 10px;
+  padding: var(--bv-page-content-padding);
   height: 100%;
   display: flex !important;
   flex-direction: column;
@@ -1381,6 +1388,7 @@
 }
 
 /* ===== 반응형 ===== */
+/* 
 @media (max-width: 1200px) {
   .book-viewer-root .page-content {
     padding: 50px 40px 40px;
@@ -1421,6 +1429,7 @@
     gap: 20px;
   }
 }
+ */
 
 /* ===== Toast ===== */
 .book-viewer-root .viewer-toast {

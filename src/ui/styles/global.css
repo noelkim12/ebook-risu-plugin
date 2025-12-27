@@ -39,3 +39,6 @@
   filter: blur(20px) grayscale(100%);
   pointer-events: none;
 }
+.x-risu-image-container {
+  z-index: 0 !important;
+}

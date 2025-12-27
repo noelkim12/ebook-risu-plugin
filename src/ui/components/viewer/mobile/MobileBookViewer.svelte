@@ -17,7 +17,6 @@
   import { TextSplitterMobile } from '../../../../core/viewer/mobile/text-splitter-mobile.js';
   import { createSwipeHandler } from '../../../../core/viewer/mobile/touch-handler.js';
   import {
-    createMeasureContainer,
     wrapNakedTextNodes,
     splitIntoPagesHTML,
     extractHeaderInfo,
@@ -446,7 +445,7 @@
       if (!retryRef) return;
     }
 
-    const measureContainer = createMeasureContainer(
+    const measureContainer = TextSplitterMobile.createMeasureContainer(
       measureRef || document.body,
     );
     // createMeasureContainer가 이미 뷰어 루트에 추가하므로 여기서는 추가하지 않음
@@ -458,9 +457,10 @@
         textSplitter,
       );
     } finally {
-      // 측정 컨테이너가 뷰어 루트에 추가되었으므로 부모에서 제거
-      if (measureContainer.parentNode) {
-        measureContainer.parentNode.removeChild(measureContainer);
+      // 측정 컨테이너 구조 전체 제거
+      const rootContainer = measureContainer.closest('[data-measure-container]');
+      if (rootContainer && rootContainer.parentNode) {
+        rootContainer.parentNode.removeChild(rootContainer);
       }
     }
   }

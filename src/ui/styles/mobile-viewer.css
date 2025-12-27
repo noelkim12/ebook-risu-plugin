@@ -455,38 +455,6 @@
   z-index: 3;
 }
 
-/* 반응형 */
-@media (min-width: 600px) and (orientation: landscape) {
-  .mobile-reader .page-container {
-    margin: 12px 20px;
-  }
-
-  .mobile-reader .page-content {
-    padding: 36px 48px;
-  }
-
-  .mobile-reader .text-content {
-    max-width: 720px;
-    margin: 0 auto;
-    font-size: 18px;
-  }
-}
-
-@media (min-width: 768px) {
-  .mobile-reader .page-container {
-    margin: 16px 24px;
-  }
-
-  .mobile-reader .page-content {
-    padding: 40px 56px;
-  }
-
-  .mobile-reader .text-content {
-    max-width: 800px;
-    font-size: 18px;
-    line-height: 1.9;
-  }
-}
 /* ===== 터치 영역 ===== */
 .mobile-reader .touch-area {
   position: absolute;

@@ -2,88 +2,8 @@
  * Page Manager - 페이지 분할 및 콘텐츠 관리
  */
 
-import { TextSplitterPC } from './pc/text-splitter.js';
 import { LOCATOR, risuSelector } from '../../utils/selector.js';
 import { censored } from './img-encoded.js';
-/**
- * 측정용 컨테이너 생성
- * @param {HTMLElement} referenceElement - 실제 페이지 콘텐츠 요소
- * @returns {HTMLElement}
- */
-export function createMeasureContainer(referenceElement) {
-  const container = document.createElement('div');
-  container.className = 'text-content chattext';
-  container.style.position = 'absolute';
-  container.style.visibility = 'hidden';
-  container.style.pointerEvents = 'none';
-  container.style.overflow = 'hidden';
-
-  if (referenceElement) {
-    const rect = referenceElement.getBoundingClientRect();
-    const styles = window.getComputedStyle(referenceElement);
-
-    // 기본 크기 및 패딩
-    container.style.width = rect.width + 'px';
-    container.style.height = rect.height + 'px';
-    container.style.padding = styles.padding;
-    container.style.margin = styles.margin;
-    container.style.boxSizing = styles.boxSizing;
-
-    // 타이포그래피 (CSS 변수 포함)
-    container.style.fontSize = styles.fontSize;
-    container.style.lineHeight = styles.lineHeight;
-    container.style.fontFamily = styles.fontFamily;
-    container.style.fontWeight = styles.fontWeight;
-    container.style.fontStyle = styles.fontStyle;
-    container.style.letterSpacing = styles.letterSpacing;
-    container.style.wordSpacing = styles.wordSpacing;
-
-    // 텍스트 관련
-    container.style.textAlign = styles.textAlign;
-    container.style.textIndent = styles.textIndent;
-    container.style.textTransform = styles.textTransform;
-    container.style.whiteSpace = styles.whiteSpace;
-    container.style.wordBreak = styles.wordBreak;
-    container.style.wordWrap = styles.wordWrap;
-
-    // 뷰어 루트 컨테이너 찾기 (CSS 변수 및 스타일 상속을 위해)
-    const viewerRoot =
-      referenceElement.closest('.book-viewer-root') ||
-      referenceElement.closest('.mobile-reader');
-
-    if (viewerRoot) {
-      // 뷰어 루트 안에 추가하여 CSS 선택자(.text-content p 등)가 작동하도록 함
-      viewerRoot.appendChild(container);
-
-      // CSS 변수 값들을 직접 가져와서 적용 (이미 상속되지만 명시적으로 설정)
-      const rootStyles = window.getComputedStyle(viewerRoot);
-      const fontSize =
-        rootStyles.getPropertyValue('--bv-font-size') ||
-        rootStyles.getPropertyValue('--mv-font-size') ||
-        styles.fontSize;
-      const lineHeight =
-        rootStyles.getPropertyValue('--bv-line-height') ||
-        rootStyles.getPropertyValue('--mv-line-height') ||
-        styles.lineHeight;
-      const fontFamily =
-        rootStyles.getPropertyValue('--bv-font-family') ||
-        rootStyles.getPropertyValue('--mv-font-family') ||
-        styles.fontFamily;
-
-      if (fontSize) container.style.fontSize = fontSize;
-      if (lineHeight) container.style.lineHeight = lineHeight;
-      if (fontFamily) container.style.fontFamily = fontFamily;
-    } else {
-      // 뷰어 루트를 찾을 수 없으면 document.body에 추가 (폴백)
-      document.body.appendChild(container);
-    }
-  } else {
-    // referenceElement가 없으면 document.body에 추가
-    document.body.appendChild(container);
-  }
-
-  return container;
-}
 
 /**
  * p 태그 없이 노출된 텍스트 노드를 p 태그로 감싸기
@@ -172,6 +92,25 @@ export function wrapNakedTextNodes(container) {
 }
 
 /**
+ * 오버플로우 여부 판단
+ * scrollHeight에서 마지막 요소의 margin-bottom을 빼고 비교
+ * @param {HTMLElement} container - 측정 컨테이너
+ * @returns {boolean} - 오버플로우 여부
+ */
+function hasContentOverflow(container) {
+  const scrollH = container.scrollHeight;
+  const clientH = container.clientHeight;
+
+  const lastChild = container.lastElementChild;
+  const marginBottom = lastChild
+    ? parseFloat(window.getComputedStyle(lastChild).marginBottom) || 0
+    : 0;
+
+  const effectiveHeight = scrollH - marginBottom;
+  return effectiveHeight > clientH;
+}
+
+/**
  * HTML 콘텐츠를 페이지로 분할
  * @param {HTMLElement} content - 분할할 콘텐츠 요소
  * @param {HTMLElement} measureContainer - 측정용 컨테이너
@@ -189,8 +128,7 @@ export function splitIntoPagesHTML(content, measureContainer, textSplitter) {
     const cloned = el.cloneNode(true);
     measureContainer.appendChild(cloned);
 
-    const hasOverflow =
-      measureContainer.scrollHeight > measureContainer.clientHeight;
+    const hasOverflow = hasContentOverflow(measureContainer);
 
     if (hasOverflow && currentPageContent.length > 0) {
       pages.push(createPageHTML(currentPageContent));
@@ -231,37 +169,44 @@ export function splitIntoPagesHTML(content, measureContainer, textSplitter) {
     });
     measureContainer.appendChild(clonedElement);
 
-    const scrollH = measureContainer.scrollHeight;
-    const clientH = measureContainer.clientHeight;
-    const hasOverflow = scrollH > clientH;
+    const hasOverflow = hasContentOverflow(measureContainer);
 
-    // 오버플로우 발생하고 분할 가능한 경우
-    if (hasOverflow && textSplitter.isSplittable(element)) {
+    // 오버플로우 발생 시
+    if (hasOverflow) {
+      // 현재 페이지에 내용이 있으면 먼저 저장
       if (currentPageContent.length > 0) {
         pages.push(createPageHTML(currentPageContent));
         currentPageContent = [];
       }
 
-      measureContainer.innerHTML = '';
-      const splitElements = textSplitter.splitElement(
-        element,
-        measureContainer,
-        availableHeight,
-      );
+      // 분할 가능한 경우 텍스트 분할 시도
+      if (textSplitter.isSplittable(element)) {
+        measureContainer.innerHTML = '';
+        const splitElements = textSplitter.splitElement(
+          element,
+          measureContainer,
+          availableHeight,
+        );
 
-      splitElements.forEach(splitEl => {
-        addElementToPage(splitEl);
-      });
+        splitElements.forEach(splitEl => {
+          addElementToPage(splitEl);
+        });
 
-      return;
-    }
+        return;
+      }
 
-    // 일반적인 경우
-    if (hasOverflow && currentPageContent.length > 0) {
-      pages.push(createPageHTML(currentPageContent));
-      currentPageContent = [];
+      // 분할 불가능한 경우: 요소 자체가 페이지보다 크면 그 자체로 한 페이지
       measureContainer.innerHTML = '';
       measureContainer.appendChild(clonedElement);
+      if (hasContentOverflow(measureContainer)) {
+        // 요소 자체가 페이지보다 큼 - 오버플로우 허용하고 별도 페이지로 처리
+        pages.push(createPageHTML([element.cloneNode(true)]));
+        measureContainer.innerHTML = '';
+        return;
+      }
+
+      // 요소는 빈 페이지에 들어감 - 새 페이지 시작점으로 추가
+      measureContainer.innerHTML = '';
     }
 
     currentPageContent.push(element.cloneNode(true));
