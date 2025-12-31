@@ -1,6 +1,6 @@
 {
   "name": "risu-ebooklike-viewer",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "type": "module",
   "description": "EBook like viewer for RISU AI",
   "main": "src/index.js",

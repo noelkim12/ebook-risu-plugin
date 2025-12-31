@@ -116,7 +116,7 @@
         type="range"
         id="fontSize"
         min="12"
-        max="24"
+        max="32"
         step="1"
         value={settings.fontSize}
         oninput={handleFontSizeChange}
@@ -129,8 +129,8 @@
       <input
         type="range"
         id="lineHeight"
-        min="1.5"
-        max="2.2"
+        min="1.0"
+        max="3.0"
         step="0.1"
         value={settings.lineHeight}
         oninput={handleLineHeightChange}
