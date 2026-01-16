@@ -28,11 +28,17 @@ export class RisuAPI {
     this._removeRisuReplacer = pluginApis.removeRisuReplacer;
     this._onUnload = pluginApis.onUnload;
 
-    // eval로 초기화할 함수들 (나중에 initialize에서 설정됨)
-    this._getDatabase = null;
-    this._setDatabaseLite = null;
+    // Database API: pluginApis에서 제공되면 사용, 없으면 전역 함수 사용
+    this._getDatabase = pluginApis.getDatabase;
+    this._setDatabaseLite = pluginApis.setDatabaseLite;
 
-    // 변경 감지 구독 관리
+    try {
+      this._getDatabase ??= getDatabase;
+      this._setDatabaseLite ??= setDatabaseLite;
+    } catch (e) {
+      // 전역 함수가 없는 경우 무시 (선택적 API)
+    }
+
     this._charWatchers = new Map();
     this._databaseWatchers = new Map();
     this._watcherIdCounter = 0;
@@ -454,7 +460,10 @@ export class RisuAPI {
           const newValue = currentSnapshot ? JSON.parse(currentSnapshot) : null;
           callback(newValue);
         } catch (e) {
-          console.error(`[${PLUGIN_NAME}] subscribeToDatabase callback error:`, e);
+          console.error(
+            `[${PLUGIN_NAME}] subscribeToDatabase callback error:`,
+            e,
+          );
         }
       }
     }, interval);

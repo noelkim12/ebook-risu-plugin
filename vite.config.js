@@ -69,6 +69,7 @@ function viteBannerPlugin() {
 //@display-name ${pkg.name}_v${pkg.version}
 //@version ${pkg.version}
 //@description ${pkg.description}
+//@api 2.1
 ${getPluginArgs()}
 ${getDevModeBanner()}
 //@link https://unpkg.com/${pkg.name}@${pkg.version}/dist/${toKebabCase(pkg.name)}.js
