@@ -55,7 +55,19 @@ import { readChatMessages } from './core/chat-reader.js';
         risuai.showContainer('fullscreen');
         await mountApp();
         // Read chat data and show viewer
-        const chatData = await readChatMessages();
+        const messages = await readChatMessages();
+        if (messages.length === 0) {
+          console.warn('[App] No chat messages found');
+          return;
+        }
+
+        const lastMessage = messages[messages.length - 1];
+        const chatData = {
+          chatHtml: lastMessage.html,
+          chatMessages: messages,
+          chatIndex: lastMessage.index ?? messages.length - 1,
+        };
+
         if (app && typeof app.showViewer === 'function') {
           app.showViewer(chatData);
         }

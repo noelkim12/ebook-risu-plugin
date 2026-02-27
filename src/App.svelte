@@ -60,6 +60,7 @@
 
   export function hideViewer() {
     visible = false;
+    risuai.hideContainer();
   }
 
   export function updateContent(chatData = {}) {
