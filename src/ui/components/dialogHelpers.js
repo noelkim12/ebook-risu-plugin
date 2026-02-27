@@ -23,15 +23,12 @@ export function showAlert(message, confirmText = '확인') {
       props: {
         message,
         confirmText,
+        onConfirm: () => {
+          unmount(component);
+          container.remove();
+          resolve();
+        },
       },
-    });
-
-    // Svelte 5에서는 $on 대신 이벤트 리스너를 props로 전달하거나
-    // container에서 이벤트를 캐치해야 합니다
-    container.addEventListener('confirm', () => {
-      unmount(component);
-      container.remove();
-      resolve();
     });
   });
 }
@@ -42,7 +39,10 @@ export function showAlert(message, confirmText = '확인') {
  * @param {number} [duration=3000] - 표시 시간 (밀리초)
  * @returns {Promise<void>}
  */
-export function showLoading(message = '업데이트를 처리하고 있습니다...', duration = 3000) {
+export function showLoading(
+  message = '업데이트를 처리하고 있습니다...',
+  duration = 3000,
+) {
   return new Promise(resolve => {
     const container = document.createElement('div');
     document.body.appendChild(container);

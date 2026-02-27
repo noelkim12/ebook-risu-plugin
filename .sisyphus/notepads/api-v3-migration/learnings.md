@@ -88,6 +88,7 @@
 - Verification: `npm run build` succeeds after finalization; remaining warning is unrelated pre-existing `ViewerToast.svelte` a11y tabIndex warning.
 
 ## 2026-02-27 Task 18 — Forbidden Pattern Audit
+
 - Full `src/` forbidden-pattern scan completed (critical patterns + context-aware DOM checks).
 - Clean in plugin code: `globalThis.__pluginApis__` 0, `localStorage.` 0, `safeMount(` 0, `SmallBookButton` 0, `BookButton` 0.
 - No remaining direct `new MutationObserver` violations found under `src/` after cleanup follow-up.
@@ -115,3 +116,10 @@
   - `src/core/update-manager.js`
 - Reworked viewer LB module click handling to use `element.click()` where available.
 - Verification: `npm run build` still succeeds; a11y warning remains in `ViewerToast.svelte`.
+
+### 2026-02-27 Task F2 — Quality Review Outcome
+
+- Completed an additional source-level verification pass for the final Task-18 cleanup wave.
+- `npm run build` remains green after callback-based dialog and viewer updates.
+- Pattern checks confirm no remaining direct `new MutationObserver` or `dispatchEvent` usage in `src/` for changed code paths.
+- `npm run lint` now runs with `.eslintrc.cjs`, but still fails on existing repo-wide code issues unrelated to this migration wave.

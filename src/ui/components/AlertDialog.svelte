@@ -2,7 +2,7 @@
   import { onDestroy, onMount } from 'svelte';
   import styles from '../styles/update-dialog.module.css';
 
-  let { message = '', confirmText = '확인' } = $props();
+  let { message = '', confirmText = '확인', onConfirm } = $props();
 
   let confirmBtn = $state(null);
 
@@ -22,12 +22,7 @@
   }
 
   function dispatchConfirm() {
-    confirmBtn?.dispatchEvent(
-      new CustomEvent('confirm', {
-        bubbles: true,
-        composed: true,
-      }),
-    );
+    onConfirm?.();
   }
 </script>
 
@@ -37,7 +32,11 @@
       {message}
     </div>
     <div class={styles.udActions}>
-      <button bind:this={confirmBtn} class={styles.udBtnPrimary} onclick={dispatchConfirm}>
+      <button
+        bind:this={confirmBtn}
+        class={styles.udBtnPrimary}
+        onclick={dispatchConfirm}
+      >
         {confirmText}
       </button>
     </div>

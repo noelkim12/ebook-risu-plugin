@@ -30,6 +30,7 @@
 - `lsp_diagnostics` still reports non-actionable/noisy unused-variable warnings in Svelte files because this environment’s analyzer treats template-bound vars as unused in some cases.
 
 ## 2026-02-27 Task 18 — Forbidden Pattern Audit
+
 - Full `src/` forbidden-pattern scan completed (critical patterns + context-aware DOM checks).
 - Clean in plugin code: `globalThis.__pluginApis__` 0, `localStorage.` 0, `safeMount(` 0, `SmallBookButton` 0, `BookButton` 0.
 - No remaining direct `new MutationObserver` or `dispatchEvent` violations found under `src/` after the Task 18 follow-up changes.
@@ -45,3 +46,17 @@
   - Removed now-unused observer state (`textareaResizeObserver`, `settingPanelObserver`) and corresponding destroy cleanup.
 - `npm run build` remains green after this cleanup (existing unrelated `ViewerToast.svelte` a11y warning only).
 - Tooling notes: `npm run lint` remains blocked by existing `.eslintrc.js` ESM/CJS issue and was not changed in this task.
+
+## 2026-02-27 Task F2 — Code Quality Review (Final Wave)
+
+- BUILD/LINT: `npm run build` succeeds with the existing unrelated `ViewerToast.svelte` a11y warning; `npm run lint` now executes via `.eslintrc.cjs` and fails on existing repo-wide code errors (unused vars/import ordering), which are unrelated to this cleanup pass.
+- Forbidden-pattern audit: `new MutationObserver` and `dispatchEvent` are no longer used directly under `src/`; `safeMutationObserver` is used where observer behavior is needed.
+- V2.1 remnants: `globalThis.__pluginApis__` 0, `safeMount(` 0, `SmallBookButton` 0, `BookButton` 0; `localStorage` remains only in update flow (`src/core/update-manager.js`) as an explicitly documented exception.
+- Async migration checks: `src/core/risu-api.js` async entry points are consumed through awaited or callback-safe pathways in updated viewer/dialog flows.
+
+## 2026-02-27 Scope Fidelity Check (F4)
+
+- [F4] Compliance gaps identified: `src/index.js` still appends `container` to `document.body`; plan expected iframe-native mount target behavior without host-body injection style.
+- [F4] `src/ui/components/pc/viewerHelpers.js` and `src/ui/components/mobile/viewerHelpers.js` still mount helper viewers via `displayContainer`/`document.body` and do not route open/close solely through `showContainer('fullscreen')`/`hideContainer()`.
+- [F4] `src/utils/svelte-helper.js` and `dialogHelpers.js` still contain `document.body.appendChild` and `localStorage` logic in `src/core/update-manager.js` remains (`skipVersion` flow), which may be outside strict v3 `forbid localStorage/direct host manipulation` guidance if interpreted globally.
+- [F4] Unaccounted changed files in migration range: `.sisyphus/boulder.json` and `.sisyphus/plans/api-v3-migration.md` (accepted plan artifacts only if orchestration allows), plus `src/core/update-manager.js`.

@@ -677,11 +677,7 @@
     // 라이브 버튼 클릭 트리거 (이벤트 핸들러 실행)
     if (identifier && liveLBModuleButtons.has(identifier)) {
       const liveButton = liveLBModuleButtons.get(identifier);
-      const mouseEvent = new MouseEvent('click', {
-        bubbles: true,
-        cancelable: true,
-      });
-      liveButton.dispatchEvent(mouseEvent);
+      liveButton?.click();
     }
   }
 

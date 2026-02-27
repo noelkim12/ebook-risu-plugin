@@ -5,6 +5,7 @@ import { PLUGIN_NAME, PLUGIN_VERSION } from './constants.js';
 import { RisuAPI } from './core/risu-api.js';
 import { checkForUpdates } from './core/update-manager.js';
 import App from './App.svelte';
+import { readChatMessages } from './core/chat-reader.js';
 
 // 애플리케이션 실행
 (async () => {
@@ -58,6 +59,11 @@ import App from './App.svelte';
       async () => {
         risuai.showContainer('fullscreen');
         await mountApp();
+        // Read chat data and show viewer
+        const chatData = await readChatMessages();
+        if (app && typeof app.showViewer === 'function') {
+          app.showViewer(chatData);
+        }
       },
     );
 

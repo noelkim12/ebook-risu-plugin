@@ -58,12 +58,7 @@
     if (action === 'skip') {
       detail.skipVersion = version;
     }
-    // Svelte 5에서는 부모 컨테이너로 이벤트를 버블링
-    updateBtn?.dispatchEvent(new CustomEvent('update-action', {
-      detail,
-      bubbles: true,
-      composed: true,
-    }));
+    onAction?.(detail);
   }
 
   function getNoteTypeClass(type) {
@@ -73,7 +68,6 @@
   }
 </script>
 
-<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
   class={styles.udRoot}
   role="dialog"
@@ -101,10 +95,16 @@
     </ul>
     <div class={styles.udActions}>
       {#if !mandatory}
-        <button class={styles.udBtnGhost} onclick={() => dispatchAction('later')}>
+        <button
+          class={styles.udBtnGhost}
+          onclick={() => dispatchAction('later')}
+        >
           {i18n.later}
         </button>
-        <button class={styles.udBtnGhost} onclick={() => dispatchAction('skip')}>
+        <button
+          class={styles.udBtnGhost}
+          onclick={() => dispatchAction('skip')}
+        >
           {i18n.skip}
         </button>
       {/if}

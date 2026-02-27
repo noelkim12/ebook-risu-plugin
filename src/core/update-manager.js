@@ -147,25 +147,19 @@ function confirmUpdate(opts) {
         mandatory,
         notes: manifest.notes || [],
         i18n: t,
+        onAction: ({ action, skipVersion }) => {
+          const result = { action };
+          if (action === 'update') {
+            result.url = manifest.url;
+          } else if (action === 'skip') {
+            result.skipVersion = skipVersion;
+          }
+
+          unmount(component);
+          container.remove();
+          resolve(result);
+        },
       },
-    });
-
-    // 이벤트 리스너 설정
-    container.addEventListener('update-action', event => {
-      const { action, skipVersion } = event.detail;
-
-      // 결과 구성
-      const result = { action };
-      if (action === 'update') {
-        result.url = manifest.url;
-      } else if (action === 'skip') {
-        result.skipVersion = skipVersion;
-      }
-
-      // 정리 및 resolve
-      unmount(component);
-      container.remove();
-      resolve(result);
     });
   });
 }
