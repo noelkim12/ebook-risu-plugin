@@ -4,11 +4,14 @@ function debugLog(...args) {
   const msg = args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' ');
   console.log(`[E-Book Viewer] ${msg}`);
   DEBUG_LOGS.push(`[${new Date().toISOString()}] ${msg}`);
-  // 최근 50개만 유지
-  if (DEBUG_LOGS.length > 50) DEBUG_LOGS.shift();
+  // 최근 100개만 유지
+  if (DEBUG_LOGS.length > 100) DEBUG_LOGS.shift();
   // window에 노출해서 개발자 도구에서 확인 가능
   globalThis.__ebookViewerLogs__ = DEBUG_LOGS;
 }
+
+// 전역으로 노출해서 다른 모듈에서도 사용 가능
+globalThis.__debugLog__ = debugLog;
 
 debugLog('Plugin script loading...');
 

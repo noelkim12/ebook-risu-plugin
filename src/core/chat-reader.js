@@ -150,8 +150,30 @@ async function getChatMessageElements(rootDoc) {
     try {
       console.log('[chat-reader] Trying selector:', safeSelector);
       const matched = await rootDoc.querySelectorAll(safeSelector);
-      console.log('[chat-reader] Selector', safeSelector, 'found', matched.length, 'elements');
-      matched.forEach(node => {
+      
+      // v3 API: querySelectorAll returns SafeClassArray, need to unwrap
+      let elementArray = matched;
+      if (matched && typeof matched.length === 'function') {
+        // SafeClassArray detected - use unwarpSafeArray
+        console.log('[chat-reader] Detected SafeClassArray, unwrapping...');
+        elementArray = await risuai.unwarpSafeArray(matched);
+      }
+      
+      console.log('[chat-reader] Selector', safeSelector, 'found', elementArray.length, 'elements');
+      
+      // Check first element to see available methods
+      if (elementArray.length > 0) {
+        const firstEl = elementArray[0];
+        console.log('[chat-reader] First element type:', typeof firstEl, 'keys:', Object.keys(firstEl || {}).slice(0, 10));
+        console.log('[chat-reader] First element methods:', {
+          getInnerHTML: typeof firstEl?.getInnerHTML,
+          getOuterHTML: typeof firstEl?.getOuterHTML,
+          innerText: typeof firstEl?.innerText,
+          getClassName: typeof firstEl?.getClassName,
+        });
+      }
+      
+      elementArray.forEach(node => {
         if (!seen.has(node)) {
           seen.add(node);
           elements.push(node);
