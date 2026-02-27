@@ -800,7 +800,7 @@ Max Concurrent: 6 (Waves 1 & 3)
 
 ---
 
-- [ ] 10. Chat Content Reader Module
+- [x] 10. Chat Content Reader Module
 
   **What to do**:
   - Create or adapt a module that reads chat content from host DOM via SafeDocument
