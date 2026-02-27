@@ -62,16 +62,56 @@
 - Verified via search that `BookButton` / `SmallBookButton` are no longer referenced from `src/` code files.
 - Verified no remaining v2.1 compatibility references to `safeGlobalThis`, `safeDocument`, `alertStore` compatibility layer, or `SafeFunction` under `src/`.
 
+## 2026-02-27 Task 17 — Mobile async/state parity
+
+- `src/ui/components/viewer/mobile/MobileBookViewer.svelte`: fixed subscription path that reads latest chat content to `await risuAPI.getChar()` (RisuAPI is async now), so role/data checks no longer operate on a Promise.
+- `src/ui/components/viewer/mobile/viewerHelpers.js`:
+  - `openMobileViewer` converted to async, resolves chat index/page/chaId with awaits, and stores/uses a mount target.
+  - Applied and later restores `overflow: hidden` on both `displayContainer` and `chatScreen.root` (matching PC helper behavior) to avoid scroll bleed during mobile viewer mount.
+  - `closeMobileViewer` restores both managed containers and safe fullscreen teardown.
+- `npm run build` passed and updated `dist/risu-ebooklike-viewer.js`; remaining blocking issue remains the same `npm run lint` config error from `.eslintrc.js`.
+
 ## 2026-02-27 Task 12 — PC Sub-Components Adaptation
+
 - `src/ui/components/viewer/pc/BookHeader.svelte`: removed action button cloning and header action UI (`cloneButtonsWithEventDelegation`, `buttons`/container removed).
 - `BookHeader` now uses async `risuAPI.getChar()` inside an effect for fallback display name and keeps the close chat/chat index controls.
 - `BookHeader` close control still calls `onClose` prop, which is wired to `hideViewer()` in App v3 flow.
 - `src/ui/components/viewer/pc/NavControls.svelte`, `BookPages.svelte`, `SettingsMenu.svelte`, `CustomCssModal.svelte`: reviewed; no direct host DOM calls, no `dispatchEvent`, and no additional v2 API calls needed for v3 iframe mode.
 
 ## 2026-02-27 Task 12 — Mobile Sub-Components Adaptation
+
 - `src/ui/components/viewer/mobile/MobileBookHeader.svelte`: removed action-button row (copy/edit/etc), kept chat title/close/settings; switched to async-safe `RisuAPI.getChar()` fallback for title name with cancellable effect.
 - `src/ui/components/viewer/mobile/MobileNavFooter.svelte`: chat navigation callbacks now wrapped as async handlers to satisfy v3 async-call convention.
 - `src/ui/components/viewer/mobile/MobileCustomCssModal.svelte`: aligned closer to PC behavior, initialized with mobile default CSS on open/reset, made close interactions keyboard-safe, and kept prop-driven handler flow.
 - `src/ui/components/viewer/mobile/MobileLBPanel.svelte`: preserved panel behavior, improved accessibility on overlay/content handlers, and normalized module label truncation.
 - Verified `src/ui/components/viewer/mobile/MobileBookPage.svelte`, `MobileSettingsPanel.svelte` remain mostly as-is.
 - Verification: `npm run build` succeeds after finalization; remaining warning is unrelated pre-existing `ViewerToast.svelte` a11y tabIndex warning.
+
+## 2026-02-27 Task 18 — Forbidden Pattern Audit
+- Full `src/` forbidden-pattern scan completed (critical patterns + context-aware DOM checks).
+- Clean in plugin code: `globalThis.__pluginApis__` 0, `localStorage.` 0, `safeMount(` 0, `SmallBookButton` 0, `BookButton` 0.
+- No remaining direct `new MutationObserver` violations found under `src/` after cleanup follow-up.
+- No remaining direct `dispatchEvent` violations found under `src/` after cleanup follow-up.
+- `safeMutationObserver` remains the sanctioned wrapper in `src/utils/svelte-helper.js`.
+- `document.querySelector` / `document.body` matches exist only in known iframe-internal/component DOM helpers and were excluded from host-context violation list.
+
+## 2026-02-27 Task 19 — MobileBookViewer Host-DOM Observer Cleanup
+
+- `src/ui/components/viewer/mobile/MobileBookViewer.svelte` cleaned to remove v2.1 host-DOM coupling:
+  - Dropped `risuSelector(LOCATOR.chatScreen.textarea)` and textarea `ResizeObserver` height sync.
+  - Removed host-element `MutationObserver` on `document.body` used to detect settings panel changes.
+  - Removed `handleSettingPanel`/`debouncedHandleSettingPanel` logic that used `risuSelector(LOCATOR.setting.root)` to auto-close viewer.
+- Also removed related imports/state (`LOCATOR`, `risuSelector`, `safeMutationObserver`, `isNil`) and `onDestroy` cleanup blocks for removed observers.
+- Verification: `npm run build` succeeds (existing a11y warning in `ViewerToast.svelte` only).
+
+## 2026-02-27 Task 20 — Forbidden Pattern Cleanup Follow-up
+
+- Cleaned remaining forbidden-pattern violations from Task 18 by switching direct event/observer usage to safer paths.
+- `new MutationObserver` occurrences are no longer present under `src/`.
+- `dispatchEvent` occurrences are no longer present under `src/`.
+- Reworked dialog event propagation to callback props:
+  - `src/ui/components/dialogHelpers.js`
+  - `src/ui/components/UpdateDialog.svelte`
+  - `src/core/update-manager.js`
+- Reworked viewer LB module click handling to use `element.click()` where available.
+- Verification: `npm run build` still succeeds; a11y warning remains in `ViewerToast.svelte`.

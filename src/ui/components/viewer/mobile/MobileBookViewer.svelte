@@ -47,13 +47,11 @@
     getAdjacentChatIndex,
     getChatIndexPosition,
     getAllVisibleChatIndices,
-    LOCATOR,
-    risuSelector,
   } from '../../../../utils/selector.js';
 
   // RisuAPI
   import { RisuAPI } from '../../../../core/risu-api.js';
-  import { debounce, isNil } from 'lodash';
+  import { debounce } from 'lodash';
 
   // Props
   let {
@@ -132,10 +130,8 @@
   // 요소 참조
   let rootElement = $state(null);
 
-  // 뷰어 높이 (textarea 높이에 따라 동적 계산)
+  // 뷰어 높이
   let viewerHeight = $state('100%');
-  let textareaResizeObserver = null;
-  let settingPanelObserver = null;
   let windowResizeObserver = null;
   let windowResizeHandler = null;
 
@@ -177,39 +173,6 @@
     // 전체화면
     // await document.documentElement?.requestFullscreen?.();
     // isFullscreen = true;
-
-    // inputTextarea 높이 감지 및 뷰어 높이 계산
-    const inputTextarea = risuSelector(LOCATOR.chatScreen.textarea);
-    if (inputTextarea) {
-      // 초기 높이 설정
-      const textareaHeight = inputTextarea.scrollHeight + 10;
-      viewerHeight = `calc(100% - ${textareaHeight}px)`;
-
-      // ResizeObserver로 높이 변화 감지
-      textareaResizeObserver = new ResizeObserver(entries => {
-        for (const entry of entries) {
-          const newTextareaHeight = entry.target.scrollHeight + 10;
-          viewerHeight = `calc(100% - ${newTextareaHeight}px)`;
-        }
-      });
-      textareaResizeObserver.observe(inputTextarea);
-
-      if (!isNil(settingPanelObserver)) {
-        settingPanelObserver.disconnect();
-        settingPanelObserver = null;
-      }
-
-      settingPanelObserver = new MutationObserver(() => {
-        debouncedHandleSettingPanel();
-      });
-
-      settingPanelObserver.observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['style', 'class'],
-      });
-    }
 
     // 설정 로드
     settings = loadSettings();
@@ -337,16 +300,6 @@
     if (resizeTimer) clearTimeout(resizeTimer);
     if (contentCheckInterval) clearInterval(contentCheckInterval);
 
-    // textarea ResizeObserver 해제
-    if (textareaResizeObserver) {
-      textareaResizeObserver.disconnect();
-      textareaResizeObserver = null;
-    }
-    // setting panel mutation observer 해제
-    if (settingPanelObserver) {
-      settingPanelObserver.disconnect();
-      settingPanelObserver = null;
-    }
     // window ResizeObserver 해제
     if (windowResizeObserver) {
       windowResizeObserver.disconnect();
@@ -695,11 +648,7 @@
     // 라이브 버튼 클릭 트리거
     if (identifier && liveLBModuleButtons.has(identifier)) {
       const liveButton = liveLBModuleButtons.get(identifier);
-      const mouseEvent = new MouseEvent('click', {
-        bubbles: true,
-        cancelable: true,
-      });
-      liveButton.dispatchEvent(mouseEvent);
+      liveButton?.click();
     }
   }
 
@@ -716,18 +665,6 @@
       openViewer(chatIndex, false, false);
     }
   }, 300);
-
-  const debouncedHandleSettingPanel = debounce(handleSettingPanel, 100);
-
-  // 모바일 환경에서 세팅 패널 발견 시 뷰어 닫기
-  function handleSettingPanel() {
-    const settingPanel = risuSelector(LOCATOR.setting.root);
-    if (settingPanel) {
-      console.log(settingPanel);
-
-      closeMobileViewer();
-    }
-  }
 </script>
 
 <svelte:window onkeydown={handleKeydown} onresize={handleResize} />
