@@ -6,96 +6,38 @@ import { mount, unmount } from 'svelte';
 const DATA_PREFIX = 'data-svelte-helper';
 const MANAGED_ELEMENTS = new WeakMap();
 
-/**
- * 마운트된 컴포넌트 인스턴스들을 관리하는 Map
- * key: 고유 ID, value: { component, wrapper, target }
- */
 const mountedComponents = new Map();
 
-/**
- * Svelte 컴포넌트를 기존 DOM에 안전하게 마운트
- * - 새 wrapper 요소를 생성하여 기존 Svelte 관리 요소와 충돌 방지
- * - 중복 마운트 자동 방지
- * - 자동 정리(cleanup) 지원
- *
- * @param {Object} options
- * @param {string} options.id - 컴포넌트 고유 식별자 (중복 방지용)
- * @param {typeof import('svelte').SvelteComponent} options.component - Svelte 컴포넌트
- * @param {HTMLElement} options.target - 삽입할 부모 요소
- * @param {HTMLElement} [options.anchor] - 이 요소 앞에 삽입 (없으면 끝에 추가)
- * @param {Object} [options.props] - 컴포넌트에 전달할 props
- * @param {string} [options.wrapperTag='div'] - wrapper 요소 태그
- * @param {boolean} [options.useContents=true] - display: contents 사용 여부
- * @returns {{ instance: Object, wrapper: HTMLElement, cleanup: Function } | null}
- */
-export function safeMount({
+export function mountComponent({
   id,
   component,
   target,
   anchor = null,
   props = {},
-  wrapperTag = 'div',
-  useContents = true,
 }) {
-  // 유효성 검사
   if (!id || !component || !target) {
-    console.warn('[safeMount] id, component, target은 필수입니다.');
+    console.warn('[mountComponent] id, component, target은 필수입니다.');
     return null;
   }
 
-  // 이미 마운트된 경우 기존 인스턴스 반환
-  // if (mountedComponents.has(id)) {
-  //   return mountedComponents.get(id);
-  // }
-
-  // target에 이미 마운트 플래그가 있는지 확인
-  const flagKey = `data-mounted-${id}`;
-  if (target.hasAttribute(flagKey)) {
-    // console.warn(`[safeMount] ${id}는 이미 마운트되어 있습니다.`);
-    return null;
+  if (mountedComponents.has(id)) {
+    return mountedComponents.get(id);
   }
 
   try {
-    // wrapper 요소 생성
-    const wrapper = document.createElement(wrapperTag);
-    wrapper.setAttribute('data-svelte-wrapper', id);
-
-    if (useContents) {
-      wrapper.style.display = 'contents';
-    }
-
-    // 컴포넌트 마운트
     const instance = mount(component, {
-      target: wrapper,
+      target,
+      anchor,
       props,
     });
 
-    // wrapper 안에 생성된 실제 요소들만 DOM에 삽입
-    const children = Array.from(wrapper.childNodes);
-    if (anchor && anchor.parentElement === target) {
-      children.forEach(child => {
-        target.insertBefore(child, anchor);
-      });
-    } else {
-      children.forEach(child => {
-        target.appendChild(child);
-      });
-    }
-
-    // 플래그 설정
-    target.setAttribute(flagKey, 'true');
-
-    // cleanup 함수
-    const cleanup = () => safeUnmount(id);
-
-    // 관리 Map에 저장
-    const record = { instance, wrapper, target, cleanup, flagKey };
+    const cleanup = () => unmountComponent(id);
+    const record = { instance, target, cleanup };
     mountedComponents.set(id, record);
 
     return record;
   } catch (error) {
-    console.log(error);
-    console.error(`[safeMount] ${id} 마운트 실패:`, error);
+    console.error(`[mountComponent] ${id} 마운트 실패:`, error);
     return null;
   }
 }
@@ -106,7 +48,7 @@ export function safeMount({
  * @param {string} id - 컴포넌트 고유 식별자
  * @returns {boolean} 성공 여부
  */
-export function safeUnmount(id) {
+export function unmountComponent(id) {
   const record = mountedComponents.get(id);
 
   if (!record) {
@@ -114,21 +56,12 @@ export function safeUnmount(id) {
   }
 
   try {
-    const { instance, wrapper, target, flagKey } = record;
+    const { instance } = record;
 
-    // Svelte 컴포넌트 언마운트 (자동으로 생성된 요소들 제거됨)
     if (instance) {
       unmount(instance);
     }
 
-    // wrapper는 DOM에 없으므로 제거할 필요 없음
-
-    // 플래그 제거
-    if (target && flagKey) {
-      target.removeAttribute(flagKey);
-    }
-
-    // Map에서 제거
     mountedComponents.delete(id);
 
     return true;
@@ -136,6 +69,10 @@ export function safeUnmount(id) {
     console.error(`[safeUnmount] ${id} 언마운트 실패:`, error);
     return false;
   }
+}
+
+export function safeUnmount(id) {
+  return unmountComponent(id);
 }
 
 /**
@@ -163,7 +100,9 @@ export function getMounted(id) {
  */
 export function unmountAll() {
   const ids = [...mountedComponents.keys()];
-  ids.forEach(id => safeUnmount(id));
+  ids.forEach(id => {
+    unmountComponent(id);
+  });
 }
 
 /**
@@ -174,35 +113,21 @@ export function unmountAll() {
 export function unmountByTarget(target) {
   mountedComponents.forEach((record, id) => {
     if (record.target === target) {
-      safeUnmount(id);
+      unmountComponent(id);
     }
   });
 }
-
-/**
- * 조건부 마운트 - 조건이 true일 때만 마운트, false면 언마운트
- *
- * @param {boolean} condition
- * @param {Object} options - safeMount와 동일한 옵션
- * @returns {{ instance: Object, wrapper: HTMLElement, cleanup: Function } | null}
- */
 export function conditionalMount(condition, options) {
   if (condition) {
-    return safeMount(options);
+    return mountComponent(options);
   } else {
-    safeUnmount(options.id);
+    unmountComponent(options.id);
     return null;
   }
 }
 
-/**
- * 여러 컴포넌트를 순차적으로 마운트
- *
- * @param {Array<Object>} componentConfigs - safeMount 옵션 배열
- * @returns {Array<Object>} 마운트 결과 배열
- */
 export function mountMultiple(componentConfigs) {
-  return componentConfigs.map(config => safeMount(config)).filter(Boolean);
+  return componentConfigs.map(config => mountComponent(config)).filter(Boolean);
 }
 
 // ============================================================

@@ -20,7 +20,7 @@ import App from './App.svelte';
   }
 
   try {
-    const risuAPI = RisuAPI.getInstance(globalThis.__pluginApis__);
+    const risuAPI = RisuAPI.getInstance();
     const initialized = await risuAPI.initialize();
 
     if (!initialized) {
@@ -32,22 +32,66 @@ import App from './App.svelte';
       console.warn('[App] Update check failed:', err);
     });
 
-    // Svelte 앱 마운트를 위한 컨테이너 생성
     const container = document.createElement('div');
     container.id = `${PLUGIN_NAME}-root`;
-    document.body.appendChild(container);
+    let app = null;
+    let observer = null;
 
-    // Svelte 5 방식으로 앱 마운트
-    const app = mount(App, {
-      target: container,
-    });
+    const mountApp = async () => {
+      if (!app) {
+        app = mount(App, {
+          target: container,
+        });
+      }
+      if (!container.isConnected) {
+        document.body.appendChild(container);
+      }
+    };
+
+    risuai.registerButton(
+      {
+        name: 'E-Book Viewer',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>',
+        iconType: 'html',
+        location: 'action',
+      },
+      async () => {
+        risuai.showContainer('fullscreen');
+        await mountApp();
+      },
+    );
+
+    const rootDoc = risuai.getRootDocument();
+    const rootBody = rootDoc.querySelector('body');
+    if (rootBody) {
+      observer = risuai.createMutationObserver(async () => {});
+      observer.observe(rootBody, {
+        childList: true,
+        subtree: true,
+      });
+    }
+
+    const cleanup = async () => {
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+      if (app) {
+        unmount(app);
+        app = null;
+      }
+      if (container.isConnected) {
+        container.remove();
+      }
+    };
+
+    if (typeof risuai.onUnload === 'function') {
+      risuai.onUnload(cleanup);
+    } else {
+      risuAPI.onUnload(cleanup);
+    }
 
     console.log(`${PLUGIN_NAME} v${PLUGIN_VERSION} loaded`);
-
-    risuAPI.onUnload(() => {
-      unmount(app);
-      container.remove();
-    });
   } catch (error) {
     console.error(`[${PLUGIN_NAME}] Initialization failed:`, error);
   }

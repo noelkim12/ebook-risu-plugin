@@ -542,7 +542,7 @@ Max Concurrent: 6 (Waves 1 & 3)
 
 ### Wave 2 — Entry Point & Core Utils (After Wave 1)
 
-- [ ] 6. Entry Point Rewrite (index.js)
+- [x] 6. Entry Point Rewrite (index.js)
 
   **What to do**:
   - Completely rewrite `src/index.js` for v3 iframe execution model
@@ -614,7 +614,7 @@ Max Concurrent: 6 (Waves 1 & 3)
 
 ---
 
-- [ ] 7. App.svelte Iframe-Native Restructure
+- [x] 7. App.svelte Iframe-Native Restructure
 
   **What to do**:
   - Restructure `src/App.svelte` for iframe-native rendering
@@ -678,7 +678,7 @@ Max Concurrent: 6 (Waves 1 & 3)
 
 ---
 
-- [ ] 8. Selector Module → SafeDocument Queries
+- [x] 8. Selector Module → SafeDocument Queries
 
   **What to do**:
   - Rewrite `src/utils/selector.js` to use SafeDocument for host DOM queries
@@ -750,7 +750,7 @@ Max Concurrent: 6 (Waves 1 & 3)
 
 ---
 
-- [ ] 9. Svelte/DOM Helper Simplification
+- [x] 9. Svelte/DOM Helper Simplification
 
   **What to do**:
   - Simplify `src/utils/svelte-helper.js`:

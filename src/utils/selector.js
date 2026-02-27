@@ -121,6 +121,141 @@ export const LOCATOR = {
     },
   },
 };
+
+function getRootDoc(root) {
+  if (root) {
+    return root;
+  }
+
+  const api = globalThis.risuai;
+  if (api && typeof api.getRootDocument === 'function') {
+    return api.getRootDocument();
+  }
+
+  return document;
+}
+
+function getClassNameValue(element) {
+  if (!element) {
+    return '';
+  }
+
+  if (typeof element.getClassName === 'function') {
+    return element.getClassName() || '';
+  }
+
+  return element.className || '';
+}
+
+function hasClassName(element, className) {
+  if (!element || !className) {
+    return false;
+  }
+
+  if (typeof element.hasClass === 'function') {
+    return element.hasClass(className);
+  }
+
+  if (typeof element.matches === 'function') {
+    return element.matches(`.${className}`);
+  }
+
+  if (typeof element.classList?.contains === 'function') {
+    return element.classList.contains(className);
+  }
+
+  const names = String(getClassNameValue(element)).split(' ').filter(Boolean);
+  return names.includes(className);
+}
+
+function markLocatorClass(element, className) {
+  if (!element || !className) {
+    return;
+  }
+
+  if (hasClassName(element, className)) {
+    return;
+  }
+
+  if (typeof element.addClass === 'function') {
+    element.addClass(className);
+    return;
+  }
+
+  if (typeof element.setClassName === 'function') {
+    element.setClassName(`${className} ${getClassNameValue(element)}`.trim());
+    return;
+  }
+
+  if (typeof element.className === 'string') {
+    element.className = `${className} ${element.className}`.trim();
+  }
+}
+
+function getParentNode(node) {
+  if (!node) {
+    return null;
+  }
+
+  if (typeof node.getParent === 'function') {
+    return node.getParent();
+  }
+
+  return node.parentElement || node.parentNode || null;
+}
+
+function readChatIndexFromElement(element) {
+  if (!element) {
+    return null;
+  }
+
+  const dataset = element?.dataset;
+  if (dataset && Object.prototype.hasOwnProperty.call(dataset, 'chatIndex')) {
+    const text = dataset.chatIndex;
+    if (text == null) {
+      return null;
+    }
+    const index = parseInt(text, 10);
+    return Number.isFinite(index) ? index : null;
+  }
+
+  return null;
+}
+
+function matchesSelector(element, selector) {
+  if (!element || !selector) {
+    return false;
+  }
+
+  if (typeof element.matches === 'function') {
+    return element.matches(selector);
+  }
+
+  if (selector.startsWith('.')) {
+    return hasClassName(element, selector.slice(1));
+  }
+
+  return false;
+}
+
+function safeQuerySelectorAll(root, selector) {
+  if (!root || !selector || typeof root.querySelectorAll !== 'function') {
+    return [];
+  }
+
+  try {
+    return [...root.querySelectorAll(selector)];
+  } catch {
+    return [];
+  }
+}
+
+function getLocatorSelectors(locator) {
+  return [
+    ...(locator?.className ? [`.${locator.className}`] : []),
+    ...(locator?.cssClass ?? []),
+  ];
+}
 /**
  * 사전 정의된 LOCATOR를 통해 element를 찾는 함수
  * @param {*} locator
@@ -133,45 +268,19 @@ export const LOCATOR = {
  * const burgerMenu = risuSelector(LOCATOR.chatScreen.burgerMenu);
  */
 export function risuSelector(locator, root) {
-  const r = root ?? document;
+  const r = getRootDoc(root);
 
   if (!locator) return null;
 
-  // 1. dataId로 검색 (최우선)
-  if (locator.dataId) {
-    const el = r.querySelector(`[data-id="${locator.dataId}"]`);
-    if (el) {
-      if (!el.classList.contains(locator.className)) {
-        el.className = `${locator.className} ${el.className}`.trim();
-      }
-      return el;
-    }
-  }
-
-  // 2. className, cssClass로 검색
-  for (const sel of [locator?.className, ...(locator?.cssClass ?? [])] ?? []) {
+  for (const sel of getLocatorSelectors(locator) ?? []) {
     if (!sel) continue;
     try {
       const el = r.querySelector(sel.startsWith('.') ? sel : `.${sel}`);
       if (el) {
-        if (el.classList.contains(locator.className)) return el;
+        if (hasClassName(el, locator.className)) return el;
 
         // 클래스를 맨 앞에 추가
-        el.className = `${locator.className} ${el.className}`.trim();
-        return el;
-      }
-    } catch {
-      // 잘못된 셀렉터는 무시
-    }
-  }
-
-  // 3. cssClass 원본 셀렉터로 검색 (복잡한 셀렉터용)
-  for (const sel of locator?.cssClass ?? []) {
-    try {
-      const el = r.querySelector(sel);
-      if (el) {
-        if (el.classList.contains(locator.className)) return el;
-        el.className = `${locator.className} ${el.className}`.trim();
+        markLocatorClass(el, locator.className);
         return el;
       }
     } catch {
@@ -192,48 +301,28 @@ export function risuSelector(locator, root) {
  * allChatMessages.forEach((msg, idx) => console.log(`Message ${idx}:`, msg));
  */
 export function risuSelectorAll(locator, root) {
-  const r = root ?? document;
+  const r = getRootDoc(root);
 
   if (!locator) return [];
 
   const results = new Set();
 
-  // 1. dataId로 검색 (최우선)
-  if (locator.dataId) {
-    try {
-      const elements = r.querySelectorAll(`[data-id="${locator.dataId}"]`);
-      elements.forEach(el => results.add(el));
-    } catch {
-      // 잘못된 셀렉터는 무시
-    }
-  }
-
-  // 2. cssClass 셀렉터들로 검색
   for (const sel of locator?.cssClass ?? []) {
-    try {
-      const elements = r.querySelectorAll(sel);
-      elements.forEach(el => results.add(el));
-    } catch {
-      // 잘못된 셀렉터는 무시
-    }
+    safeQuerySelectorAll(r, sel).forEach(el => {
+      results.add(el);
+    });
   }
 
-  // 3. 이미 마킹된 요소들도 포함
   if (locator?.className) {
-    try {
-      const markedElements = r.querySelectorAll(`.${locator.className}`);
-      markedElements.forEach(el => results.add(el));
-    } catch {
-      // 무시
-    }
+    safeQuerySelectorAll(r, `.${locator.className}`).forEach(el => {
+      results.add(el);
+    });
   }
 
   // 각 요소에 클래스 마킹
   const resultArray = [...results];
   resultArray.forEach(el => {
-    if (locator.className && !el.classList.contains(locator.className)) {
-      el.className = `${locator.className} ${el.className}`.trim();
-    }
+    markLocatorClass(el, locator.className);
   });
 
   return resultArray;
@@ -247,16 +336,27 @@ export function risuSelectorAll(locator, root) {
  * @returns {number|null} chat index (숫자) 또는 null
  */
 export function getChatIndexFromNode({ node, maxDepth = 10 }) {
-  // 유효한 DOM 노드인지 검증
-  if (!node || !(node instanceof Node)) {
+  if (!node) {
     return null;
   }
 
   const CHAT_CLASS = 'risu-chat';
-  let current = node instanceof Element ? node : node.parentElement;
+  let current = node;
+  if (!matchesSelector(current, `.${CHAT_CLASS}`)) {
+    current = getParentNode(current);
+  }
   let depth = 0;
 
-  return node.closest('.risu-chat').dataset?.chatIndex;
+  while (current && depth < maxDepth) {
+    if (matchesSelector(current, `.${CHAT_CLASS}`)) {
+      return readChatIndexFromElement(current);
+    }
+
+    current = getParentNode(current);
+    depth += 1;
+  }
+
+  return null;
 }
 
 /**
@@ -283,7 +383,12 @@ export function getChatElementByChatIndex(index) {
   const indexStr = String(numIndex);
 
   // 5. 매칭되는 요소 반환
-  return chatElements.find(el => el.dataset?.chatIndex === indexStr) ?? null;
+  return (
+    chatElements.find(el => {
+      const chatIndex = readChatIndexFromElement(el);
+      return chatIndex != null && String(chatIndex) === indexStr;
+    }) ?? null
+  );
 }
 
 /**
@@ -317,12 +422,9 @@ export function getAllVisibleChatIndices() {
 
   const indices = chatElements
     // book-viewer-root 클래스가 있는 요소는 뷰어이므로 제외
-    .filter(el => !el.classList.contains('book-viewer-root'))
+    .filter(el => !hasClassName(el, 'book-viewer-root'))
     .map(el => {
-      const indexStr = el.dataset?.chatIndex;
-      if (indexStr == null) return null;
-      const num = parseInt(indexStr, 10);
-      return Number.isFinite(num) ? num : null;
+      return readChatIndexFromElement(el);
     })
     .filter(idx => idx !== null);
 

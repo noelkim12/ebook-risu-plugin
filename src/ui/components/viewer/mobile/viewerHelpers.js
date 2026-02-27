@@ -2,7 +2,7 @@
  * viewerHelpers.js - 모바일 뷰어 열기/닫기 헬퍼
  */
 import {
-  safeMount,
+  mountComponent,
   safeUnmount,
   isMounted,
   safeSetStyle,
@@ -85,7 +85,7 @@ export function openMobileViewer(
   }
 
   // 모바일 뷰어 마운트
-  safeMount({
+  mountComponent({
     id: MOBILE_VIEWER_ID,
     component: MobileBookViewer,
     target: document.body,

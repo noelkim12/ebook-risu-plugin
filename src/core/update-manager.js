@@ -1,5 +1,4 @@
 import { mount, unmount } from 'svelte';
-import { safeMount, safeUnmount } from '../utils/svelte-helper.js';
 import { parsePluginScript, scriptUpdater } from './script-updater.js';
 import { PLUGIN_NAME, PLUGIN_VERSION } from '../constants.js';
 import { showAlert, showLoading } from '../ui/components/dialogHelpers.js';

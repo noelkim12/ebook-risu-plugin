@@ -4,7 +4,7 @@
  */
 
 import {
-  safeMount,
+  mountComponent,
   safeUnmount,
   isMounted,
   safeSetStyle,
@@ -114,7 +114,7 @@ export function openPCViewer(
     );
 
     // 뷰어 마운트
-    const result = safeMount({
+    const result = mountComponent({
       id: VIEWER_ID,
       component: PCBookViewer,
       target: displayContainer,
@@ -127,7 +127,6 @@ export function openPCViewer(
         initialLoading: showLoading,
         initialPage: initialPage,
       },
-      useContents: false,
     });
 
     db.theme = ognlTheme;

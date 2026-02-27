@@ -1,101 +1,78 @@
 <script>
-  import { onDestroy, onMount } from 'svelte';
-  import { debounce, isNil } from 'lodash';
-  import { RisuAPI } from './core/risu-api.js';
-  import { PLUGIN_NAME } from './constants.js';
-  import {
-    LOCATOR,
-    risuSelector,
-    getChatIndexFromNode,
-    risuSelectorAll,
-  } from './utils/selector.js';
-  import { safeMount, safeUnmount } from './utils/svelte-helper.js';
-  import BookButton from './ui/components/BookButton.svelte';
-  import SmallBookButton from './ui/components/SmallBookButton.svelte';
+  import { onMount } from 'svelte';
 
-  let risuAPI = $state(null);
-  let observer = $state(null);
+  import PCBookViewer from './ui/components/viewer/pc/PCBookViewer.svelte';
+  import MobileBookViewer from './ui/components/viewer/mobile/MobileBookViewer.svelte';
 
-  // debounced 함수 생성
-  const debouncedAttachButton = debounce(attachButton, 100);
+  const DEFAULT_CHAT_DATA = {
+    chatHtml: '',
+    chatIndex: 0,
+    chatPage: 0,
+    chaId: null,
+    initialLoading: false,
+    initialPage: null,
+  };
 
-  onMount(() => {
-    risuAPI = RisuAPI.getInstance();
+  const props = $props();
 
-    if (isNil(risuAPI)) {
-      console.log(`[${PLUGIN_NAME}] RisuAPI is not initialized`);
-      return;
-    }
-    startObserver();
-    console.log(`[${PLUGIN_NAME}] plugin loaded`);
+  let visible = $state(false);
+  let payload = $state({
+    ...DEFAULT_CHAT_DATA,
+    ...(props.chatData ?? {}),
   });
+  let isMobileView = $state(false);
 
-  onDestroy(() => {
-    if (!isNil(observer)) {
-      observer.disconnect();
-    }
-    safeUnmount('book-button');
-    debouncedAttachButton.cancel();
-    console.log(`${PLUGIN_NAME} 언로드`);
-  });
-
-  function startObserver() {
-    if (!isNil(observer)) {
-      observer.disconnect();
-    }
-
-    observer = new MutationObserver(() => {
-      debouncedAttachButton();
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['style', 'class'],
-    });
-
-    debouncedAttachButton();
+  function detectMobile() {
+    const isSmallScreen = window.innerWidth <= 680;
+    const isMobileUA =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      );
+    return isSmallScreen && isMobileUA;
   }
 
-  function attachButton() {
-    // 채팅 입력창 컨테이너에 버튼 추가
-    const inputContainer = risuSelector(LOCATOR.chatScreen.inputContainer);
-    const sendButton = risuSelector(LOCATOR.chatScreen.sendButton);
+  function syncDeviceMode() {
+    isMobileView = detectMobile();
+  }
 
-    if (!isNil(inputContainer)) {
-      safeMount({
-        id: 'book-button',
-        component: BookButton,
-        target: inputContainer,
-        anchor: sendButton,
-      });
-    }
-    // 봇 버튼 컨테이너에 버튼 추가
-    const botButtonDivList = risuSelectorAll(LOCATOR.chatMessage.botButtonDiv);
+  onMount(() => {
+    syncDeviceMode();
+  });
 
-    if (!isNil(botButtonDivList)) {
-      botButtonDivList.forEach(botButtonDiv => {
-        const copyButton = risuSelector(
-          LOCATOR.chatMessage.copyButton,
-          botButtonDiv,
-        );
-        let chatIndex = getChatIndexFromNode({ node: botButtonDiv });
-        safeMount({
-          id: 'small-book-button',
-          component: SmallBookButton,
-          target: botButtonDiv,
-          anchor: copyButton,
-          props: {
-            chatIndex,
-          },
-        });
-      });
-    }
+  function normalizeIncomingChatData(newData = {}) {
+    return {
+      ...DEFAULT_CHAT_DATA,
+      ...newData,
+    };
+  }
 
-    risuSelector(LOCATOR.chatScreen.burgerMenu);
+  function normalizeUpdatedChatData(newData = {}) {
+    return {
+      ...payload,
+      ...newData,
+    };
+  }
+
+  export function showViewer(chatData = {}) {
+    payload = normalizeIncomingChatData(chatData);
+    visible = true;
+  }
+
+  export function hideViewer() {
+    visible = false;
+  }
+
+  export function updateContent(chatData = {}) {
+    payload = normalizeUpdatedChatData(chatData);
   }
 </script>
 
-<!-- 메인 앱 컴포넌트 -->
-<!-- 필요한 UI를 여기에 추가하세요 -->
+<svelte:window onresize={syncDeviceMode} />
+
+{#if visible}
+  {#if isMobileView}
+    <MobileBookViewer {...payload} onClose={hideViewer} />
+  {:else}
+    <PCBookViewer {...payload} onClose={hideViewer} />
+  {/if}
+{/if}
