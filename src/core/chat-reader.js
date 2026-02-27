@@ -214,57 +214,48 @@ export async function readChatMessages() {
       let html = '';
       let outerHtml = '';
       
-      // 디버그: 요소 정보 확인
+      // 디버그: Proxy 요소인지 확인하고 직접 호출 시도
       if (idx < 3) {
-        console.log('[chat-reader] Element', idx, 'methods:', {
-          getInnerHTML: typeof element.getInnerHTML,
-          getOuterHTML: typeof element.getOuterHTML,
-          innerText: typeof element.innerText,
-          textContent: typeof element.textContent,
-          getClassName: typeof element.getClassName,
-          hasClass: typeof element.hasClass,
-        });
+        console.log('[chat-reader] Element', idx, '__classType:', element.__classType);
         
-        // 클래스명 확인
+        // Proxy의 경우 typeof가 'function'을 반환하지 않을 수 있음
+        // 직접 호출해서 작동하는지 확인
         try {
-          const className = typeof element.getClassName === 'function' 
-            ? await element.getClassName() 
-            : '(no method)';
-          console.log('[chat-reader] Element', idx, 'className:', className?.substring?.(0, 100) || className);
+          const testHtml = await element.getInnerHTML();
+          console.log('[chat-reader] Element', idx, 'DIRECT getInnerHTML() =>', testHtml?.length || 0, 'chars');
+          if (testHtml) html = testHtml;
         } catch (e) {
-          console.log('[chat-reader] Element', idx, 'getClassName error:', e);
+          console.log('[chat-reader] Element', idx, 'DIRECT getInnerHTML() error:', e.message || e);
         }
-      }
-      
-      // getInnerHTML 시도
-      try {
-        if (typeof element.getInnerHTML === 'function') {
+        
+        try {
+          const testOuter = await element.getOuterHTML();
+          console.log('[chat-reader] Element', idx, 'DIRECT getOuterHTML() =>', testOuter?.length || 0, 'chars');
+          if (testOuter) outerHtml = testOuter;
+        } catch (e) {
+          console.log('[chat-reader] Element', idx, 'DIRECT getOuterHTML() error:', e.message || e);
+        }
+        
+        try {
+          const className = await element.getClassName();
+          console.log('[chat-reader] Element', idx, 'DIRECT getClassName() =>', className?.substring?.(0, 100) || className);
+        } catch (e) {
+          console.log('[chat-reader] Element', idx, 'DIRECT getClassName() error:', e.message || e);
+        }
+      } else {
+        // idx >= 3 인 경우: 직접 호출 (typeof 체크 없이)
+        try {
           html = await element.getInnerHTML();
-          if (idx < 3) console.log('[chat-reader] Element', idx, 'getInnerHTML() =>', html?.length || 0, 'chars, preview:', html?.substring?.(0, 50));
-        } else {
-          if (idx < 3) console.log('[chat-reader] Element', idx, 'getInnerHTML is NOT a function');
-        }
-      } catch (e) {
-        console.error('[chat-reader] getInnerHTML error for element', idx, ':', e);
-      }
-      
-      // getOuterHTML 시도 (백업)
-      try {
-        if ((!html || html.length === 0) && typeof element.getOuterHTML === 'function') {
-          outerHtml = await element.getOuterHTML();
-          if (idx < 3) console.log('[chat-reader] Element', idx, 'getOuterHTML() =>', outerHtml?.length || 0, 'chars, preview:', outerHtml?.substring?.(0, 100));
-        }
-      } catch (e) {
-        console.error('[chat-reader] getOuterHTML error for element', idx, ':', e);
-      }
-      
-      // 둘 다 실패하면 기존 방식 시도
-      if (!html && !outerHtml) {
-        try {
-          outerHtml = (await getSafeText(element, 'getInnerHTML', 'outerHTML')) || '';
-          if (idx < 3) console.log('[chat-reader] Element', idx, 'fallback result:', outerHtml?.length || 0, 'chars');
         } catch (e) {
-          console.error('[chat-reader] fallback error for element', idx, ':', e);
+          // ignore
+        }
+        
+        if (!html) {
+          try {
+            outerHtml = await element.getOuterHTML();
+          } catch (e) {
+            // ignore
+          }
         }
       }
 
