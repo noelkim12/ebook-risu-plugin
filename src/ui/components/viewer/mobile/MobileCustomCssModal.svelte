@@ -2,7 +2,7 @@
   /**
    * MobileCustomCssModal - 모바일용 사용자 CSS 편집 모달
    */
-  import { onMount } from 'svelte';
+  import defaultCss from '../../../styles/mobile-viewer.css?raw';
 
   let {
     isOpen = false,
@@ -17,31 +17,37 @@
   // isOpen이 true가 될 때 initialCss로 초기화
   $effect(() => {
     if (isOpen) {
-      cssValue = initialCss;
+      cssValue = initialCss || defaultCss;
     }
   });
 
   function handleApply() {
-    onApply(cssValue);
-    onClose();
+    onApply?.(cssValue);
+    onClose?.();
   }
 
   function handleReset() {
-    cssValue = '';
-    onReset();
+    cssValue = defaultCss;
+    onReset?.();
   }
 
-  function handleOverlayClick() {
-    onClose();
+  function handleBackdropClick(e) {
+    if (e.target === e.currentTarget) {
+      onClose?.();
+    }
   }
 
   function handleContentClick(e) {
     e.stopPropagation();
   }
 
+  function handleContentKeydown(e) {
+    e.stopPropagation();
+  }
+
   function handleKeydown(e) {
     if (e.key === 'Escape') {
-      onClose();
+      onClose?.();
     }
   }
 </script>
@@ -50,18 +56,21 @@
 
 {#if isOpen}
   <div
-    class="modal-overlay"
     role="button"
     tabindex="0"
-    onclick={handleOverlayClick}
-    onkeydown={e => e.key === 'Enter' && handleOverlayClick()}
+    class="modal-overlay"
+    class:active={isOpen}
+    aria-label="사용자 CSS 편집 닫기"
+    onclick={handleBackdropClick}
+    onkeydown={e =>
+      (e.key === 'Enter' || e.key === ' ') && handleBackdropClick(e)}
   >
     <div
       class="modal-content"
       role="dialog"
       tabindex="-1"
       onclick={handleContentClick}
-      onkeydown={e => e.stopPropagation()}
+      onkeydown={handleContentKeydown}
     >
       <div class="modal-header">
         <h3>사용자 CSS 편집</h3>

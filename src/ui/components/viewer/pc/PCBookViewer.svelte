@@ -39,14 +39,7 @@
   import '../../../styles/pc-viewer.css';
 
   // selector 유틸
-  import {
-    getChatElementByChatIndex,
-    getAdjacentChatIndex,
-    getChatIndexPosition,
-    getAllVisibleChatIndices,
-    LOCATOR,
-    risuSelector,
-  } from '../../../../utils/selector.js';
+  import { LOCATOR, risuSelector } from '../../../../utils/selector.js';
 
   // RisuAPI
   import { RisuAPI } from '../../../../core/risu-api.js';
@@ -55,6 +48,7 @@
   // Props
   let {
     chatHtml = '',
+    chatMessages = [],
     chatIndex = 0,
     chatPage = 0,
     chaId = null,
@@ -91,13 +85,12 @@
   let lastKnownHtml = $state('');
 
   // Chat Index 관련 상태
-  let chatIndexPosition = $state({
-    position: 0,
-    total: 0,
-    isFirst: true,
-    isLast: true,
-  });
-  let visibleChatIndices = $state([]);
+  let visibleChatIndices = $derived(
+    getVisibleChatIndicesFromMessages(chatMessages),
+  );
+  let chatIndexPosition = $derived(
+    getChatIndexPositionFromMessages(chatIndex, chatMessages),
+  );
 
   // Toast 및 Loading 상태
   let isLoading = $state(false);
@@ -122,8 +115,123 @@
     loadingMessage = initialLoading ? 'Loading...' : '';
   });
 
+  $effect(() => {
+    if (chatHtml && chatHtml !== lastKnownHtml) {
+      parseAndSplit();
+    }
+  });
+
   // 텍스트 분할기
   let textSplitter = new TextSplitterPC({ splittableTags: ['p'] });
+
+  function normalizeChatIndex(value) {
+    if (value == null) {
+      return null;
+    }
+
+    const parsed =
+      typeof value === 'string' ? parseInt(value, 10) : Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  function getVisibleChatIndicesFromMessages(messages = []) {
+    const indexSet = new Set();
+    messages.forEach(item => {
+      const idx = normalizeChatIndex(item?.index);
+      if (idx != null) {
+        indexSet.add(idx);
+      }
+    });
+
+    return [...indexSet].sort((a, b) => a - b);
+  }
+
+  function getAdjacentChatIndexFromMessages(
+    currentIndex,
+    direction,
+    messages = [],
+  ) {
+    const indices = getVisibleChatIndicesFromMessages(messages);
+    if (indices.length === 0) {
+      return { index: null, isFirst: true, isLast: true };
+    }
+
+    let currentPos = indices.indexOf(normalizeChatIndex(currentIndex));
+
+    if (currentPos === -1) {
+      currentPos = indices.findIndex(idx => idx > currentIndex);
+      if (currentPos === -1) {
+        currentPos = indices.length;
+      }
+
+      if (direction === 'prev') {
+        const prevIndex = currentPos > 0 ? indices[currentPos - 1] : null;
+        return {
+          index: prevIndex,
+          isFirst: prevIndex == null,
+          isLast: currentPos >= indices.length,
+        };
+      }
+
+      const nextIndex =
+        currentPos < indices.length ? indices[currentPos] : null;
+      return {
+        index: nextIndex,
+        isFirst: currentPos <= 0,
+        isLast: nextIndex == null,
+      };
+    }
+
+    const isFirst = currentPos === 0;
+    const isLast = currentPos === indices.length - 1;
+
+    if (direction === 'prev') {
+      return {
+        index: isFirst ? null : indices[currentPos - 1],
+        isFirst,
+        isLast,
+      };
+    }
+
+    return {
+      index: isLast ? null : indices[currentPos + 1],
+      isFirst,
+      isLast,
+    };
+  }
+
+  function getChatIndexPositionFromMessages(currentIndex, messages = []) {
+    const indices = getVisibleChatIndicesFromMessages(messages);
+
+    if (indices.length === 0) {
+      return {
+        position: 0,
+        total: 0,
+        isFirst: true,
+        isLast: true,
+      };
+    }
+
+    const currentPos = indices.indexOf(normalizeChatIndex(currentIndex));
+
+    if (currentPos === -1) {
+      const insertPos = indices.findIndex(idx => idx > currentIndex);
+      const effectivePos = insertPos === -1 ? indices.length : insertPos;
+      return {
+        position: 0,
+        total: indices.length,
+        isFirst: effectivePos === 0,
+        isLast: effectivePos >= indices.length,
+      };
+    }
+
+    return {
+      position: currentPos + 1,
+      total: indices.length,
+      isFirst: currentPos === 0,
+      isLast: currentPos === indices.length - 1,
+    };
+  }
 
   // 측정용 요소 참조
   let leftContentRef = $state(null);
@@ -131,7 +239,6 @@
 
   // 리사이즈 타이머
   let resizeTimer = null;
-  let contentCheckInterval = null;
 
   // 구독 해제 함수들
   let unsubscribeCharPage = null;
@@ -187,15 +294,7 @@
       textareaResizeObserver.observe(inputTextarea);
     }
 
-    // Chat index 정보 초기화
-    updateChatIndexInfo();
-
-    // 콘텐츠 파싱 및 페이지 분할
-    await waitForLayout();
-    await parseAndSplit();
-
-    // 콘텐츠 변경 감지 (1초 간격)
-    contentCheckInterval = setInterval(checkContentChange, 1000);
+    // 콘텐츠 파싱은 chatHtml prop effect에서 처리
 
     // ResizeObserver로 window 크기 변경 감지
     if (window.ResizeObserver) {
@@ -228,53 +327,36 @@
     // 새 채팅 인덱스 감지
     unsubscribeChatIndices = risuAPI.subscribeToChar(
       char => char?.chats?.[char.chatPage]?.message?.length,
-      newLength => {
-        const newIndices = getAllVisibleChatIndices();
-        if (newIndices.length !== visibleChatIndices.length) {
-          const addedIndices = newIndices.filter(
-            idx => !visibleChatIndices.includes(idx),
-          );
-          if (addedIndices.length > 0) {
-            console.log(
-              '[PCBookViewer] New chat indices detected:',
-              addedIndices,
-            );
+      async newLength => {
+        const latestVisible = getVisibleChatIndicesFromMessages(chatMessages);
+        const addedCount =
+          Number(newLength || 0) - Number(latestVisible.length || 0);
 
-            // 새 메시지의 role 확인
-            const char = risuAPI.getChar();
-            const lastMessage =
-              char?.chats?.[char.chatPage]?.message?.[newLength - 1];
-            const role = lastMessage?.role;
-            const data = lastMessage?.data || '';
+        const char = await risuAPI.getChar();
+        const lastMessage =
+          char?.chats?.[char.chatPage]?.message?.[newLength - 1];
+        const role = lastMessage?.role;
+        const data = lastMessage?.data || '';
+        const targetIndex =
+          normalizeChatIndex(lastMessage?.index) ?? newLength - 1;
 
-            if (role === 'char') {
-              if (data.includes('<lb-rerolling>')) {
-                // LB 모듈 처리 중 - 로딩 인디케이터 표시
-                isLBLoading = true;
-                console.log('[PCBookViewer] LB module rerolling detected');
-              } else {
-                // role === 'char': 새 응답 알림 토스트 (클릭 시 이동)
-                const targetIndex = addedIndices[addedIndices.length - 1];
-                showClickableToast(
-                  '새로운 응답이 수신되었습니다. 클릭 시 이동합니다.',
-                  () => goToChatIndex(targetIndex),
-                );
-              }
-            } else if (role === 'user') {
-              // 이외의 경우 - 마지막 채팅으로 자동 이동
-              const lastIndex = addedIndices[addedIndices.length - 1];
-              goToChatIndex(lastIndex);
+        if (addedCount > 0 && targetIndex != null) {
+          if (role === 'char') {
+            if (data.includes('<lb-rerolling>')) {
+              isLBLoading = true;
+              console.log('[PCBookViewer] LB module rerolling detected');
+            } else {
+              showClickableToast(
+                '새로운 응답이 수신되었습니다. 클릭 시 이동합니다.',
+                () => goToChatIndex(targetIndex),
+              );
             }
-          } else {
-            // 새 인덱스가 추가되지 않았지만 길이가 변경됨 (LB 완료 등)
-            // LB 로딩 상태 해제
-            if (isLBLoading) {
-              isLBLoading = false;
-              console.log('[PCBookViewer] LB module processing completed');
-            }
+          } else if (role === 'user') {
+            goToChatIndex(targetIndex);
           }
-          visibleChatIndices = newIndices;
-          updateChatIndexInfo();
+        } else if (isLBLoading && addedCount <= 0) {
+          isLBLoading = false;
+          console.log('[PCBookViewer] LB module processing completed');
         }
       },
       1000,
@@ -283,8 +365,6 @@
 
   onDestroy(() => {
     if (resizeTimer) clearTimeout(resizeTimer);
-    if (contentCheckInterval) clearInterval(contentCheckInterval);
-
     // textarea ResizeObserver 정리
     if (textareaResizeObserver) {
       textareaResizeObserver.disconnect();
@@ -311,14 +391,6 @@
     if (styleEl) styleEl.remove();
   });
 
-  /**
-   * Chat index 정보 업데이트
-   */
-  function updateChatIndexInfo() {
-    visibleChatIndices = getAllVisibleChatIndices();
-    chatIndexPosition = getChatIndexPosition(chatIndex);
-  }
-
   async function parseAndSplit() {
     if (!chatHtml) return;
 
@@ -332,13 +404,9 @@
     headerInfo = extractHeaderInfo(doc);
     headerInfo.chatIndex = chatIndex;
 
-    // 라이브 DOM에서 버튼 참조 추출 (이벤트 핸들러가 연결된 실제 버튼)
-    const liveElement = getChatElementByChatIndex(chatIndex);
-    if (liveElement) {
-      headerInfo.buttons = extractLiveButtons(liveElement);
-      liveContentButtons = extractLiveContentButtons(liveElement);
-      liveLBModuleButtons = extractLiveLBModuleButtons(liveElement);
-    }
+    headerInfo.buttons = [];
+    liveContentButtons = [];
+    liveLBModuleButtons = new Map();
 
     // LB 모듈 수집
     lbModules = collectLBModules(doc);
@@ -407,7 +475,9 @@
       );
     } finally {
       // 측정 컨테이너 구조 전체 제거
-      const rootContainer = measureContainer.closest('[data-measure-container]');
+      const rootContainer = measureContainer.closest(
+        '[data-measure-container]',
+      );
       if (rootContainer && rootContainer.parentNode) {
         rootContainer.parentNode.removeChild(rootContainer);
       }
@@ -434,18 +504,6 @@
     resizeTimer = setTimeout(() => {
       repaginate();
     }, 300);
-  }
-
-  function checkContentChange() {
-    const currentElement = getChatElementByChatIndex(chatIndex);
-    if (currentElement) {
-      const newHtml = currentElement.outerHTML;
-      if (newHtml !== lastKnownHtml) {
-        lastKnownHtml = newHtml;
-        chatHtml = newHtml;
-        parseAndSplit();
-      }
-    }
   }
 
   /**
@@ -495,7 +553,11 @@
    * 이전 chat index로 이동
    */
   function goToPrevChatIndex() {
-    const { index, isFirst } = getAdjacentChatIndex(chatIndex, 'prev');
+    const { index, isFirst } = getAdjacentChatIndexFromMessages(
+      chatIndex,
+      'prev',
+      chatMessages,
+    );
     if (index !== null) {
       // 설정에 따라 마지막 페이지로 이동할지 결정
       const targetPage = settings.jumpToLastPageOnPrevIndex ? 'last' : null;
@@ -510,7 +572,11 @@
    * 다음 chat index로 이동
    */
   function goToNextChatIndex() {
-    const { index, isLast } = getAdjacentChatIndex(chatIndex, 'next');
+    const { index, isLast } = getAdjacentChatIndexFromMessages(
+      chatIndex,
+      'next',
+      chatMessages,
+    );
     if (index !== null) {
       // 새 뷰어를 로딩 상태로 열기
       openPCViewer(index, false, true);

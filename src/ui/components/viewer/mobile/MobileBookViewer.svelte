@@ -281,7 +281,7 @@
     // 새 채팅 인덱스 감지
     unsubscribeChatIndices = risuAPI.subscribeToChar(
       char => char?.chats?.[char.chatPage]?.message?.length,
-      newLength => {
+      async newLength => {
         const newIndices = getAllVisibleChatIndices();
         if (newIndices.length !== visibleChatIndices.length) {
           const addedIndices = newIndices.filter(
@@ -289,27 +289,34 @@
           );
 
           if (addedIndices.length > 0) {
-            const char = risuAPI.getChar();
-            const lastMessage =
-              char?.chats?.[char.chatPage]?.message?.[newLength - 1];
-            const role = lastMessage?.role;
-            const data = lastMessage?.data || '';
+            try {
+              const char = await risuAPI.getChar();
+              const lastMessage =
+                char?.chats?.[char.chatPage]?.message?.[newLength - 1];
+              const role = lastMessage?.role;
+              const data = lastMessage?.data || '';
 
-            if (role === 'char') {
-              // char 역할: LB 리롤링 중이거나 새 응답
-              if (data.includes('<lb-rerolling>')) {
-                isLBLoading = true;
-              } else {
-                const targetIndex = addedIndices[addedIndices.length - 1];
-                showClickableToast(
-                  '새로운 응답이 수신되었습니다. 클릭 시 이동합니다.',
-                  () => goToChatIndex(targetIndex),
-                );
+              if (role === 'char') {
+                // char 역할: LB 리롤링 중이거나 새 응답
+                if (data.includes('<lb-rerolling>')) {
+                  isLBLoading = true;
+                } else {
+                  const targetIndex = addedIndices[addedIndices.length - 1];
+                  showClickableToast(
+                    '새로운 응답이 수신되었습니다. 클릭 시 이동합니다.',
+                    () => goToChatIndex(targetIndex),
+                  );
+                }
+              } else if (role === 'user') {
+                // user 역할: 자동으로 마지막 채팅으로 이동
+                const lastIndex = addedIndices[addedIndices.length - 1];
+                goToChatIndex(lastIndex);
               }
-            } else if (role === 'user') {
-              // user 역할: 자동으로 마지막 채팅으로 이동
-              const lastIndex = addedIndices[addedIndices.length - 1];
-              goToChatIndex(lastIndex);
+            } catch (error) {
+              console.warn(
+                '[MobileBookViewer] Failed to read latest message',
+                error,
+              );
             }
           } else {
             // 인덱스가 줄어든 경우 (삭제 등) - LB 로딩 해제
@@ -458,7 +465,9 @@
       );
     } finally {
       // 측정 컨테이너 구조 전체 제거
-      const rootContainer = measureContainer.closest('[data-measure-container]');
+      const rootContainer = measureContainer.closest(
+        '[data-measure-container]',
+      );
       if (rootContainer && rootContainer.parentNode) {
         rootContainer.parentNode.removeChild(rootContainer);
       }
@@ -741,16 +750,10 @@
       thumbnailUrl={headerInfo.thumbnailUrl}
       name={headerInfo.name}
       chatIndex={headerInfo.chatIndex}
-      buttons={headerInfo.buttons}
       {chatIndexPosition}
-      showLBButton={lbModules.length > 0}
-      {isFullscreen}
-      {isLBLoading}
       onBack={onClose}
       onPrevChat={goToPrevChatIndex}
       onNextChat={goToNextChatIndex}
-      onFullscreenToggle={toggleFullscreen}
-      onLBToggle={toggleLBPanel}
       onSettingsToggle={toggleSettingsPanel}
     />
 

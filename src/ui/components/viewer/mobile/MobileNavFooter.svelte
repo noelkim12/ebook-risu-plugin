@@ -8,8 +8,8 @@
     totalPages = 0,
     isFirst = true,
     isLast = true,
-    onPrev = () => {},
-    onNext = () => {},
+    onPrev = async () => {},
+    onNext = async () => {},
     prevDisabled = false,
     nextDisabled = false,
   } = $props();
@@ -18,12 +18,20 @@
   let progress = $derived(
     totalPages > 0 ? ((currentPage + 1) / totalPages) * 100 : 0,
   );
+
+  async function handlePrev() {
+    await onPrev();
+  }
+
+  async function handleNext() {
+    await onNext();
+  }
 </script>
 
 <footer class="reader-footer">
   <button
     class="nav-btn prev-btn"
-    onclick={onPrev}
+    onclick={handlePrev}
     disabled={isFirst && prevDisabled}
     title="이전"
   >
@@ -51,7 +59,7 @@
 
   <button
     class="nav-btn next-btn"
-    onclick={onNext}
+    onclick={handleNext}
     disabled={isLast && nextDisabled}
     title="다음"
   >

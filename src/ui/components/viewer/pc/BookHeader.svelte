@@ -3,31 +3,47 @@
    * BookHeader - 뷰어 헤더 컴포넌트
    */
   import { X, ChevronLeft, ChevronRight } from 'lucide-svelte';
-  import { cloneButtonsWithEventDelegation } from '../../../../utils/dom-helper.js';
   import { RisuAPI } from '../../../../core/risu-api.js';
-  import { onMount } from 'svelte';
+
   const risuAPI = RisuAPI.getInstance();
   let {
     thumbnailUrl = '',
     name = '',
     chatIndex = 0,
-    buttons = [],
     chatIndexPosition = { position: 0, total: 0, isFirst: true, isLast: true },
     onPrevChat,
     onNextChat,
     onClose,
   } = $props();
 
-  let buttonsContainer = $state(null);
-
-  // 버튼들을 DOM에 추가 (이벤트 위임 패턴 사용)
-  $effect(() => {
-    if (buttonsContainer && buttons.length > 0) {
-      cloneButtonsWithEventDelegation(buttons, buttonsContainer);
-    }
-  });
-
+  let displayName = $state('Unknown');
   let displayIndex = $derived(chatIndex + 1);
+
+  $effect(() => {
+    if (name) {
+      displayName = name;
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const char = await risuAPI.getChar();
+        if (!cancelled) {
+          displayName = char?.name || 'Unknown';
+        }
+      } catch (error) {
+        if (!cancelled) {
+          displayName = 'Unknown';
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  });
 </script>
 
 <header class="book-header">
@@ -38,10 +54,7 @@
     ></div>
 
     <div class="header-info">
-      <span class="header-name"
-        >{name || risuAPI.getChar()?.name || 'Unknown'}</span
-      >
-      <div class="header-buttons" bind:this={buttonsContainer}></div>
+      <span class="header-name">{displayName}</span>
     </div>
   </div>
 
