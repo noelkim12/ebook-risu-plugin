@@ -190,26 +190,75 @@ export async function readChatMessages() {
   const messages = await Promise.all(
     elements.map(async (element, idx) => {
       let html = '';
+      let outerHtml = '';
+      
+      // 디버그: 요소 정보 확인
+      if (idx < 3) {
+        console.log('[chat-reader] Element', idx, 'methods:', {
+          getInnerHTML: typeof element.getInnerHTML,
+          getOuterHTML: typeof element.getOuterHTML,
+          innerText: typeof element.innerText,
+          textContent: typeof element.textContent,
+          getClassName: typeof element.getClassName,
+          hasClass: typeof element.hasClass,
+        });
+        
+        // 클래스명 확인
+        try {
+          const className = typeof element.getClassName === 'function' 
+            ? await element.getClassName() 
+            : '(no method)';
+          console.log('[chat-reader] Element', idx, 'className:', className?.substring?.(0, 100) || className);
+        } catch (e) {
+          console.log('[chat-reader] Element', idx, 'getClassName error:', e);
+        }
+      }
+      
+      // getInnerHTML 시도
       try {
         if (typeof element.getInnerHTML === 'function') {
           html = await element.getInnerHTML();
+          if (idx < 3) console.log('[chat-reader] Element', idx, 'getInnerHTML() =>', html?.length || 0, 'chars, preview:', html?.substring?.(0, 50));
         } else {
-          html = (await getSafeText(element, 'getInnerHTML', 'outerHTML')) || '';
+          if (idx < 3) console.log('[chat-reader] Element', idx, 'getInnerHTML is NOT a function');
         }
       } catch (e) {
-        console.error('[chat-reader] Error getting HTML for element', idx, ':', e);
+        console.error('[chat-reader] getInnerHTML error for element', idx, ':', e);
+      }
+      
+      // getOuterHTML 시도 (백업)
+      try {
+        if ((!html || html.length === 0) && typeof element.getOuterHTML === 'function') {
+          outerHtml = await element.getOuterHTML();
+          if (idx < 3) console.log('[chat-reader] Element', idx, 'getOuterHTML() =>', outerHtml?.length || 0, 'chars, preview:', outerHtml?.substring?.(0, 100));
+        }
+      } catch (e) {
+        console.error('[chat-reader] getOuterHTML error for element', idx, ':', e);
+      }
+      
+      // 둘 다 실패하면 기존 방식 시도
+      if (!html && !outerHtml) {
+        try {
+          outerHtml = (await getSafeText(element, 'getInnerHTML', 'outerHTML')) || '';
+          if (idx < 3) console.log('[chat-reader] Element', idx, 'fallback result:', outerHtml?.length || 0, 'chars');
+        } catch (e) {
+          console.error('[chat-reader] fallback error for element', idx, ':', e);
+        }
       }
 
       const role = await readMessageRole(element);
       const index = await readMessageIndex(element);
+      
+      // outerHTML 사용 (inner가 비어있으면)
+      const finalHtml = html || outerHtml || '';
 
       if (idx < 3) {
-        console.log('[chat-reader] Message', idx, ':', 'role=', role, 'index=', index, 'htmlLen=', html?.length || 0);
+        console.log('[chat-reader] Message', idx, ':', 'role=', role, 'index=', index, 'finalHtmlLen=', finalHtml?.length || 0);
       }
 
       return {
         role,
-        html,
+        html: finalHtml,
         index,
       };
     }),
