@@ -271,16 +271,16 @@
 
   onMount(async () => {
     // 설정 로드
-    settings = loadSettings();
+    settings = await loadSettings();
 
     // 사용자 CSS 로드
-    customCss = loadCustomCss();
+    customCss = await loadCustomCss();
     if (customCss) {
       applyCustomCss(customCss);
     }
 
     // textarea 높이 감지 및 뷰어 높이 조정
-    const inputTextarea = risuSelector(LOCATOR.chatScreen.textarea);
+    const inputTextarea = await risuSelector(LOCATOR.chatScreen.textarea);
     if (inputTextarea) {
       const textareaHeight = inputTextarea.scrollHeight + 10;
       viewerHeight = `calc(100% - ${textareaHeight}px)`;
@@ -318,7 +318,7 @@
           console.log(
             '[PCBookViewer] Chat page or character changed, reloading...',
           );
-          openPCViewer(null, false);
+          void openPCViewer(null, false);
         }
       },
       500,
@@ -562,7 +562,7 @@
       // 설정에 따라 마지막 페이지로 이동할지 결정
       const targetPage = settings.jumpToLastPageOnPrevIndex ? 'last' : null;
       // 새 뷰어를 로딩 상태로 열기
-      openPCViewer(index, false, true, targetPage);
+      void openPCViewer(index, false, true, targetPage);
     } else if (isFirst) {
       showToast('현재 채팅의 첫 번째 페이지입니다');
     }
@@ -579,7 +579,7 @@
     );
     if (index !== null) {
       // 새 뷰어를 로딩 상태로 열기
-      openPCViewer(index, false, true);
+      void openPCViewer(index, false, true);
     } else if (isLast) {
       showToast('현재 채팅의 마지막 페이지입니다');
     }
@@ -590,7 +590,7 @@
    */
   function goToChatIndex(targetIndex) {
     if (targetIndex !== chatIndex) {
-      openPCViewer(targetIndex, false, true);
+      void openPCViewer(targetIndex, false, true);
     }
   }
 
@@ -631,9 +631,9 @@
   }
 
   // 설정 변경
-  function handleSettingsChange(newSettings) {
+  async function handleSettingsChange(newSettings) {
     settings = newSettings;
-    saveSettings(settings);
+    await saveSettings(settings);
     debouncedRepaginate();
   }
 
@@ -642,17 +642,17 @@
     isCssModalOpen = true;
   }
 
-  function handleApplyCustomCss(css) {
+  async function handleApplyCustomCss(css) {
     customCss = css;
-    saveCustomCss(css);
+    await saveCustomCss(css);
     applyCustomCss(css);
     isCssModalOpen = false;
     debouncedRepaginate();
   }
 
-  function handleResetCustomCss() {
+  async function handleResetCustomCss() {
     customCss = '';
-    resetCustomCss();
+    await resetCustomCss();
     debouncedRepaginate();
   }
 
@@ -690,8 +690,8 @@
   const handleWindowResize = debounce(() => {
     if (isMobile()) {
       // 모바일이면 모바일 뷰어로 전환
-      closePCViewer();
-      openMobileViewer(chatIndex, false, false);
+      void closePCViewer();
+      void openMobileViewer(chatIndex, false, false);
     }
   }, 300);
 </script>

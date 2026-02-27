@@ -175,16 +175,16 @@
     // isFullscreen = true;
 
     // 설정 로드
-    settings = loadSettings();
+    settings = await loadSettings();
 
     // 사용자 CSS 로드
-    customCss = loadCustomCss();
+    customCss = await loadCustomCss();
     if (customCss) {
       applyCustomCss(customCss);
     }
 
     // Chat index 정보 초기화
-    updateChatIndexInfo();
+    await updateChatIndexInfo();
 
     // 콘텐츠 파싱 및 페이지 분할
     await waitForLayout();
@@ -235,7 +235,7 @@
           console.log(
             '[MobileBookViewer] Chat page or character changed, reloading...',
           );
-          openMobileViewer(null, false);
+          void openMobileViewer(null, false);
         }
       },
       500,
@@ -245,7 +245,7 @@
     unsubscribeChatIndices = risuAPI.subscribeToChar(
       char => char?.chats?.[char.chatPage]?.message?.length,
       async newLength => {
-        const newIndices = getAllVisibleChatIndices();
+        const newIndices = await getAllVisibleChatIndices();
         if (newIndices.length !== visibleChatIndices.length) {
           const addedIndices = newIndices.filter(
             idx => !visibleChatIndices.includes(idx),
@@ -267,13 +267,13 @@
                   const targetIndex = addedIndices[addedIndices.length - 1];
                   showClickableToast(
                     '새로운 응답이 수신되었습니다. 클릭 시 이동합니다.',
-                    () => goToChatIndex(targetIndex),
+                    () => void goToChatIndex(targetIndex),
                   );
                 }
               } else if (role === 'user') {
                 // user 역할: 자동으로 마지막 채팅으로 이동
                 const lastIndex = addedIndices[addedIndices.length - 1];
-                goToChatIndex(lastIndex);
+                void goToChatIndex(lastIndex);
               }
             } catch (error) {
               console.warn(
@@ -289,7 +289,7 @@
           }
 
           visibleChatIndices = newIndices;
-          updateChatIndexInfo();
+          await updateChatIndexInfo();
         }
       },
       1000,
@@ -330,9 +330,9 @@
   /**
    * Chat index 정보 업데이트
    */
-  function updateChatIndexInfo() {
-    visibleChatIndices = getAllVisibleChatIndices();
-    chatIndexPosition = getChatIndexPosition(chatIndex);
+  async function updateChatIndexInfo() {
+    visibleChatIndices = await getAllVisibleChatIndices();
+    chatIndexPosition = await getChatIndexPosition(chatIndex);
   }
 
   async function parseAndSplit() {
@@ -349,9 +349,9 @@
     headerInfo.chatIndex = chatIndex;
 
     // 라이브 DOM에서 버튼 참조 추출
-    const liveElement = getChatElementByChatIndex(chatIndex);
+    const liveElement = await getChatElementByChatIndex(chatIndex);
     if (liveElement) {
-      headerInfo.buttons = extractLiveButtons(liveElement);
+      headerInfo.buttons = await extractLiveButtons(liveElement);
       liveContentButtons = extractLiveContentButtons(liveElement);
       liveLBModuleButtons = extractLiveLBModuleButtons(liveElement);
     }
@@ -449,14 +449,17 @@
     }, 300);
   }
 
-  function checkContentChange() {
-    const currentElement = getChatElementByChatIndex(chatIndex);
+  async function checkContentChange() {
+    const currentElement = await getChatElementByChatIndex(chatIndex);
     if (currentElement) {
-      const newHtml = currentElement.outerHTML;
+      const newHtml =
+        typeof currentElement.getOuterHTML === 'function'
+          ? await currentElement.getOuterHTML()
+          : currentElement.outerHTML;
       if (newHtml !== lastKnownHtml) {
         lastKnownHtml = newHtml;
         chatHtml = newHtml;
-        parseAndSplit();
+        void parseAndSplit();
       }
     }
   }
@@ -491,16 +494,16 @@
   /**
    * 특정 chat index로 이동
    */
-  function goToChatIndex(targetIndex) {
+  async function goToChatIndex(targetIndex) {
     if (targetIndex !== chatIndex) {
-      openMobileViewer(targetIndex, false, true);
+      await openMobileViewer(targetIndex, false, true);
     }
   }
 
   // 네비게이션
   function nextPage() {
     if (currentPage >= pages.length - 1) {
-      goToNextChatIndex();
+      void goToNextChatIndex();
       return;
     }
     currentPage++;
@@ -508,7 +511,7 @@
 
   function prevPage() {
     if (currentPage === 0) {
-      goToPrevChatIndex();
+      void goToPrevChatIndex();
       return;
     }
     currentPage--;
@@ -517,13 +520,13 @@
   /**
    * 이전 chat index로 이동
    */
-  function goToPrevChatIndex() {
-    const { index, isFirst } = getAdjacentChatIndex(chatIndex, 'prev');
+  async function goToPrevChatIndex() {
+    const { index, isFirst } = await getAdjacentChatIndex(chatIndex, 'prev');
     if (index !== null) {
       // 설정에 따라 마지막 페이지로 이동할지 결정
       const targetPage = settings.jumpToLastPageOnPrevIndex ? 'last' : null;
       // 새 뷰어를 로딩 상태로 열기
-      openMobileViewer(index, false, true, targetPage);
+      void openMobileViewer(index, false, true, targetPage);
     } else if (isFirst) {
       showToast('현재 채팅의 첫 번째 페이지입니다');
     }
@@ -532,10 +535,10 @@
   /**
    * 다음 chat index로 이동
    */
-  function goToNextChatIndex() {
-    const { index, isLast } = getAdjacentChatIndex(chatIndex, 'next');
+  async function goToNextChatIndex() {
+    const { index, isLast } = await getAdjacentChatIndex(chatIndex, 'next');
     if (index !== null) {
-      openMobileViewer(index, false, true);
+      void openMobileViewer(index, false, true);
     } else if (isLast) {
       showToast('현재 채팅의 마지막 페이지입니다');
     }
@@ -584,9 +587,9 @@
   }
 
   // 설정 변경
-  function handleSettingsChange(newSettings) {
+  async function handleSettingsChange(newSettings) {
     settings = newSettings;
-    saveSettings(settings);
+    await saveSettings(settings);
     debouncedRepaginate();
   }
 
@@ -627,17 +630,17 @@
     isCssModalOpen = true;
   }
 
-  function handleApplyCustomCss(css) {
+  async function handleApplyCustomCss(css) {
     customCss = css;
-    saveCustomCss(css);
+    await saveCustomCss(css);
     applyCustomCss(css);
     isCssModalOpen = false;
     debouncedRepaginate();
   }
 
-  function handleResetCustomCss() {
+  async function handleResetCustomCss() {
     customCss = '';
-    resetCustomCss();
+    await resetCustomCss();
     debouncedRepaginate();
   }
 
@@ -661,8 +664,8 @@
   const handleWindowResize = debounce(() => {
     if (!isMobile()) {
       // 모바일이 아니면 PC 뷰어로 전환
-      closeMobileViewer();
-      openViewer(chatIndex, false, false);
+      void closeMobileViewer();
+      void openViewer(chatIndex, false, false);
     }
   }, 300);
 </script>

@@ -123,3 +123,21 @@
 - `npm run build` remains green after callback-based dialog and viewer updates.
 - Pattern checks confirm no remaining direct `new MutationObserver` or `dispatchEvent` usage in `src/` for changed code paths.
 - `npm run lint` now runs with `.eslintrc.cjs`, but still fails on existing repo-wide code issues unrelated to this migration wave.
+
+## 2026-02-27 Task — Async API usage fixes (v3 Promise APIs)
+
+- Updated `src/core/viewer/settings-manager.js` so all `risuai.pluginStorage.*` usage is awaited (`loadSettings`, `saveSettings`, `loadCustomCss`, `saveCustomCss`, `resetCustomCss`).
+- Updated `src/utils/selector.js` to async-safe host DOM access: `getRootDoc`, `risuSelector`, `risuSelectorAll`, and chat-index helpers now await `getRootDocument`, `querySelector`, `querySelectorAll`, and SafeElement class/parent methods.
+- Updated consumers in viewer paths (`mobile/pc` viewer components + helper modules, and `page-manager`) to await selector/settings calls to avoid Promise-as-value bugs.
+- Updated `src/core/chat-reader.js` to await `getRootDocument`, `querySelector(All)`, `getInnerHTML`, `getAttribute`, and class checks; `readChatMessages`/`getCurrentChatIndex` are async and change notifications now resolve messages asynchronously.
+- Updated `src/index.js` to await `getRootDocument`, `querySelector('body')`, `createMutationObserver`, and `observer.observe`.
+- Updated `src/core/update-manager.js` network calls from `fetch(...)` to `risuai.nativeFetch(...)` for CSP-safe host fetch path.
+- Verification: `npm run build` succeeds after all async migration fixes (existing unrelated `ViewerToast.svelte` a11y warning persists).
+
+## 2026-02-27 Task — Remove custom updater in favor of `//@update-url`
+
+- Removed legacy updater stack (`src/core/update-manager.js`, `src/core/script-updater.js`) and dialog UI files (`UpdateDialog.svelte`, `AlertDialog.svelte`, `LoadingDialog.svelte`, `dialogHelpers.js`).
+- Removed startup update check invocation from `src/index.js` (`checkForUpdates` import and call block).
+- Added `//@update-url https://raw.githubusercontent.com/noelkim4924/risu-ebooklike-viewer/main/dist/risu-ebooklike-viewer.js` to `vite.config.js` banner immediately after `//@api 3.0`.
+- Cleaned residual exports/import wiring tied to deleted updater UI (`src/ui/components/index.js`, `src/ui/styles/index.js`) and removed orphaned updater stylesheet file.
+- Verification: `grep -rn 'update-manager\|checkForUpdates\|UpdateDialog\|AlertDialog\|LoadingDialog\|dialogHelpers\|script-updater' src/` returns no matches; `npm run build` passes (existing unrelated Svelte a11y warning in `ViewerToast.svelte`).

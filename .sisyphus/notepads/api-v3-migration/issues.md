@@ -60,3 +60,8 @@
 - [F4] `src/ui/components/pc/viewerHelpers.js` and `src/ui/components/mobile/viewerHelpers.js` still mount helper viewers via `displayContainer`/`document.body` and do not route open/close solely through `showContainer('fullscreen')`/`hideContainer()`.
 - [F4] `src/utils/svelte-helper.js` and `dialogHelpers.js` still contain `document.body.appendChild` and `localStorage` logic in `src/core/update-manager.js` remains (`skipVersion` flow), which may be outside strict v3 `forbid localStorage/direct host manipulation` guidance if interpreted globally.
 - [F4] Unaccounted changed files in migration range: `.sisyphus/boulder.json` and `.sisyphus/plans/api-v3-migration.md` (accepted plan artifacts only if orchestration allows), plus `src/core/update-manager.js`.
+
+## 2026-02-27 Task — Async API usage fixes
+
+- `lsp_diagnostics` was flaky in this environment for multiple JS files (intermittent `LSP request timeout (method: initialize)`), so verification relied primarily on successful production build.
+- `npm run build` passes after changes; existing unrelated warning remains: `src/ui/components/viewer/ViewerToast.svelte` `a11y_no_noninteractive_tabindex`.

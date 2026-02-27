@@ -42,7 +42,7 @@ let mountTarget = null;
  * @param {boolean} showLoading - 로딩 오버레이 표시 여부 (chat index 이동 시 true)
  * @returns {boolean} 성공 여부
  */
-export function openPCViewer(
+export async function openPCViewer(
   chatIndex = null,
   togleViewer = true,
   showLoading = false,
@@ -50,10 +50,10 @@ export function openPCViewer(
 ) {
   // togleViewer일 때, 뷰어가 이미 열려있으면 닫기
   if (isMounted(VIEWER_ID)) {
-    closePCViewer();
+    await closePCViewer();
     // 갤폴드 대응 모바일 뷰어 열려있으면 닫기
     if (isMobileViewerOpen()) {
-      closeMobileViewer();
+      await closeMobileViewer();
     }
     // togleViewer true이면 여기서 끝
     if (togleViewer) return true;
@@ -81,14 +81,16 @@ export function openPCViewer(
       chatIndex != null ? Number(chatIndex) : risuAPI.getLastChatIndex() - 1;
 
     // 채팅 요소 가져오기
-    const chatElement = getChatElementByChatIndex(targetIndex);
+    const chatElement = await getChatElementByChatIndex(targetIndex);
     if (!chatElement) {
       console.warn('[PCViewer] Chat element not found for index:', targetIndex);
       return false;
     }
 
     // 마운트 타겟 찾기
-    const displayContainer = risuSelector(LOCATOR.chatScreen.displayContainer);
+    const displayContainer = await risuSelector(
+      LOCATOR.chatScreen.displayContainer,
+    );
     if (!displayContainer) {
       console.warn('[PCViewer] Display container not found');
       return false;
@@ -104,7 +106,7 @@ export function openPCViewer(
       VIEWER_STYLE_NAMESPACE,
     );
 
-    const rootContainer = risuSelector(LOCATOR.chatScreen.root);
+    const rootContainer = await risuSelector(LOCATOR.chatScreen.root);
     safeSetStyle(
       rootContainer,
       {
@@ -114,12 +116,17 @@ export function openPCViewer(
     );
 
     // 뷰어 마운트
+    const chatHtml =
+      typeof chatElement.getOuterHTML === 'function'
+        ? await chatElement.getOuterHTML()
+        : chatElement.outerHTML;
+
     const result = mountComponent({
       id: VIEWER_ID,
       component: PCBookViewer,
       target: displayContainer,
       props: {
-        chatHtml: chatElement.outerHTML,
+        chatHtml,
         chatIndex: targetIndex,
         chatPage: risuAPI.getCurrentChatPage(),
         chaId: risuAPI.getChaId(),
@@ -148,11 +155,11 @@ export function openPCViewer(
  * PC 뷰어 닫기
  * @returns {boolean} 성공 여부
  */
-export function closePCViewer() {
+export async function closePCViewer() {
   // 마운트 타겟의 스타일 복원
   if (mountTarget) {
     safeRestoreStyle(mountTarget, VIEWER_STYLE_NAMESPACE);
-    const rootContainer = risuSelector(LOCATOR.chatScreen.root);
+    const rootContainer = await risuSelector(LOCATOR.chatScreen.root);
     safeRestoreStyle(rootContainer, VIEWER_STYLE_NAMESPACE);
     mountTarget = null;
   }
@@ -176,11 +183,11 @@ export function isPCViewerOpen() {
  */
 export function togglePCViewer(chatIndex = null) {
   if (isPCViewerOpen()) {
-    closePCViewer();
+    void closePCViewer();
 
     return false;
   } else {
-    openPCViewer(chatIndex);
+    void openPCViewer(chatIndex);
     return true;
   }
 }
@@ -223,7 +230,7 @@ export async function openViewer(
   toggleViewer = true,
   showLoading = false,
 ) {
-  return openPCViewer(chatIndex, toggleViewer, showLoading);
+  return await openPCViewer(chatIndex, toggleViewer, showLoading);
 }
 
 /**
@@ -231,7 +238,7 @@ export async function openViewer(
  * @returns {Promise<boolean>} 성공 여부
  */
 export async function closeViewer() {
-  return closePCViewer();
+  return await closePCViewer();
 }
 
 /**

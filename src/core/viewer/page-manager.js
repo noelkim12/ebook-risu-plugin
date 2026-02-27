@@ -305,11 +305,11 @@ export function extractHeaderInfo(doc) {
  * @param {HTMLElement} liveElement - 라이브 DOM 요소 (getChatElementByChatIndex로 가져온 요소)
  * @returns {HTMLElement[]} 버튼 요소 배열
  */
-export function extractLiveButtons(liveElement) {
+export async function extractLiveButtons(liveElement) {
   if (!liveElement) return [];
 
   const buttons = [];
-  const buttonsContainer = risuSelector(
+  const buttonsContainer = await risuSelector(
     LOCATOR.chatMessage.botButtonDiv,
     liveElement,
   );

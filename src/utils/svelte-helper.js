@@ -362,6 +362,16 @@ export function safeMutationObserver(
   let timeoutId = null;
   let isProcessing = false;
 
+  const Observer =
+    globalThis.MutationObserver || globalThis.WebKitMutationObserver;
+
+  if (!Observer) {
+    return {
+      observer: null,
+      disconnect: () => clearTimeout(timeoutId),
+    };
+  }
+
   const debouncedCallback = mutations => {
     if (isProcessing) return;
 
@@ -379,7 +389,7 @@ export function safeMutationObserver(
     }, debounceMs);
   };
 
-  const observer = new MutationObserver(debouncedCallback);
+  const observer = new Observer(debouncedCallback);
 
   observer.observe(target, {
     childList: true,

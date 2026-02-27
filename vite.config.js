@@ -70,6 +70,7 @@ function viteBannerPlugin() {
 //@version ${pkg.version}
 //@description ${pkg.description}
 //@api 3.0
+//@update-url https://raw.githubusercontent.com/noelkim4924/risu-ebooklike-viewer/main/dist/risu-ebooklike-viewer.js
 ${getPluginArgs()}
 ${getDevModeBanner()}
 //@link https://unpkg.com/${pkg.name}@${pkg.version}/dist/${toKebabCase(pkg.name)}.js

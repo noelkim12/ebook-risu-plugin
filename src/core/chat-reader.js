@@ -1,13 +1,13 @@
 import { RisuAPI } from './risu-api.js';
 import { LOCATOR } from '../utils/selector.js';
 
-function getSafeAttribute(element, name) {
+async function getSafeAttribute(element, name) {
   if (!element) {
     return null;
   }
 
   if (typeof element.getAttribute === 'function') {
-    return element.getAttribute(name);
+    return await element.getAttribute(name);
   }
 
   if (Object.prototype.hasOwnProperty.call(element, name)) {
@@ -17,14 +17,14 @@ function getSafeAttribute(element, name) {
   return null;
 }
 
-function getSafeText(element, methodName, propertyName) {
+async function getSafeText(element, methodName, propertyName) {
   if (!element) {
     return null;
   }
 
   if (typeof element[methodName] === 'function') {
     try {
-      return element[methodName]();
+      return await element[methodName]();
     } catch {
       return null;
     }
@@ -33,16 +33,16 @@ function getSafeText(element, methodName, propertyName) {
   return element[propertyName] ?? null;
 }
 
-function hasSafeClass(element, className) {
+async function hasSafeClass(element, className) {
   if (!element || !className) {
     return false;
   }
 
   if (typeof element.hasClass === 'function') {
-    return element.hasClass(className);
+    return await element.hasClass(className);
   }
 
-  const classAttr = getSafeAttribute(element, 'class');
+  const classAttr = await getSafeAttribute(element, 'class');
   return String(classAttr || '')
     .split(/\s+/)
     .includes(className);
@@ -57,11 +57,11 @@ function parseIndex(rawIndex) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function readMessageIndex(element) {
+async function readMessageIndex(element) {
   const candidates = [
-    getSafeAttribute(element, 'data-chat-index'),
-    getSafeAttribute(element, 'data-index'),
-    getSafeAttribute(element, 'data-message-index'),
+    await getSafeAttribute(element, 'data-chat-index'),
+    await getSafeAttribute(element, 'data-index'),
+    await getSafeAttribute(element, 'data-message-index'),
   ];
 
   const matched = candidates.find(value => parseIndex(value) != null);
@@ -69,13 +69,13 @@ function readMessageIndex(element) {
     return parseIndex(matched);
   }
 
-  const classAttr = getSafeAttribute(element, 'class');
+  const classAttr = await getSafeAttribute(element, 'class');
   const classMatch = String(classAttr || '').match(/chat-index-(\d+)/i);
   if (classMatch) {
     return parseIndex(classMatch[1]);
   }
 
-  const idAttr = getSafeAttribute(element, 'id');
+  const idAttr = await getSafeAttribute(element, 'id');
   const idMatch = String(idAttr || '').match(/-(\d+)$/);
   if (idMatch) {
     return parseIndex(idMatch[1]);
@@ -84,12 +84,12 @@ function readMessageIndex(element) {
   return null;
 }
 
-function readMessageRole(element) {
+async function readMessageRole(element) {
   const roleFromAttribute =
-    getSafeAttribute(element, 'data-role') ||
-    getSafeAttribute(element, 'role') ||
-    getSafeAttribute(element, 'data-chat-role') ||
-    getSafeAttribute(element, 'data-sender');
+    (await getSafeAttribute(element, 'data-role')) ||
+    (await getSafeAttribute(element, 'role')) ||
+    (await getSafeAttribute(element, 'data-chat-role')) ||
+    (await getSafeAttribute(element, 'data-sender'));
 
   const normalizedRole = String(roleFromAttribute || '').toLowerCase();
   if (normalizedRole === 'user') {
@@ -100,14 +100,17 @@ function readMessageRole(element) {
     return 'assistant';
   }
 
-  if (hasSafeClass(element, 'user') || hasSafeClass(element, 'user-message')) {
+  if (
+    (await hasSafeClass(element, 'user')) ||
+    (await hasSafeClass(element, 'user-message'))
+  ) {
     return 'user';
   }
 
   if (
-    hasSafeClass(element, 'assistant') ||
-    hasSafeClass(element, 'assistant-message') ||
-    hasSafeClass(element, 'char')
+    (await hasSafeClass(element, 'assistant')) ||
+    (await hasSafeClass(element, 'assistant-message')) ||
+    (await hasSafeClass(element, 'char'))
   ) {
     return 'assistant';
   }
@@ -115,7 +118,7 @@ function readMessageRole(element) {
   return 'assistant';
 }
 
-function getChatMessageElements(rootDoc) {
+async function getChatMessageElements(rootDoc) {
   if (!rootDoc || typeof rootDoc.querySelectorAll !== 'function') {
     return [];
   }
@@ -130,24 +133,24 @@ function getChatMessageElements(rootDoc) {
   const chatSelectorHint =
     LOCATOR.chatMessage?.root?.cssClass?.[0] ?? '.chat-selector';
   try {
-    rootDoc.querySelector(chatSelectorHint);
+    await rootDoc.querySelector(chatSelectorHint);
   } catch {}
 
   const seen = new Set();
   const elements = [];
 
-  selectors.forEach(selector => {
+  for (const selector of selectors) {
     if (!selector) {
-      return;
+      continue;
     }
 
     const safeSelector = selector.trim();
     if (safeSelector === '') {
-      return;
+      continue;
     }
 
     try {
-      const matched = rootDoc.querySelectorAll(safeSelector);
+      const matched = await rootDoc.querySelectorAll(safeSelector);
       matched.forEach(node => {
         if (!seen.has(node)) {
           seen.add(node);
@@ -155,52 +158,44 @@ function getChatMessageElements(rootDoc) {
         }
       });
     } catch {
-      return;
+      continue;
     }
-  });
+  }
 
   return elements;
 }
 
-export function readChatMessages() {
+export async function readChatMessages() {
   let rootDoc = null;
   try {
-    rootDoc = risuai.getRootDocument();
+    rootDoc = await risuai.getRootDocument();
   } catch {
     return [];
   }
 
-  return getChatMessageElements(rootDoc)
-    .map(element => {
+  const elements = await getChatMessageElements(rootDoc);
+  const messages = await Promise.all(
+    elements.map(async element => {
       const html =
         typeof element.getInnerHTML === 'function'
-          ? element.getInnerHTML()
-          : getSafeText(element, 'getInnerHTML', 'outerHTML') || '';
+          ? await element.getInnerHTML()
+          : (await getSafeText(element, 'getInnerHTML', 'outerHTML')) || '';
 
       return {
-        role: readMessageRole(element),
+        role: await readMessageRole(element),
         html,
-        index: readMessageIndex(element),
+        index: await readMessageIndex(element),
       };
-    })
-    .filter(item => item.html != null);
+    }),
+  );
+
+  return messages.filter(item => item.html != null);
 }
 
 export function subscribeToChatChanges(callback) {
   if (typeof callback !== 'function') {
     return () => {};
   }
-
-  let rootDoc = null;
-  try {
-    rootDoc = risuai.getRootDocument();
-  } catch {
-    return () => {};
-  }
-  const rootBody =
-    typeof rootDoc?.querySelector === 'function'
-      ? rootDoc.querySelector('body')
-      : null;
 
   const api = RisuAPI.getInstance();
   let observer = null;
@@ -218,12 +213,29 @@ export function subscribeToChatChanges(callback) {
     timerId = setTimeout(() => {
       timerId = null;
       if (!disposed) {
-        callback(readChatMessages());
+        void readChatMessages().then(messages => {
+          if (!disposed) {
+            callback(messages);
+          }
+        });
       }
     }, 0);
   };
 
   void (async () => {
+    let rootDoc = null;
+    try {
+      rootDoc = await risuai.getRootDocument();
+    } catch {
+      notify();
+      return;
+    }
+
+    const rootBody =
+      typeof rootDoc?.querySelector === 'function'
+        ? await rootDoc.querySelector('body')
+        : null;
+
     observer = await api.createMutationObserver(() => {
       notify();
     });
@@ -238,7 +250,7 @@ export function subscribeToChatChanges(callback) {
       return;
     }
 
-    observer.observe(rootBody, {
+    await observer.observe(rootBody, {
       childList: true,
       subtree: true,
       attributes: true,
@@ -259,8 +271,8 @@ export function subscribeToChatChanges(callback) {
   };
 }
 
-export function getCurrentChatIndex() {
-  const messages = readChatMessages();
+export async function getCurrentChatIndex() {
+  const messages = await readChatMessages();
   let current = null;
   for (const message of messages) {
     if (message.index == null) {

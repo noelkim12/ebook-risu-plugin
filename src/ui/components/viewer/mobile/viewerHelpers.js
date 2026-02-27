@@ -33,7 +33,7 @@ export async function openMobileViewer(
     if (toggleViewer && isMounted(MOBILE_VIEWER_ID)) {
       await closeMobileViewer();
       if (isPCViewerOpen()) {
-        closePCViewer();
+        await closePCViewer();
       }
       return true;
     }
@@ -59,7 +59,7 @@ export async function openMobileViewer(
       return false;
     }
 
-    const chatElement = getChatElementByChatIndex(targetIndex);
+    const chatElement = await getChatElementByChatIndex(targetIndex);
     if (!chatElement) {
       console.warn(
         '[MobileViewer] Chat element not found for index:',
@@ -68,14 +68,19 @@ export async function openMobileViewer(
       return false;
     }
 
-    const chatHtml = chatElement.outerHTML;
+    const chatHtml =
+      typeof chatElement.getOuterHTML === 'function'
+        ? await chatElement.getOuterHTML()
+        : chatElement.outerHTML;
     const [chatPage, chaId] = await Promise.all([
       risuAPI.getCurrentChatPage(),
       risuAPI.getChaId(),
     ]);
 
-    const displayContainer = risuSelector(LOCATOR.chatScreen.displayContainer);
-    const rootContainer = risuSelector(LOCATOR.chatScreen.root);
+    const displayContainer = await risuSelector(
+      LOCATOR.chatScreen.displayContainer,
+    );
+    const rootContainer = await risuSelector(LOCATOR.chatScreen.root);
 
     if (displayContainer) {
       safeSetStyle(displayContainer, { overflow: 'hidden' }, STYLE_NAMESPACE);
@@ -136,12 +141,14 @@ export async function closeMobileViewer() {
     mountTarget = null;
   }
 
-  const displayContainer = risuSelector(LOCATOR.chatScreen.displayContainer);
+  const displayContainer = await risuSelector(
+    LOCATOR.chatScreen.displayContainer,
+  );
   if (displayContainer) {
     safeRestoreStyle(displayContainer, STYLE_NAMESPACE);
   }
 
-  const rootContainer = risuSelector(LOCATOR.chatScreen.root);
+  const rootContainer = await risuSelector(LOCATOR.chatScreen.root);
   if (rootContainer) {
     safeRestoreStyle(rootContainer, STYLE_NAMESPACE);
   }
@@ -159,8 +166,8 @@ export function isMobileViewerOpen() {
 
 export function toggleMobileViewer(chatIndex = null) {
   if (isMobileViewerOpen()) {
-    closeMobileViewer();
+    void closeMobileViewer();
   } else {
-    openMobileViewer(chatIndex, false, false);
+    void openMobileViewer(chatIndex, false, false);
   }
 }

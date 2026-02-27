@@ -16,9 +16,9 @@ const DEFAULT_SETTINGS = {
  * 설정 로드
  * @returns {{ fontSize: number, lineHeight: number, theme: string }}
  */
-export function loadSettings() {
+export async function loadSettings() {
   try {
-    const saved = risuai.pluginStorage.getItem(SETTINGS_KEY);
+    const saved = await risuai.pluginStorage.getItem(SETTINGS_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
       return {
@@ -48,11 +48,11 @@ export function loadSettings() {
  * 설정 저장
  * @param {{ fontSize?: number, lineHeight?: number, theme?: string }} settings
  */
-export function saveSettings(settings) {
+export async function saveSettings(settings) {
   try {
-    const current = loadSettings();
+    const current = await loadSettings();
     const updated = { ...current, ...settings };
-    risuai.pluginStorage.setItem(SETTINGS_KEY, JSON.stringify(updated));
+    await risuai.pluginStorage.setItem(SETTINGS_KEY, JSON.stringify(updated));
   } catch (error) {
     console.error('[SettingsManager] Failed to save settings:', error);
   }
@@ -78,9 +78,9 @@ export function applySettings(settings) {
  * 사용자 CSS 로드
  * @returns {string}
  */
-export function loadCustomCss() {
+export async function loadCustomCss() {
   try {
-    return risuai.pluginStorage.getItem(CUSTOM_CSS_KEY) || '';
+    return (await risuai.pluginStorage.getItem(CUSTOM_CSS_KEY)) || '';
   } catch (error) {
     console.error('[SettingsManager] Failed to load custom CSS:', error);
     return '';
@@ -91,12 +91,12 @@ export function loadCustomCss() {
  * 사용자 CSS 저장
  * @param {string} css
  */
-export function saveCustomCss(css) {
+export async function saveCustomCss(css) {
   try {
     if (css) {
-      risuai.pluginStorage.setItem(CUSTOM_CSS_KEY, css);
+      await risuai.pluginStorage.setItem(CUSTOM_CSS_KEY, css);
     } else {
-      risuai.pluginStorage.removeItem(CUSTOM_CSS_KEY);
+      await risuai.pluginStorage.removeItem(CUSTOM_CSS_KEY);
     }
   } catch (error) {
     console.error('[SettingsManager] Failed to save custom CSS:', error);
@@ -130,10 +130,10 @@ export function applyCustomCss(css) {
 /**
  * 사용자 CSS 초기화
  */
-export function resetCustomCss() {
+export async function resetCustomCss() {
   const existing = document.getElementById('book-viewer-custom-css');
   if (existing) {
     existing.remove();
   }
-  risuai.pluginStorage.removeItem(CUSTOM_CSS_KEY);
+  await risuai.pluginStorage.removeItem(CUSTOM_CSS_KEY);
 }

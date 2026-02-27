@@ -3,7 +3,6 @@ import { mount, unmount } from 'svelte';
 
 import { PLUGIN_NAME, PLUGIN_VERSION } from './constants.js';
 import { RisuAPI } from './core/risu-api.js';
-import { checkForUpdates } from './core/update-manager.js';
 import App from './App.svelte';
 import { readChatMessages } from './core/chat-reader.js';
 
@@ -28,10 +27,6 @@ import { readChatMessages } from './core/chat-reader.js';
       console.error(`[${PLUGIN_NAME}] Failed to initialize RisuAPI`);
       return;
     }
-
-    checkForUpdates({ silent: true }).catch(err => {
-      console.warn('[App] Update check failed:', err);
-    });
 
     const container = document.createElement('div');
     container.id = `${PLUGIN_NAME}-root`;
@@ -67,11 +62,11 @@ import { readChatMessages } from './core/chat-reader.js';
       },
     );
 
-    const rootDoc = risuai.getRootDocument();
-    const rootBody = rootDoc.querySelector('body');
+    const rootDoc = await risuai.getRootDocument();
+    const rootBody = await rootDoc.querySelector('body');
     if (rootBody) {
-      observer = risuai.createMutationObserver(async () => {});
-      observer.observe(rootBody, {
+      observer = await risuai.createMutationObserver(async () => {});
+      await observer.observe(rootBody, {
         childList: true,
         subtree: true,
       });

@@ -122,38 +122,38 @@ export const LOCATOR = {
   },
 };
 
-function getRootDoc(root) {
+async function getRootDoc(root) {
   if (root) {
     return root;
   }
 
   const api = globalThis.risuai;
   if (api && typeof api.getRootDocument === 'function') {
-    return api.getRootDocument();
+    return await api.getRootDocument();
   }
 
   return document;
 }
 
-function getClassNameValue(element) {
+async function getClassNameValue(element) {
   if (!element) {
     return '';
   }
 
   if (typeof element.getClassName === 'function') {
-    return element.getClassName() || '';
+    return (await element.getClassName()) || '';
   }
 
   return element.className || '';
 }
 
-function hasClassName(element, className) {
+async function hasClassName(element, className) {
   if (!element || !className) {
     return false;
   }
 
   if (typeof element.hasClass === 'function') {
-    return element.hasClass(className);
+    return await element.hasClass(className);
   }
 
   if (typeof element.matches === 'function') {
@@ -164,26 +164,30 @@ function hasClassName(element, className) {
     return element.classList.contains(className);
   }
 
-  const names = String(getClassNameValue(element)).split(' ').filter(Boolean);
+  const names = String(await getClassNameValue(element))
+    .split(' ')
+    .filter(Boolean);
   return names.includes(className);
 }
 
-function markLocatorClass(element, className) {
+async function markLocatorClass(element, className) {
   if (!element || !className) {
     return;
   }
 
-  if (hasClassName(element, className)) {
+  if (await hasClassName(element, className)) {
     return;
   }
 
   if (typeof element.addClass === 'function') {
-    element.addClass(className);
+    await element.addClass(className);
     return;
   }
 
   if (typeof element.setClassName === 'function') {
-    element.setClassName(`${className} ${getClassNameValue(element)}`.trim());
+    await element.setClassName(
+      `${className} ${await getClassNameValue(element)}`.trim(),
+    );
     return;
   }
 
@@ -192,13 +196,13 @@ function markLocatorClass(element, className) {
   }
 }
 
-function getParentNode(node) {
+async function getParentNode(node) {
   if (!node) {
     return null;
   }
 
   if (typeof node.getParent === 'function') {
-    return node.getParent();
+    return await node.getParent();
   }
 
   return node.parentElement || node.parentNode || null;
@@ -222,7 +226,7 @@ function readChatIndexFromElement(element) {
   return null;
 }
 
-function matchesSelector(element, selector) {
+async function matchesSelector(element, selector) {
   if (!element || !selector) {
     return false;
   }
@@ -232,19 +236,24 @@ function matchesSelector(element, selector) {
   }
 
   if (selector.startsWith('.')) {
-    return hasClassName(element, selector.slice(1));
+    return await hasClassName(element, selector.slice(1));
   }
 
   return false;
 }
 
-function safeQuerySelectorAll(root, selector) {
+async function safeQuerySelectorAll(root, selector) {
   if (!root || !selector || typeof root.querySelectorAll !== 'function') {
     return [];
   }
 
   try {
-    return [...root.querySelectorAll(selector)];
+    const matched = await root.querySelectorAll(selector);
+    if (Array.isArray(matched)) {
+      return matched;
+    }
+
+    return [...matched];
   } catch {
     return [];
   }
@@ -267,20 +276,20 @@ function getLocatorSelectors(locator) {
  * const burgerButton = risuSelector(LOCATOR.chatScreen.burgerButton);
  * const burgerMenu = risuSelector(LOCATOR.chatScreen.burgerMenu);
  */
-export function risuSelector(locator, root) {
-  const r = getRootDoc(root);
+export async function risuSelector(locator, root) {
+  const r = await getRootDoc(root);
 
   if (!locator) return null;
 
   for (const sel of getLocatorSelectors(locator) ?? []) {
     if (!sel) continue;
     try {
-      const el = r.querySelector(sel.startsWith('.') ? sel : `.${sel}`);
+      const el = await r.querySelector(sel.startsWith('.') ? sel : `.${sel}`);
       if (el) {
-        if (hasClassName(el, locator.className)) return el;
+        if (await hasClassName(el, locator.className)) return el;
 
         // 클래스를 맨 앞에 추가
-        markLocatorClass(el, locator.className);
+        await markLocatorClass(el, locator.className);
         return el;
       }
     } catch {
@@ -300,30 +309,30 @@ export function risuSelector(locator, root) {
  * const allChatMessages = risuSelectorAll(LOCATOR.chatMessage.root);
  * allChatMessages.forEach((msg, idx) => console.log(`Message ${idx}:`, msg));
  */
-export function risuSelectorAll(locator, root) {
-  const r = getRootDoc(root);
+export async function risuSelectorAll(locator, root) {
+  const r = await getRootDoc(root);
 
   if (!locator) return [];
 
   const results = new Set();
 
   for (const sel of locator?.cssClass ?? []) {
-    safeQuerySelectorAll(r, sel).forEach(el => {
+    (await safeQuerySelectorAll(r, sel)).forEach(el => {
       results.add(el);
     });
   }
 
   if (locator?.className) {
-    safeQuerySelectorAll(r, `.${locator.className}`).forEach(el => {
+    (await safeQuerySelectorAll(r, `.${locator.className}`)).forEach(el => {
       results.add(el);
     });
   }
 
   // 각 요소에 클래스 마킹
   const resultArray = [...results];
-  resultArray.forEach(el => {
-    markLocatorClass(el, locator.className);
-  });
+  for (const el of resultArray) {
+    await markLocatorClass(el, locator.className);
+  }
 
   return resultArray;
 }
@@ -335,24 +344,24 @@ export function risuSelectorAll(locator, root) {
  * @param {number} [options.maxDepth=10] - 최대 탐색 깊이 (무한 루프 방지)
  * @returns {number|null} chat index (숫자) 또는 null
  */
-export function getChatIndexFromNode({ node, maxDepth = 10 }) {
+export async function getChatIndexFromNode({ node, maxDepth = 10 }) {
   if (!node) {
     return null;
   }
 
   const CHAT_CLASS = 'risu-chat';
   let current = node;
-  if (!matchesSelector(current, `.${CHAT_CLASS}`)) {
-    current = getParentNode(current);
+  if (!(await matchesSelector(current, `.${CHAT_CLASS}`))) {
+    current = await getParentNode(current);
   }
   let depth = 0;
 
   while (current && depth < maxDepth) {
-    if (matchesSelector(current, `.${CHAT_CLASS}`)) {
+    if (await matchesSelector(current, `.${CHAT_CLASS}`)) {
       return readChatIndexFromElement(current);
     }
 
-    current = getParentNode(current);
+    current = await getParentNode(current);
     depth += 1;
   }
 
@@ -367,12 +376,12 @@ export function getChatIndexFromNode({ node, maxDepth = 10 }) {
  * const chatEl = getChatElementByChatIndex(0);
  * const chatEl2 = getChatElementByChatIndex('5');
  */
-export function getChatElementByChatIndex(index) {
+export async function getChatElementByChatIndex(index) {
   // 1. 입력값 검증
   if (index == null) return null;
 
   // 2. 현재 채팅창인지 검증
-  const chatElements = risuSelectorAll(LOCATOR.chatMessage.root);
+  const chatElements = await risuSelectorAll(LOCATOR.chatMessage.root);
   if (!chatElements.length) return null;
 
   // 3. 숫자로 변환 및 유효성 검사 (음수 인덱스도 유효함, 예: -1)
@@ -402,8 +411,8 @@ export function getChatElementByChatIndex(index) {
  *   console.log('채팅창에 있지 않습니다.');
  * }
  */
-export function isInChatScreenNow() {
-  return !!risuSelector(LOCATOR.chatScreen.root);
+export async function isInChatScreenNow() {
+  return !!(await risuSelector(LOCATOR.chatScreen.root));
 }
 
 /**
@@ -416,17 +425,20 @@ export function isInChatScreenNow() {
  * const indices = getAllVisibleChatIndices();
  * // [0, 1, 2, 5, 6, 7] - 중간에 빠진 인덱스가 있을 수 있음
  */
-export function getAllVisibleChatIndices() {
-  const chatElements = risuSelectorAll(LOCATOR.chatMessage.root);
+export async function getAllVisibleChatIndices() {
+  const chatElements = await risuSelectorAll(LOCATOR.chatMessage.root);
   if (!chatElements.length) return [];
 
-  const indices = chatElements
-    // book-viewer-root 클래스가 있는 요소는 뷰어이므로 제외
-    .filter(el => !hasClassName(el, 'book-viewer-root'))
-    .map(el => {
-      return readChatIndexFromElement(el);
-    })
-    .filter(idx => idx !== null);
+  const indices = [];
+  for (const el of chatElements) {
+    if (await hasClassName(el, 'book-viewer-root')) {
+      continue;
+    }
+    const idx = readChatIndexFromElement(el);
+    if (idx !== null) {
+      indices.push(idx);
+    }
+  }
 
   // 오름차순 정렬하고 중복 제거
   return [...new Set(indices)].sort((a, b) => a - b);
@@ -438,8 +450,8 @@ export function getAllVisibleChatIndices() {
  * @param {'prev' | 'next'} direction - 이동 방향
  * @returns {{ index: number | null, isFirst: boolean, isLast: boolean }}
  */
-export function getAdjacentChatIndex(currentIndex, direction) {
-  const indices = getAllVisibleChatIndices();
+export async function getAdjacentChatIndex(currentIndex, direction) {
+  const indices = await getAllVisibleChatIndices();
   if (indices.length === 0) {
     return { index: null, isFirst: true, isLast: true };
   }
@@ -497,8 +509,8 @@ export function getAdjacentChatIndex(currentIndex, direction) {
  * @param {number} currentIndex - 현재 chat index
  * @returns {{ position: number, total: number, isFirst: boolean, isLast: boolean }}
  */
-export function getChatIndexPosition(currentIndex) {
-  const indices = getAllVisibleChatIndices();
+export async function getChatIndexPosition(currentIndex) {
+  const indices = await getAllVisibleChatIndices();
   if (indices.length === 0) {
     return { position: 0, total: 0, isFirst: true, isLast: true };
   }
