@@ -1,61 +1,32 @@
 import { PLUGIN_NAME } from '../constants.js';
-/**
- * RisuAPI 싱글톤 클래스
- * RisuAI의 플러그인 API를 래핑하여 제공합니다.
- */
 export class RisuAPI {
-  // 싱글톤 인스턴스
   static _instance = null;
 
-  constructor(pluginApis) {
-    // 싱글톤 체크
+  constructor() {
     if (RisuAPI._instance) {
-      console.log(`[${PLUGIN_NAME}] Returning existing RisuAPI instance`);
-      return RisuAPI._instance;
-    }
-
-    // RisuAI 플러그인 API들을 private 필드로 저장 (메서드에서 사용)
-    this._risuFetch = pluginApis.risuFetch;
-    this._nativeFetch = pluginApis.nativeFetch;
-    this._getArg = pluginApis.getArg;
-    this._setArg = pluginApis.setArg;
-    this._getChar = pluginApis.getChar;
-    this._setChar = pluginApis.setChar;
-    this._addProvider = pluginApis.addProvider;
-    this._addRisuScriptHandler = pluginApis.addRisuScriptHandler;
-    this._removeRisuScriptHandler = pluginApis.removeRisuScriptHandler;
-    this._addRisuReplacer = pluginApis.addRisuReplacer;
-    this._removeRisuReplacer = pluginApis.removeRisuReplacer;
-    this._onUnload = pluginApis.onUnload;
-
-    // Database API: pluginApis에서 제공되면 사용, 없으면 전역 함수 사용
-    this._getDatabase = pluginApis.getDatabase;
-    this._setDatabaseLite = pluginApis.setDatabaseLite;
-
-    try {
-      this._getDatabase ??= getDatabase;
-      this._setDatabaseLite ??= setDatabaseLite;
-    } catch (e) {
-      // 전역 함수가 없는 경우 무시 (선택적 API)
+      return;
     }
 
     this._charWatchers = new Map();
     this._databaseWatchers = new Map();
     this._watcherIdCounter = 0;
 
-    // 싱글톤 인스턴스 저장
     RisuAPI._instance = this;
   }
 
-  /**
-   * RisuAPI 초기화
-   * eval을 통해 전역 컨텍스트의 함수들을 가져옵니다.
-   * @returns {Promise<boolean>} 초기화 성공 여부
-   */
+  get _api() {
+    const api = globalThis.risuai;
+    if (!api) {
+      throw new Error('RisuAPI is not available in this context.');
+    }
+    return api;
+  }
+
   async initialize() {
     try {
-      this._getDatabase = getDatabase;
-      this._setDatabaseLite = setDatabaseLite;
+      if (!this._api) {
+        throw new Error('global risuai is missing');
+      }
       console.log(`[${PLUGIN_NAME}] RisuAPI initialized successfully`);
       return true;
     } catch (error) {
@@ -64,174 +35,50 @@ export class RisuAPI {
     }
   }
 
-  /**
-   * 싱글톤 인스턴스 가져오기 또는 생성
-   *
-   * @param {Object} [pluginApis] - 플러그인 API 객체. 첫 번째 호출 시에만 필요합니다.
-   * @returns {RisuAPI} RisuAPI 인스턴스
-   * @throws {Error} 인스턴스가 없고 pluginApis가 제공되지 않은 경우
-   */
-  static getInstance(pluginApis = null) {
+  static getInstance() {
     if (!RisuAPI._instance) {
-      if (!pluginApis) {
-        throw new Error(
-          'RisuAPI instance does not exist. Provide pluginApis on first call.',
-        );
-      }
-      RisuAPI._instance = new RisuAPI(pluginApis);
+      RisuAPI._instance = new RisuAPI();
     }
     return RisuAPI._instance;
   }
 
-  /**
-   * 싱글톤 인스턴스 리셋 (테스트용)
-   */
   static resetInstance() {
     RisuAPI._instance = null;
   }
 
-  // ==================== Fetch API ====================
-
-  /**
-   * CORS 제한 없이 URL을 가져옵니다.
-   *
-   * 참고: `nativeFetch`를 사용하는 것이 권장됩니다.
-   * `nativeFetch`는 표준 fetch API와 유사하며 더 예측 가능한 동작을 제공합니다.
-   *
-   * @param {string} url - 가져올 URL
-   * @param {Object} [arg={}] - Fetch 인자
-   * @param {string|Object} [arg.body] - 요청 본문. 객체인 경우 JSON으로 변환됩니다.
-   * @param {Record<string, string>} [arg.headers] - 요청 헤더
-   * @param {string} [arg.method='POST'] - 요청 메서드. `GET`, `POST` 지원
-   * @param {AbortSignal} [arg.abortSignal] - 요청 중단 신호
-   * @param {boolean} [arg.rawResponse=false] - true인 경우 응답이 Uint8Array로 반환됩니다.
-   * @returns {Promise<Object>} Fetch 결과
-   * @returns {boolean} returns.ok - 요청 성공 여부
-   * @returns {any} returns.data - 응답 데이터. JSON 가능한 경우 파싱되며, rawResponse가 true면 Uint8Array
-   * @returns {Record<string, string>} returns.headers - 응답 헤더
-   */
-  risuFetch(url, arg = {}) {
-    // 싱글톤 인스턴스의 원본 함수를 호출 (this는 항상 같은 인스턴스를 참조)
-    return this._risuFetch(url, arg);
+  async risuFetch(url, arg = {}) {
+    return await this._api.risuFetch(url, arg);
   }
 
-  /**
-   * CORS 제한 없이 URL을 가져옵니다.
-   * 표준 fetch API의 하위 집합으로 설계되었으며, CORS 제한이 없고 기본 메서드가 `POST`입니다.
-   *
-   * @param {string} url - 가져올 URL
-   * @param {Object} [arg={}] - Fetch 인자
-   * @param {string|Uint8Array|ArrayBuffer} [arg.body] - 요청 본문
-   * @param {Record<string, string>} [arg.headers] - 요청 헤더
-   * @param {string} [arg.method='POST'] - 요청 메서드. `GET`, `POST`, `PUT`, `DELETE` 지원
-   * @param {AbortSignal} [arg.signal] - 요청 중단 신호
-   * @returns {Promise<Response>} 표준 Response 객체
-   */
-  nativeFetch(url, arg = {}) {
-    return this._nativeFetch(url, arg);
+  async nativeFetch(url, arg = {}) {
+    return await this._api.nativeFetch(url, arg);
   }
 
-  // ==================== Argument API ====================
-
-  /**
-   * 인자 값을 이름으로 가져옵니다.
-   *
-   * @param {string} name - 인자 이름. `<plugin_name>::<arg_name>` 형식이어야 합니다. (예: `exampleplugin::arg1`)
-   * @returns {string|number} 인자 값
-   */
-  getArg(name) {
-    return this._getArg(name);
+  async getArg(name) {
+    return await this._api.getArgument(name);
   }
 
-  /**
-   * 인자 값을 이름으로 설정합니다.
-   *
-   * @param {string} name - 인자 이름. `<plugin_name>::<arg_name>` 형식이어야 합니다. (예: `exampleplugin::arg1`)
-   * @param {string|number} value - 인자 값
-   */
-  setArg(name, value) {
-    return this._setArg(name, value);
+  async setArg(name, value) {
+    return await this._api.setArgument(name, value);
   }
 
-  // ==================== Character API ====================
-
-  /**
-   * 현재 캐릭터를 가져옵니다.
-   *
-   * @returns {Object} 현재 캐릭터 객체
-   */
-  getChar() {
-    return this._getChar();
+  async getChar() {
+    return await this._api.getCharacter();
   }
 
-  /**
-   * 현재 캐릭터를 설정합니다.
-   *
-   * @param {Object} char - 설정할 캐릭터 객체
-   */
-  setChar(char) {
-    return this._setChar(char);
+  async setChar(char) {
+    return await this._api.setCharacter(char);
   }
 
-  /**
-   * 캐릭터 데이터 변경 감지 구독 (폴링 기반)
-   *
-   * RisuAI 내부의 Proxy로 인해 외부에서 변경을 직접 감지할 수 없으므로,
-   * 폴링 방식으로 값의 변경을 감지합니다.
-   *
-   * @param {Function|null} selector - 감지할 값을 선택하는 함수 (char) => any, null이면 전체 감지
-   * @param {Function} callback - 변경 시 호출될 콜백 (newValue) => void
-   * @param {number} [interval=500] - 폴링 간격 (ms)
-   * @returns {Function} 구독 해제 함수
-   *
-   * @example
-   * // 메시지 개수 변경 감지
-   * const unsubscribe = risuAPI.subscribeToChar(
-   *   (char) => char?.chats?.[char.chatPage]?.message?.length,
-   *   (newLength) => console.log('메시지 개수:', newLength),
-   *   500
-   * );
-   *
-   * @example
-   * // 마지막 메시지 내용 변경 감지
-   * const unsubscribe = risuAPI.subscribeToChar(
-   *   (char) => {
-   *     const messages = char?.chats?.[char.chatPage]?.message;
-   *     return messages?.[messages.length - 1]?.data;
-   *   },
-   *   (newData) => console.log('마지막 메시지 변경:', newData),
-   *   1000
-   * );
-   *
-   * @example
-   * // 마지막 메시지의 role 변경 감지
-   * const unsubscribe = risuAPI.subscribeToChar(
-   *   (char) => {
-   *     const messages = char?.chats?.[char.chatPage]?.message;
-   *     return messages?.[messages.length - 1]?.role;
-   *   },
-   *   (newData) => console.log('마지막 메시지의 role 변경:', newData),
-   *   1000
-   * );
-   *
-   * @example
-   * // 전체 char 변경 감지 (무거움 - 권장하지 않음)
-   * const unsubscribe = risuAPI.subscribeToChar(
-   *   null,
-   *   () => console.log('char 변경됨'),
-   *   2000
-   * );
-   *
-   * // 구독 해제
-   * unsubscribe();
-   */
   subscribeToChar(selector, callback, interval = 500) {
     const id = ++this._watcherIdCounter;
 
-    const getSnapshot = () => {
+    const getSnapshot = async () => {
       try {
-        const char = this._getChar();
-        if (char === null) return null;
+        const char = await this.getChar();
+        if (char == null) {
+          return null;
+        }
         const value = selector ? selector(char) : char;
         return JSON.stringify(value);
       } catch (e) {
@@ -239,209 +86,148 @@ export class RisuAPI {
       }
     };
 
-    let lastSnapshot = getSnapshot();
+    const setupTimer = async () => {
+      let lastSnapshot = await getSnapshot();
+      const timer = setInterval(() => {
+        void getSnapshot().then(currentSnapshot => {
+          if (currentSnapshot !== lastSnapshot) {
+            lastSnapshot = currentSnapshot;
+            try {
+              const newValue = currentSnapshot
+                ? JSON.parse(currentSnapshot)
+                : null;
+              callback(newValue);
+            } catch (e) {
+              console.error(
+                `[${PLUGIN_NAME}] subscribeToChar callback error:`,
+                e,
+              );
+            }
+          }
+        });
+      }, interval);
 
-    const timer = setInterval(() => {
-      const currentSnapshot = getSnapshot();
-      if (currentSnapshot !== lastSnapshot) {
-        const oldSnapshot = lastSnapshot;
-        lastSnapshot = currentSnapshot;
-        try {
-          const newValue = currentSnapshot ? JSON.parse(currentSnapshot) : null;
-          callback(newValue);
-        } catch (e) {
-          console.error(`[${PLUGIN_NAME}] subscribeToChar callback error:`, e);
-        }
-      }
-    }, interval);
+      this._charWatchers.set(id, timer);
+    };
 
-    this._charWatchers.set(id, timer);
+    void setupTimer();
 
-    // unsubscribe 함수 반환
     return () => {
-      clearInterval(timer);
+      const timer = this._charWatchers.get(id);
+      if (timer) {
+        clearInterval(timer);
+      }
       this._charWatchers.delete(id);
     };
   }
 
-  // ==================== Provider API ====================
-
-  /**
-   * 프로바이더를 추가합니다.
-   *
-   * @param {string} type - 프로바이더 이름
-   * @param {Function} func - 프로바이더 함수
-   * @param {Object} func.arg - 프로바이더 인자
-   * @param {Array} func.arg.prompt_chat - 채팅 프롬프트
-   * @param {number} [func.arg.frequency_penalty] - 빈도 페널티
-   * @param {number} [func.arg.min_p] - 최소 p 값
-   * @param {number} [func.arg.presence_penalty] - 존재 페널티
-   * @param {number} [func.arg.repetition_penalty] - 반복 페널티
-   * @param {number} [func.arg.top_k] - Top k 값
-   * @param {number} [func.arg.top_p] - Top p 값
-   * @param {number} [func.arg.temperature] - 온도 값
-   * @param {number} [func.arg.max_tokens] - 최대 토큰 수
-   * @param {string} func.arg.mode - 모드. `model`, `submodel`, `memory`, `emotion`, `otherAx`, `translate` 중 하나
-   * @param {AbortSignal} [func.abortSignal] - 요청 중단 신호
-   * @param {Promise<Object>} func.returns - 프로바이더 결과
-   * @param {boolean} func.returns.success - 프로바이더 성공 여부
-   * @param {string|ReadableStream<string>} func.returns.content - 프로바이더 콘텐츠. ReadableStream인 경우 스트리밍됩니다.
-   * @param {Object} [options] - 프로바이더 옵션
-   * @param {string} [options.tokenizer] - 토크나이저 이름. `"mistral"`, `"llama"`, `"novelai"`, `"claude"`, `"novellist"`, `"llama3"`, `"gemma"`, `"cohere"`, `"tiktoken"`, `"custom"` 중 하나
-   * @param {Function} [options.tokenizerFunc] - 커스텀 토크나이저 함수. `(content: string) => number[]|Promise<number[]>`
-   */
-  addProvider(type, func, options) {
-    return this._addProvider(type, func, options);
+  async getChaId() {
+    const char = await this.getChar();
+    if (char == null) {
+      return null;
+    }
+    return char.chaId;
   }
 
-  // ==================== Risu Script Handler API ====================
-
-  /**
-   * Risu 스크립트 핸들러를 추가합니다.
-   *
-   * @param {string} type - 핸들러 타입. `display`, `output`, `input`, `process` 중 하나
-   *   - `display`: 데이터가 표시될 때 호출됩니다.
-   *   - `output`: AI 모델이 데이터를 출력할 때 호출됩니다.
-   *   - `input`: 사용자가 데이터를 입력할 때 호출됩니다.
-   *   - `process`: 실제 요청 데이터를 생성할 때 호출됩니다.
-   * @param {Function} func - 핸들러 함수
-   * @param {string} func.content - 처리할 콘텐츠
-   * @returns {string|null|undefined|Promise<string|null|undefined>} 핸들러 결과. 문자열 또는 문자열 Promise인 경우 데이터가 결과로 대체됩니다.
-   */
-  addRisuScriptHandler(type, func) {
-    return this._addRisuScriptHandler(type, func);
+  async getCurrentChatPage() {
+    const char = await this.getChar();
+    if (char == null) {
+      return null;
+    }
+    return char.chatPage;
   }
 
-  /**
-   * Risu 스크립트 핸들러를 제거합니다.
-   *
-   * @param {string} type - 핸들러 타입. `display`, `output`, `input`, `process` 중 하나
-   * @param {Function} func - 제거할 핸들러 함수
-   */
-  removeRisuScriptHandler(type, func) {
-    return this._removeRisuScriptHandler(type, func);
+  async getAllCurrentChatMessages() {
+    const char = await this.getChar();
+    if (char == null) {
+      return null;
+    }
+    const chatPage = await this.getCurrentChatPage();
+    if (chatPage == null) {
+      return null;
+    }
+    return char.chats?.[chatPage]?.message;
   }
 
-  // ==================== Risu Replacer API ====================
+  async getLastChatIndex() {
+    const char = await this.getChar();
+    const chatPage = await this.getCurrentChatPage();
 
-  /**
-   * Risu 리플레이서를 추가합니다.
-   *
-   * @param {string} type - 리플레이서 타입. `beforeRequest`, `afterRequest` 중 하나
-   *   - `beforeRequest`: 요청이 전송되기 직전에 호출됩니다.
-   *   - `afterRequest`: 응답이 수신된 직후에 호출됩니다.
-   * @param {Function} func - 리플레이서 함수. 타입에 따라 시그니처가 다릅니다.
-   *   - `afterRequest` 타입: `(content: string, mode: string) => string`
-   *   - `beforeRequest` 타입: `(content: Chat[], mode: string) => Chat[]`
-   *   - mode는 `model`, `submodel`, `memory`, `emotion`, `otherAx`, `translate` 중 하나입니다.
-   */
-  addRisuReplacer(type, func) {
-    return this._addRisuReplacer(type, func);
+    if (char == null || chatPage == null) {
+      return null;
+    }
+
+    return char.chats?.[chatPage]?.message?.length;
   }
 
-  /**
-   * Risu 리플레이서를 제거합니다.
-   *
-   * @param {string} type - 리플레이서 타입. `beforeRequest`, `afterRequest` 중 하나
-   * @param {Function} func - 제거할 리플레이서 함수
-   */
-  removeRisuReplacer(type, func) {
-    return this._removeRisuReplacer(type, func);
+  async getLastChatMessage() {
+    const char = await this.getChar();
+    const chatPage = await this.getCurrentChatPage();
+    if (char == null || chatPage == null) {
+      return null;
+    }
+
+    const index = await this.getLastChatIndex();
+    if (index == null) {
+      return null;
+    }
+
+    return char.chats?.[chatPage]?.message?.[index];
   }
 
-  // ==================== Lifecycle API ====================
-
-  /**
-   * 플러그인 언로드 핸들러를 추가합니다.
-   * 플러그인이 언로드될 때 호출될 함수를 등록합니다.
-   *
-   * @param {Function} func - 언로드 시 호출할 함수
-   */
-  onUnload(func) {
-    return this._onUnload(func);
+  async addProvider(type, func, options) {
+    return await this._api.addProvider(type, func, options);
   }
 
-  /**
-   * 모든 구독(watcher)을 해제합니다.
-   * 플러그인 언로드 시 호출하여 리소스를 정리합니다.
-   */
+  async addRisuScriptHandler(type, func) {
+    return await this._api.addRisuScriptHandler(type, func);
+  }
+
+  async removeRisuScriptHandler(type, func) {
+    return await this._api.removeRisuScriptHandler(type, func);
+  }
+
+  async addRisuReplacer(type, func) {
+    return await this._api.addRisuReplacer(type, func);
+  }
+
+  async removeRisuReplacer(type, func) {
+    return await this._api.removeRisuReplacer(type, func);
+  }
+
+  async onUnload(func) {
+    return await this._api.onUnload(func);
+  }
+
   clearAllSubscriptions() {
-    // char watchers 정리
-    this._charWatchers.forEach(timer => clearInterval(timer));
+    this._charWatchers.forEach(timer => {
+      clearInterval(timer);
+    });
     this._charWatchers.clear();
-
-    // database watchers 정리
-    this._databaseWatchers.forEach(timer => clearInterval(timer));
+    this._databaseWatchers.forEach(timer => {
+      clearInterval(timer);
+    });
     this._databaseWatchers.clear();
-
     console.log(`[${PLUGIN_NAME}] All subscriptions cleared`);
   }
 
-  // ==================== Database API ====================
-
-  /**
-   * 데이터베이스를 가져옵니다.
-   * @returns {any} 데이터베이스 객체
-   */
-  getDatabase() {
-    if (!this._getDatabase) {
-      throw new Error('RisuAPI is not initialized. Call initialize() first.');
-    }
-    return this._getDatabase();
+  async getDatabase(includeOnly = 'all') {
+    return await this._api.getDatabase(includeOnly);
   }
 
-  /**
-   * 데이터베이스 Lite를 설정합니다.
-   * @param {any} data - 설정할 데이터
-   */
-  setDatabaseLite(data) {
-    if (!this._setDatabaseLite) {
-      throw new Error('RisuAPI is not initialized. Call initialize() first.');
-    }
-    return this._setDatabaseLite(data);
+  async setDatabaseLite(db) {
+    return await this._api.setDatabaseLite(db);
   }
 
-  /**
-   * 데이터베이스 변경 감지 구독 (폴링 기반)
-   *
-   * RisuAI 내부의 Proxy로 인해 외부에서 변경을 직접 감지할 수 없으므로,
-   * 폴링 방식으로 값의 변경을 감지합니다.
-   *
-   * @param {Function|null} selector - 감지할 값을 선택하는 함수 (db) => any, null이면 전체 감지
-   * @param {Function} callback - 변경 시 호출될 콜백 (newValue) => void
-   * @param {number} [interval=500] - 폴링 간격 (ms)
-   * @returns {Function} 구독 해제 함수
-   *
-   * @example
-   * // 특정 설정 변경 감지
-   * const unsubscribe = risuAPI.subscribeToDatabase(
-   *   (db) => db?.aiModel,
-   *   (newModel) => console.log('AI 모델 변경:', newModel),
-   *   1000
-   * );
-   *
-   * @example
-   * // 여러 설정 변경 감지
-   * const unsubscribe = risuAPI.subscribeToDatabase(
-   *   (db) => ({ model: db?.aiModel, maxContext: db?.maxContext }),
-   *   (settings) => console.log('설정 변경:', settings),
-   *   1000
-   * );
-   *
-   * // 구독 해제
-   * unsubscribe();
-   */
   subscribeToDatabase(selector, callback, interval = 500) {
-    if (!this._getDatabase) {
-      throw new Error('RisuAPI is not initialized. Call initialize() first.');
-    }
-
     const id = ++this._watcherIdCounter;
 
-    const getSnapshot = () => {
+    const getSnapshot = async () => {
       try {
-        const db = this._getDatabase();
-        if (db === null) return null;
+        const db = await this.getDatabase();
+        if (db == null) {
+          return null;
+        }
         const value = selector ? selector(db) : db;
         return JSON.stringify(value);
       } catch (e) {
@@ -449,84 +235,58 @@ export class RisuAPI {
       }
     };
 
-    let lastSnapshot = getSnapshot();
+    const setupTimer = async () => {
+      let lastSnapshot = await getSnapshot();
+      const timer = setInterval(() => {
+        void getSnapshot().then(currentSnapshot => {
+          if (currentSnapshot !== lastSnapshot) {
+            lastSnapshot = currentSnapshot;
+            try {
+              const newValue = currentSnapshot
+                ? JSON.parse(currentSnapshot)
+                : null;
+              callback(newValue);
+            } catch (e) {
+              console.error(
+                `[${PLUGIN_NAME}] subscribeToDatabase callback error:`,
+                e,
+              );
+            }
+          }
+        });
+      }, interval);
 
-    const timer = setInterval(() => {
-      const currentSnapshot = getSnapshot();
-      if (currentSnapshot !== lastSnapshot) {
-        const oldSnapshot = lastSnapshot;
-        lastSnapshot = currentSnapshot;
-        try {
-          const newValue = currentSnapshot ? JSON.parse(currentSnapshot) : null;
-          callback(newValue);
-        } catch (e) {
-          console.error(
-            `[${PLUGIN_NAME}] subscribeToDatabase callback error:`,
-            e,
-          );
-        }
-      }
-    }, interval);
+      this._databaseWatchers.set(id, timer);
+    };
 
-    this._databaseWatchers.set(id, timer);
+    void setupTimer();
 
-    // unsubscribe 함수 반환
     return () => {
-      clearInterval(timer);
+      const timer = this._databaseWatchers.get(id);
+      if (timer) {
+        clearInterval(timer);
+      }
       this._databaseWatchers.delete(id);
     };
   }
 
-  /**
-   * 현재 채팅 페이지의 캐릭터 ID를 가져옵니다.
-   * @returns string
-   */
-  getChaId() {
-    const char = this._getChar();
-    if (char == null) return null;
-    return char.chaId;
+  async getRootDocument() {
+    return await this._api.getRootDocument();
   }
 
-  /**
-   * 현재 채팅 페이지를 가져옵니다.
-   * @returns {number|null}
-   */
-  getCurrentChatPage() {
-    const char = this._getChar();
-    if (char == null) return null;
-    return char.chatPage;
+  async showContainer(mode) {
+    return await this._api.showContainer(mode);
   }
 
-  /**
-   * 현재 채팅 페이지의 모든 메시지를 가져옵니다.
-   * @returns {Message[]|null}
-   */
-  getAllCurrentChatMessages() {
-    const char = this._getChar();
-    if (char == null) return null;
-    return char.chats[this.getCurrentChatPage()].message;
+  async hideContainer() {
+    return await this._api.hideContainer();
   }
 
-  /**
-   * 마지막 채팅 인덱스를 가져옵니다.
-   * @returns {number|null}
-   */
-  getLastChatIndex() {
-    const char = this._getChar();
-    if (char == null) return null;
-
-    return char.chats[this.getCurrentChatPage()].message.length;
+  async registerButton(config, callback) {
+    return await this._api.registerButton(config, callback);
   }
 
-  /**
-   * 현재 채팅의 마지막 채팅 메세지를 가져옵니다.
-   */
-  getLastChatMessage() {
-    const char = this._getChar();
-    if (char == null) return null;
-
-    return char.chats[this.getCurrentChatPage()].message[
-      this.getLastChatIndex()
-    ];
+  async createMutationObserver(callback) {
+    return await this._api.createMutationObserver(callback);
   }
 }

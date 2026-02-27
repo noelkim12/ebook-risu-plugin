@@ -1,7 +1,3 @@
-/**
- * Settings Manager - localStorage 기반 뷰어 설정 관리
- */
-
 const SETTINGS_KEY = 'bookViewerSettings';
 const CUSTOM_CSS_KEY = 'bookViewerCustomCss';
 
@@ -22,7 +18,7 @@ const DEFAULT_SETTINGS = {
  */
 export function loadSettings() {
   try {
-    const saved = localStorage.getItem(SETTINGS_KEY);
+    const saved = risuai.pluginStorage.getItem(SETTINGS_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
       return {
@@ -56,7 +52,7 @@ export function saveSettings(settings) {
   try {
     const current = loadSettings();
     const updated = { ...current, ...settings };
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(updated));
+    risuai.pluginStorage.setItem(SETTINGS_KEY, JSON.stringify(updated));
   } catch (error) {
     console.error('[SettingsManager] Failed to save settings:', error);
   }
@@ -84,7 +80,7 @@ export function applySettings(settings) {
  */
 export function loadCustomCss() {
   try {
-    return localStorage.getItem(CUSTOM_CSS_KEY) || '';
+    return risuai.pluginStorage.getItem(CUSTOM_CSS_KEY) || '';
   } catch (error) {
     console.error('[SettingsManager] Failed to load custom CSS:', error);
     return '';
@@ -98,9 +94,9 @@ export function loadCustomCss() {
 export function saveCustomCss(css) {
   try {
     if (css) {
-      localStorage.setItem(CUSTOM_CSS_KEY, css);
+      risuai.pluginStorage.setItem(CUSTOM_CSS_KEY, css);
     } else {
-      localStorage.removeItem(CUSTOM_CSS_KEY);
+      risuai.pluginStorage.removeItem(CUSTOM_CSS_KEY);
     }
   } catch (error) {
     console.error('[SettingsManager] Failed to save custom CSS:', error);
@@ -139,5 +135,5 @@ export function resetCustomCss() {
   if (existing) {
     existing.remove();
   }
-  localStorage.removeItem(CUSTOM_CSS_KEY);
+  risuai.pluginStorage.removeItem(CUSTOM_CSS_KEY);
 }

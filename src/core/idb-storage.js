@@ -34,6 +34,10 @@ export class IdbStorage {
     this.dbName = DB_NAME;
     this.storeName = STORE_NAME;
     this.version = DB_VERSION;
+    this._idb = null;
+    this._memoryCache = new Map();
+    this._dbChecked = false;
+    this._dbUnavailable = false;
   }
 
   /**
@@ -42,14 +46,27 @@ export class IdbStorage {
    * @returns {Promise<IDBDatabase>}
    */
   async _initDB() {
-    return openDB(this.dbName, this.version, {
-      upgrade(db) {
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          // Create object store without keyPath (use explicit keys)
-          db.createObjectStore(STORE_NAME);
-        }
-      },
-    });
+    if (this._dbUnavailable) return null;
+
+    if (!this._dbChecked) {
+      this._dbChecked = true;
+      try {
+        this._idb = await openDB(this.dbName, this.version, {
+          upgrade(db) {
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+              // Create object store without keyPath (use explicit keys)
+              db.createObjectStore(STORE_NAME);
+            }
+          },
+        });
+      } catch (error) {
+        this._dbUnavailable = true;
+        this._idb = null;
+        console.warn('[IndexedDB] Falling back to in-memory cache:', error);
+      }
+    }
+
+    return this._idb;
   }
 
   /**
@@ -64,6 +81,10 @@ export class IdbStorage {
    */
   async save(key, value) {
     const db = await this._initDB();
+    if (!db) {
+      this._memoryCache.set(key, value);
+      return;
+    }
     await db.put(this.storeName, value, key);
   }
 
@@ -80,6 +101,7 @@ export class IdbStorage {
    */
   async get(key) {
     const db = await this._initDB();
+    if (!db) return this._memoryCache.get(key);
     return await db.get(this.storeName, key);
   }
 
@@ -93,6 +115,10 @@ export class IdbStorage {
    */
   async delete(key) {
     const db = await this._initDB();
+    if (!db) {
+      this._memoryCache.delete(key);
+      return;
+    }
     await db.delete(this.storeName, key);
   }
 
@@ -106,6 +132,7 @@ export class IdbStorage {
    */
   async getAll() {
     const db = await this._initDB();
+    if (!db) return Array.from(this._memoryCache.values());
     return await db.getAll(this.storeName);
   }
 
@@ -119,6 +146,7 @@ export class IdbStorage {
    */
   async getAllKeys() {
     const db = await this._initDB();
+    if (!db) return Array.from(this._memoryCache.keys());
     return await db.getAllKeys(this.storeName);
   }
 
@@ -132,6 +160,10 @@ export class IdbStorage {
    */
   async clear() {
     const db = await this._initDB();
+    if (!db) {
+      this._memoryCache.clear();
+      return;
+    }
     await db.clear(this.storeName);
   }
 
@@ -161,6 +193,7 @@ export class IdbStorage {
    */
   async count() {
     const db = await this._initDB();
+    if (!db) return this._memoryCache.size;
     return await db.count(this.storeName);
   }
 }
