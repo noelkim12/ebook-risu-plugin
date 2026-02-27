@@ -1,4 +1,17 @@
-import './ui/styles'; // Style Registry
+const DEBUG_LOGS = [];
+
+function debugLog(...args) {
+  const msg = args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' ');
+  console.log(`[E-Book Viewer] ${msg}`);
+  DEBUG_LOGS.push(`[${new Date().toISOString()}] ${msg}`);
+  // 최근 50개만 유지
+  if (DEBUG_LOGS.length > 50) DEBUG_LOGS.shift();
+  // window에 노출해서 개발자 도구에서 확인 가능
+  globalThis.__ebookViewerLogs__ = DEBUG_LOGS;
+}
+
+debugLog('Plugin script loading...');
+
 import { mount, unmount } from 'svelte';
 
 import { PLUGIN_NAME, PLUGIN_VERSION } from './constants.js';
@@ -52,14 +65,24 @@ import { readChatMessages } from './core/chat-reader.js';
         location: 'action',
       },
       async () => {
+        debugLog('Button clicked!');
         risuai.showContainer('fullscreen');
         await mountApp();
+        debugLog('App mounted');
+
         // Read chat data and show viewer
         const messages = await readChatMessages();
+        debugLog('readChatMessages returned:', messages.length, 'messages');
+
         if (messages.length === 0) {
-          console.warn('[App] No chat messages found');
+          debugLog('No messages found, aborting');
           return;
         }
+
+        // Log first few messages for debugging
+        messages.slice(0, 3).forEach((m, i) => {
+          debugLog(`Message ${i}:`, 'role=', m.role, 'index=', m.index, 'html length=', m.html?.length || 0);
+        });
 
         const lastMessage = messages[messages.length - 1];
         const chatData = {
@@ -67,9 +90,13 @@ import { readChatMessages } from './core/chat-reader.js';
           chatMessages: messages,
           chatIndex: lastMessage.index ?? messages.length - 1,
         };
+        debugLog('chatData prepared:', 'chatHtml length=', chatData.chatHtml?.length || 0, 'chatIndex=', chatData.chatIndex);
 
         if (app && typeof app.showViewer === 'function') {
+          debugLog('Calling showViewer');
           app.showViewer(chatData);
+        } else {
+          debugLog('ERROR: app or showViewer not available', 'app=', !!app, 'showViewer=', typeof app?.showViewer);
         }
       },
     );
@@ -104,7 +131,8 @@ import { readChatMessages } from './core/chat-reader.js';
       risuAPI.onUnload(cleanup);
     }
 
-    console.log(`${PLUGIN_NAME} v${PLUGIN_VERSION} loaded`);
+    debugLog(`${PLUGIN_NAME} v${PLUGIN_VERSION} loaded successfully`);
+    debugLog('Access logs via: window.__ebookViewerLogs__');
   } catch (error) {
     console.error(`[${PLUGIN_NAME}] Initialization failed:`, error);
   }

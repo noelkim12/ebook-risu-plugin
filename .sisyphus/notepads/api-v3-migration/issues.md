@@ -65,3 +65,8 @@
 
 - `lsp_diagnostics` was flaky in this environment for multiple JS files (intermittent `LSP request timeout (method: initialize)`), so verification relied primarily on successful production build.
 - `npm run build` passes after changes; existing unrelated warning remains: `src/ui/components/viewer/ViewerToast.svelte` `a11y_no_noninteractive_tabindex`.
+
+## 2026-02-27 Task — Viewer open/close runtime bug fixes
+
+- No code blockers encountered for targeted fixes in `src/index.js` and `src/App.svelte`.
+- Verification note: `lsp_diagnostics` for JS files still intermittently times out (`initialize` timeout) in this environment; `src/App.svelte` error-level diagnostics are clean and production build succeeds.

@@ -141,3 +141,10 @@
 - Added `//@update-url https://raw.githubusercontent.com/noelkim4924/risu-ebooklike-viewer/main/dist/risu-ebooklike-viewer.js` to `vite.config.js` banner immediately after `//@api 3.0`.
 - Cleaned residual exports/import wiring tied to deleted updater UI (`src/ui/components/index.js`, `src/ui/styles/index.js`) and removed orphaned updater stylesheet file.
 - Verification: `grep -rn 'update-manager\|checkForUpdates\|UpdateDialog\|AlertDialog\|LoadingDialog\|dialogHelpers\|script-updater' src/` returns no matches; `npm run build` passes (existing unrelated Svelte a11y warning in `ViewerToast.svelte`).
+
+## 2026-02-27 Task — Viewer open/close runtime bug fixes
+
+- `src/index.js`: adapted `readChatMessages()` array output to viewer payload format expected by `App.svelte`/`PCBookViewer` (`chatHtml`, `chatMessages`, `chatIndex`) by selecting the latest message as the initial display target.
+- `src/index.js`: added empty-message guard with warning to avoid opening viewer with invalid payload.
+- `src/App.svelte`: `hideViewer()` now also calls `risuai.hideContainer()` so iframe container closes together with component unmount.
+- Verification: `npm run build` passes; runtime shape mismatch path and close-container path are now aligned with v3 flow.
